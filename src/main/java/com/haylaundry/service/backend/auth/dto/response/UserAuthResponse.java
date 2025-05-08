@@ -6,7 +6,7 @@ public class UserAuthResponse {
     private String userId;
     private String username;
     private String password;
-    private String role; // Tambahan: sesuai kolom role di tabel
+    private String role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

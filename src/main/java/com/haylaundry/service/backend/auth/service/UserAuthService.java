@@ -39,7 +39,7 @@ public class UserAuthService {
                 .orElseThrow(() -> new IllegalArgumentException("User tidak ditemukan setelah update"));
     }
 
-    // Metode untuk menghapus user
+
     public void delete(String userId) {
         int deletedRows = userAuthRepository.delete(userId);
         if (deletedRows == 0) {

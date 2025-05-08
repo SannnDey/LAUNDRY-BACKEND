@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class UserAuthRequest {
     private String username;
     private String password;
-    private String role; // Tambahan: sesuai kolom role di tabel
+    private String role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

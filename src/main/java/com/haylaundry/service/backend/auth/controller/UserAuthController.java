@@ -27,7 +27,6 @@ public class UserAuthController {
     @Path("/register")
     public Response register(UserAuthRequest request) {
         try {
-            // Validasi bahwa role hanya boleh admin atau karyawan
             if (!request.getRole().equalsIgnoreCase("admin") && !request.getRole().equalsIgnoreCase("karyawan")) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Role harus admin atau karyawan").build();
             }
@@ -44,10 +43,8 @@ public class UserAuthController {
     @Path("/login")
     public Response login(UserAuthRequest request) {
         try {
-            // Login hanya berdasarkan username & password
             var user = userAuthService.login(request.getUsername(), request.getPassword());
 
-            // Role diambil dari data user, bukan dari request
             String jwtToken = Jwt.issuer("user-service")
                     .upn(user.getUsername())
                     .groups(user.getRole().toLowerCase()) // ex: "admin" atau "karyawan"
@@ -63,13 +60,11 @@ public class UserAuthController {
     }
 
 
-    // Endpoint untuk update data pengguna
     @PUT
     @RolesAllowed("admin")
     @Path("/update/{userId}")
     public Response updateUser(@PathParam("userId") String userId, UserAuthRequest request) {
         try {
-            // Memanggil service untuk memperbarui data pengguna
             var updatedUser = userAuthService.update(userId, request);
             return Response.ok(updatedUser).build();
         } catch (IllegalArgumentException e) {
@@ -77,19 +72,16 @@ public class UserAuthController {
         }
     }
 
-    // Endpoint untuk menghapus data pengguna
+
     @DELETE
     @Path("/delete/{userId}")
     @RolesAllowed("admin")
     public Response deleteUser(@PathParam("userId") String userId) {
         try {
-            // Memanggil service untuk menghapus user
             userAuthService.delete(userId);
-            return Response.status(Response.Status.NO_CONTENT).build();  // Return 204 No Content if successfully deleted
+            return Response.status(Response.Status.NO_CONTENT).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
-
-
 }

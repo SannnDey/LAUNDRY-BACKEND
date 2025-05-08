@@ -50,34 +50,24 @@ public class UserAuthRepository extends JooqRepository {
                 .execute();
     }
 
-    // Metode untuk mendapatkan user berdasarkan email
-    public UserAuthResponse getUserByEmail(String email) {
-        return jooq.selectFrom(Tables.USER)
-                .where(Tables.USER.ROLE.eq(email))
-                .fetchOneInto(UserAuthResponse.class);
-    }
-
-    // Ambil user berdasarkan username dan role
-    public UserAuthResponse getUserByUsernameAndRole(String username, String role) {
-        return jooq.selectFrom(Tables.USER)
-                .where(Tables.USER.USERNAME.eq(username))
-                .and(Tables.USER.ROLE.eq(role))
-                .fetchOneInto(UserAuthResponse.class);
-    }
-
-    // Cek apakah user dengan username dan role sudah ada
     public boolean isUserExists(String username, String role) {
         return jooq.fetchExists(jooq.selectFrom(Tables.USER)
                 .where(Tables.USER.USERNAME.eq(username))
                 .and(Tables.USER.ROLE.eq(role)));
     }
 
+//    public UserAuthResponse getUserByEmail(String email) {
+//        return jooq.selectFrom(Tables.USER)
+//                .where(Tables.USER.ROLE.eq(email))
+//                .fetchOneInto(UserAuthResponse.class);
+//    }
+//
+//
+//    public UserAuthResponse getUserByUsernameAndRole(String username, String role) {
+//        return jooq.selectFrom(Tables.USER)
+//                .where(Tables.USER.USERNAME.eq(username))
+//                .and(Tables.USER.ROLE.eq(role))
+//                .fetchOneInto(UserAuthResponse.class);
+//    }
 
-    // Method untuk update password
-    public int updatePassword(String userId, String newPassword) {
-        return jooq.update(Tables.USER)
-                .set(Tables.USER.PASSWORD, newPassword)
-                .where(Tables.USER.USER_ID.eq(userId))
-                .execute();
-    }
 }
