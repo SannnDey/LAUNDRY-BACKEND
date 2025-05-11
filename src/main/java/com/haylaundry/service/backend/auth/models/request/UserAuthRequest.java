@@ -1,4 +1,4 @@
-package com.haylaundry.service.backend.auth.dto.request;
+package com.haylaundry.service.backend.auth.models.request;
 
 import java.time.LocalDateTime;
 

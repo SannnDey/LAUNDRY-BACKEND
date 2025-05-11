@@ -1,7 +1,7 @@
 package com.haylaundry.service.backend.auth.service;
 
-import com.haylaundry.service.backend.auth.dto.request.UserAuthRequest;
-import com.haylaundry.service.backend.auth.dto.response.UserAuthResponse;
+import com.haylaundry.service.backend.auth.models.request.UserAuthRequest;
+import com.haylaundry.service.backend.auth.models.response.UserAuthResponse;
 import com.haylaundry.service.backend.auth.repository.UserAuthRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 

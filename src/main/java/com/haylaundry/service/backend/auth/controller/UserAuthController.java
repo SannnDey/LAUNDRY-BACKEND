@@ -1,8 +1,8 @@
 package com.haylaundry.service.backend.auth.controller;
 
-import com.haylaundry.service.backend.auth.dto.response.LoginResponse;
-import com.haylaundry.service.backend.auth.dto.request.UserAuthRequest;
-import com.haylaundry.service.backend.auth.dto.response.UserInfoResponse;
+import com.haylaundry.service.backend.auth.models.response.LoginResponse;
+import com.haylaundry.service.backend.auth.models.request.UserAuthRequest;
+import com.haylaundry.service.backend.auth.models.response.UserInfoResponse;
 import com.haylaundry.service.backend.auth.service.UserAuthService;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.RolesAllowed;

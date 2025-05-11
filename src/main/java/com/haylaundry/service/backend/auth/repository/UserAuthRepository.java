@@ -1,7 +1,7 @@
 package com.haylaundry.service.backend.auth.repository;
 
-import com.haylaundry.service.backend.auth.dto.request.UserAuthRequest;
-import com.haylaundry.service.backend.auth.dto.response.UserAuthResponse;
+import com.haylaundry.service.backend.auth.models.request.UserAuthRequest;
+import com.haylaundry.service.backend.auth.models.response.UserAuthResponse;
 import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.github.f4b6a3.uuid.UuidCreator;

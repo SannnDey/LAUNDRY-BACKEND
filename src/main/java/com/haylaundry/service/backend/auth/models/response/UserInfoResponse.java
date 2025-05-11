@@ -1,4 +1,4 @@
-package com.haylaundry.service.backend.auth.dto.response;
+package com.haylaundry.service.backend.auth.models.response;
 
 public class UserInfoResponse {
     private String username;
