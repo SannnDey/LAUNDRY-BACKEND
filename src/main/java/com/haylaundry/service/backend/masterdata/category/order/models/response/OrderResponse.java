@@ -54,7 +54,11 @@ public class OrderResponse {
             this.deletedAt = deletedAt;
         }
 
-        // Getters and Setters
+    public OrderResponse(String idPesanan, String idCustomer, String noFaktur, PesananTipeCucian tipeCucian, PesananJenisCucian jenisCucian, String jenisBarang, Double qty, Double harga, PesananTipePembayaran tipePembayaran, PesananStatusBayar statusBayar, String string, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan, LocalDateTime deletedAt) {
+    }
+
+
+    // Getters and Setters
 
         public String getIdPesanan() {
             return idPesanan;

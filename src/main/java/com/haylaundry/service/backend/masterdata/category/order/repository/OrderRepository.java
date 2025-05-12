@@ -5,9 +5,11 @@ import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PesananRecord;
-import com.haylaundry.service.backend.masterdata.category.order.models.enums.*;
 import com.haylaundry.service.backend.masterdata.category.order.models.request.OrderRequest;
 import com.haylaundry.service.backend.masterdata.category.order.models.response.OrderResponse;
+import com.haylaundry.service.backend.masterdata.category.order.models.response.OrderStatusBayar;
+import com.haylaundry.service.backend.masterdata.category.order.models.response.OrderStatusResponse;
+import com.haylaundry.service.backend.utils.HargaCucian;
 import com.haylaundry.service.backend.utils.InvoiceGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -82,30 +84,35 @@ public class OrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Customer dengan ID " + request.getIdCustomer() + " tidak ditemukan.");
         }
 
-        // ✅ 2. Simpan data pesanan
+        // ✅ 2. Menghitung harga total menggunakan HargaCucian
+        PesananTipeCucian tipeCucian = PesananTipeCucian.lookupLiteral(request.getTipeCucian());
+        PesananJenisCucian jenisCucian = PesananJenisCucian.lookupLiteral(request.getJenisCucian());
+        double hargaTotal = HargaCucian.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty()); // Menggunakan HargaCucian untuk menghitung harga
+
+        // ✅ 3. Simpan data pesanan
         PesananRecord newOrder = jooq.newRecord(Tables.PESANAN);
         newOrder.setIdPesanan(orderId);
         newOrder.setIdCustomer(request.getIdCustomer());
         newOrder.setNoFaktur(InvoiceGenerator.generateNoFaktur());
-        newOrder.setTipeCucian(PesananTipeCucian.lookupLiteral(request.getTipeCucian()));
-        newOrder.setJenisCucian(PesananJenisCucian.lookupLiteral(request.getJenisCucian()));
+        newOrder.setTipeCucian(tipeCucian);
+        newOrder.setJenisCucian(jenisCucian);
         newOrder.setJenisBarang(request.getJenisBarang());
         newOrder.setQty(request.getQty());
-        newOrder.setHarga(request.getHarga());
+        newOrder.setHarga(hargaTotal); // Menetapkan harga total yang dihitung
         newOrder.setTipePembayaran(PesananTipePembayaran.lookupLiteral(request.getTipePembayaran()));
         newOrder.setStatusBayar(PesananStatusBayar.lookupLiteral(request.getStatusBayar()));
         newOrder.setStatusOrder(PesananStatusOrder.lookupLiteral(request.getStatusOrder()));
         newOrder.setTglMasuk(now);
-        newOrder.setTglSelesai(now);
+        newOrder.setTglSelesai(null);
         newOrder.setCatatan(request.getCatatan());
-        newOrder.setDeletedAt(now);
+        newOrder.setDeletedAt(null);
         newOrder.store(); // ✅ Simpan setelah customer valid
 
-        // ✅ 3. Ambil data dari customer (sudah tidak null)
+        // ✅ 4. Ambil data dari customer (sudah tidak null)
         String namaCustomer = customer.getNama();
         String noTelpCustomer = customer.getNoTelp();
 
-        // ✅ 4. Kembalikan response
+        // ✅ 5. Kembalikan response
         return new OrderResponse(
                 newOrder.getIdPesanan(),
                 newOrder.getIdCustomer(),
@@ -124,6 +131,68 @@ public class OrderRepository extends JooqRepository {
                 newOrder.getTglSelesai(),
                 newOrder.getCatatan(),
                 newOrder.getDeletedAt()
+        );
+    }
+
+
+    public OrderStatusResponse updateStatus(String idPesanan, String statusOrder) {
+        // Ambil pesanan berdasarkan ID
+        PesananRecord orderToUpdate = jooq.selectFrom(Tables.PESANAN)
+                .where(Tables.PESANAN.ID_PESANAN.eq(idPesanan))
+                .fetchOne();
+
+        if (orderToUpdate == null) {
+            throw new IllegalArgumentException("Pesanan tidak ditemukan.");
+        }
+
+        // Update status pesanan
+        PesananStatusOrder status = PesananStatusOrder.valueOf(statusOrder);
+        orderToUpdate.setStatusOrder(status);
+
+        // Jika status pesanan "Selesai", set tanggal selesai
+        if (PesananStatusOrder.Selesai.equals(status)) {
+            orderToUpdate.setTglSelesai(LocalDateTime.now());
+        }
+
+        // Simpan perubahan
+        orderToUpdate.store();
+
+        // Return ringkas dengan OrderStatusResponse
+        return new OrderStatusResponse(
+                orderToUpdate.getIdPesanan(),
+                orderToUpdate.getNoFaktur(),
+                orderToUpdate.getTipeCucian(),
+                orderToUpdate.getJenisCucian(),
+                orderToUpdate.getStatusBayar(),
+                orderToUpdate.getStatusOrder().toString(),
+                orderToUpdate.getTglSelesai()
+        );
+    }
+
+
+
+    public OrderStatusBayar updateBayarStatus(String idPesanan, String statusBayar) {
+        // Ambil pesanan berdasarkan ID
+        PesananRecord orderToUpdate = jooq.selectFrom(Tables.PESANAN)
+                .where(Tables.PESANAN.ID_PESANAN.eq(idPesanan))
+                .fetchOne();
+
+        if (orderToUpdate == null) {
+            throw new IllegalArgumentException("Pesanan tidak ditemukan.");
+        }
+
+        // Update status bayar pesanan
+        PesananStatusBayar status = PesananStatusBayar.valueOf(statusBayar);
+        orderToUpdate.setStatusBayar(status);
+
+        // Simpan perubahan
+        orderToUpdate.store();
+
+        // Return ringkas dengan OrderStatusResponse
+        return new OrderStatusBayar(
+                orderToUpdate.getIdPesanan(),
+                orderToUpdate.getNoFaktur(),
+                orderToUpdate.getStatusBayar()
         );
     }
 
