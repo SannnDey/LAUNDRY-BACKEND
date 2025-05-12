@@ -22,7 +22,7 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponseBody create(CustomerRequestBody body) {
-        return customerRepository.create(body); // langsung return dari repository
+        return customerRepository.create(body); // Langsung return dari repository
     }
 
     public CustomerResponseBody findByNoTelp(String noTelp) {
@@ -30,8 +30,7 @@ public class CustomerService {
                 .orElseThrow(() -> new IllegalArgumentException("Customer tidak ditemukan"));
     }
 
-    // Menambahkan metode createOrGet di sini
     public CustomerResponseBody createOrGet(CustomerRequestBody request) {
-        return customerRepository.createOrGet(request); // Tidak perlu perubahan
+        return customerRepository.createOrGet(request);
     }
 }

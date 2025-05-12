@@ -13,6 +13,7 @@ import org.jooq.DSLContext;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class CustomerRepository extends JooqRepository {
@@ -20,18 +21,41 @@ public class CustomerRepository extends JooqRepository {
     @Inject
     private DSLContext jooq;
 
+    // GET All Customers - customerId ditampilkan
+    // ✅ Ambil semua data customer
     public List<CustomerResponseBody> getAll() {
-        return jooq.selectFrom(Tables.CUSTOMER)
-                .fetchInto(CustomerResponseBody.class);
+        List<CustomerResponseBody> result = jooq.selectFrom(Tables.CUSTOMER)
+                .fetch()
+                .stream()
+                .map(record -> new CustomerResponseBody(
+                        record.get(Tables.CUSTOMER.ID_CUSTOMER),   // ini ambil dari kolom id_customer
+                        record.get(Tables.CUSTOMER.NAMA),
+                        record.get(Tables.CUSTOMER.NO_TELP),
+                        record.get(Tables.CUSTOMER.CREATED_AT),
+                        record.get(Tables.CUSTOMER.UPDATED_AT),
+                        record.get(Tables.CUSTOMER.DELETED_AT)
+                ))
+                .collect(Collectors.toList());
+        return result;
     }
-    // ✅ Cari customer berdasarkan no_telp
+
+    // GET Customer by noTelp - customerId ditampilkan
     public Optional<CustomerResponseBody> findByNoTelp(String noTelp) {
         return jooq.selectFrom(Tables.CUSTOMER)
                 .where(Tables.CUSTOMER.NO_TELP.eq(noTelp))
-                .fetchOptionalInto(CustomerResponseBody.class);
+                .fetchOptional()
+                .map(record -> new CustomerResponseBody(
+                        record.get(Tables.CUSTOMER.ID_CUSTOMER),
+                        record.get(Tables.CUSTOMER.NAMA),
+                        record.get(Tables.CUSTOMER.NO_TELP),
+                        record.get(Tables.CUSTOMER.CREATED_AT),
+                        record.get(Tables.CUSTOMER.UPDATED_AT),
+                        record.get(Tables.CUSTOMER.DELETED_AT)
+                ));
     }
 
-    // ✅ Buat customer baru
+
+    // POST Create Customer - customerId diset ke null pada response
     public CustomerResponseBody create(CustomerRequestBody request) {
         String customerId = UuidCreator.getTimeOrderedEpoch().toString();
         LocalDateTime now = LocalDateTime.now();
@@ -44,6 +68,7 @@ public class CustomerRepository extends JooqRepository {
         newCustomer.setUpdatedAt(now);
         newCustomer.store();
 
+        // Mengembalikan customer baru dengan customerId diset ke null
         return new CustomerResponseBody(
                 newCustomer.getIdCustomer(),
                 newCustomer.getNama(),
@@ -54,17 +79,9 @@ public class CustomerRepository extends JooqRepository {
         );
     }
 
-    // ✅ Fungsi gabungan: cek jika ada ambil, jika tidak buat
-    // ✅ Fungsi gabungan: cek jika ada ambil, jika tidak buat
+    // Fungsi gabungan createOrGet tetap dengan logika yang sama
     public CustomerResponseBody createOrGet(CustomerRequestBody request) {
-        Optional<CustomerResponseBody> existing = findByNoTelp(request.getNoTelp());
-        if (existing.isPresent()) {
-            // Jika customer sudah ada, kembalikan customer yang ada
-            return existing.get();
-        } else {
-            // Jika customer belum ada, buat customer baru
-            return create(request);
-        }
+        return findByNoTelp(request.getNoTelp())
+                .orElseGet(() -> create(request));
     }
-
 }
