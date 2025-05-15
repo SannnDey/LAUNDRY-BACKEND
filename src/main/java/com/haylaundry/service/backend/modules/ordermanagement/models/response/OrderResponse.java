@@ -2,7 +2,6 @@ package com.haylaundry.service.backend.modules.ordermanagement.models.response;
 
 
 import com.haylaundry.service.backend.jooq.gen.enums.*;
-import com.haylaundry.service.backend.masterdata.category.order.models.enums.*;
 
 import java.time.LocalDateTime;
 
