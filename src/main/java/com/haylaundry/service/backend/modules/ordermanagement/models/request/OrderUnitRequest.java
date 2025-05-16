@@ -1,14 +1,11 @@
 package com.haylaundry.service.backend.modules.ordermanagement.models.request;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-public class OrderRequest {
+public class OrderUnitRequest {
     private String idCustomer;
     private String noFaktur;
-    private String tipeCucian;
-    private String jenisCucian;
-    private Double qty;
-    private Double harga;
     private String tipePembayaran;
     private String statusBayar;
     private String statusOrder;
@@ -16,6 +13,9 @@ public class OrderRequest {
     private LocalDateTime tglSelesai;
     private String catatan;
     private LocalDateTime deletedAt;
+    private Double totalHarga;
+    private List<DetailOrderUnitRequest> details;
+
 
     public String getIdCustomer() {
         return idCustomer;
@@ -31,38 +31,6 @@ public class OrderRequest {
 
     public void setNoFaktur(String noFaktur) {
         this.noFaktur = noFaktur;
-    }
-
-    public String getTipeCucian() {
-        return tipeCucian;
-    }
-
-    public void setTipeCucian(String tipeCucian) {
-        this.tipeCucian = tipeCucian;
-    }
-
-    public String getJenisCucian() {
-        return jenisCucian;
-    }
-
-    public void setJenisCucian(String jenisCucian) {
-        this.jenisCucian = jenisCucian;
-    }
-
-    public Double getQty() {
-        return qty;
-    }
-
-    public void setQty(Double qty) {
-        this.qty = qty;
-    }
-
-    public Double getHarga() {
-        return harga;
-    }
-
-    public void setHarga(Double harga) {
-        this.harga = harga;
     }
 
     public String getTipePembayaran() {
@@ -121,5 +89,20 @@ public class OrderRequest {
         this.deletedAt = deletedAt;
     }
 
+    public Double getTotalHarga() {
+        return totalHarga;
+    }
+
+    public void setTotalHarga(Double totalHarga) {
+        this.totalHarga = totalHarga;
+    }
+
+    public List<DetailOrderUnitRequest> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<DetailOrderUnitRequest> details) {
+        this.details = details;
+    }
 
 }

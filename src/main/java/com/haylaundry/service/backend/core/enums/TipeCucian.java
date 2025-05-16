@@ -7,8 +7,7 @@ public enum TipeCucian {
     SUPER_EXPRESS_3_JAM_KOMPLIT("Super Express 3 Jam Komplit"),
     EXPRESS_1_HARI("Express 1 Hari"),
     STANDAR_2_HARI("Standar 2 Hari"),
-    REGULER_3_HARI("Reguler 3 Hari"),
-    LAUNDRY_SATUAN("Laundry Satuan");
+    REGULER_3_HARI("Reguler 3 Hari");
 
     private final String value;
 

@@ -15,8 +15,6 @@ public class EnumConverter {
                 return TipeCucian.STANDAR_2_HARI;
             case Reguler_3_Hari:
                 return TipeCucian.REGULER_3_HARI;
-            case Laundry_Satuan:
-                return TipeCucian.LAUNDRY_SATUAN;
             default:
                 throw new IllegalArgumentException("Unknown TipeCucian: " + pesananTipeCucian);
         }
@@ -33,8 +31,6 @@ public class EnumConverter {
                 return PesananTipeCucian.Standar_2_Hari;
             case REGULER_3_HARI:
                 return PesananTipeCucian.Reguler_3_Hari;
-            case LAUNDRY_SATUAN:
-                return PesananTipeCucian.Laundry_Satuan;
             default:
                 throw new IllegalArgumentException("Unknown TipeCucian: " + tipeCucian);
         }

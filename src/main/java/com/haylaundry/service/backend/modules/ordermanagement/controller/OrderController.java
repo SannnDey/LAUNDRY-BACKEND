@@ -9,7 +9,7 @@ import com.haylaundry.service.backend.modules.ordermanagement.models.response.Or
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusBayar;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.service.OrderService;
-import com.haylaundry.service.backend.core.utils.HargaCucian;
+import com.haylaundry.service.backend.core.utils.HargaCucianKiloan;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -61,7 +61,7 @@ public class OrderController {
             PesananTipeCucian tipe = PesananTipeCucian.lookupLiteral(request.getTipeCucian());
             PesananJenisCucian jenis = PesananJenisCucian.lookupLiteral(request.getJenisCucian());
 
-            double total = HargaCucian.hitungHargaTotal(tipe, jenis, request.getQty());
+            double total = HargaCucianKiloan.hitungHargaTotal(tipe, jenis, request.getQty());
             return Response.ok(new HargaResponseBody(total)).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

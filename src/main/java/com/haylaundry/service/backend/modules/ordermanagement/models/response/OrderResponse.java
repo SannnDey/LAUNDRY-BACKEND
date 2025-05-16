@@ -13,7 +13,6 @@ public class OrderResponse {
         private String customerPhone;
         private String tipeCucian;
         private String jenisCucian;
-        private String jenisBarang;
         private Double qty;
         private Double harga;
         private String tipePembayaran;
@@ -30,7 +29,7 @@ public class OrderResponse {
 
         // Full-args constructor
         public OrderResponse(String idPesanan, String idCustomer,String noFaktur, String customerName, String customerPhone, String tipeCucian,
-                             String jenisCucian, String jenisBarang, Double qty, Double harga,
+                             String jenisCucian, Double qty, Double harga,
                              String tipePembayaran, String statusBayar, String statusOrder,
                              LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan, LocalDateTime deletedAt) {
             this.idPesanan = idPesanan;
@@ -40,7 +39,6 @@ public class OrderResponse {
             this.customerPhone = customerPhone;
             this.tipeCucian = tipeCucian;
             this.jenisCucian = jenisCucian;
-            this.jenisBarang = jenisBarang;
             this.qty = qty;
             this.harga = harga;
             this.tipePembayaran = tipePembayaran;
@@ -113,14 +111,6 @@ public class OrderResponse {
 
         public void setJenisCucian(String jenisCucian) {
             this.jenisCucian = jenisCucian;
-        }
-
-        public String getJenisBarang() {
-            return jenisBarang;
-        }
-
-        public void setJenisBarang(String jenisBarang) {
-            this.jenisBarang = jenisBarang;
         }
 
         public Double getQty() {

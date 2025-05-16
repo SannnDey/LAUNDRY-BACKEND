@@ -9,7 +9,7 @@ import com.haylaundry.service.backend.modules.ordermanagement.models.request.Ord
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusBayar;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusResponse;
-import com.haylaundry.service.backend.core.utils.HargaCucian;
+import com.haylaundry.service.backend.core.utils.HargaCucianKiloan;
 import com.haylaundry.service.backend.core.utils.InvoiceGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -34,7 +34,6 @@ public class OrderRepository extends JooqRepository {
                         Tables.CUSTOMER.NO_TELP,
                         Tables.PESANAN.TIPE_CUCIAN,
                         Tables.PESANAN.JENIS_CUCIAN,
-                        Tables.PESANAN.JENIS_BARANG,
                         Tables.PESANAN.QTY,
                         Tables.PESANAN.HARGA,
                         Tables.PESANAN.TIPE_PEMBAYARAN,
@@ -57,7 +56,6 @@ public class OrderRepository extends JooqRepository {
                         record.get(Tables.CUSTOMER.NO_TELP),
                         String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
                         String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
-                        record.get(Tables.PESANAN.JENIS_BARANG),
                         record.get(Tables.PESANAN.QTY),
                         record.get(Tables.PESANAN.HARGA),
                         String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
@@ -87,7 +85,7 @@ public class OrderRepository extends JooqRepository {
         // ✅ 2. Menghitung harga total menggunakan HargaCucian
         PesananTipeCucian tipeCucian = PesananTipeCucian.lookupLiteral(request.getTipeCucian());
         PesananJenisCucian jenisCucian = PesananJenisCucian.lookupLiteral(request.getJenisCucian());
-        double hargaTotal = HargaCucian.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty()); // Menggunakan HargaCucian untuk menghitung harga
+        double hargaTotal = HargaCucianKiloan.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty()); // Menggunakan HargaCucian untuk menghitung harga
 
         // ✅ 3. Simpan data pesanan
         PesananRecord newOrder = jooq.newRecord(Tables.PESANAN);
@@ -96,7 +94,6 @@ public class OrderRepository extends JooqRepository {
         newOrder.setNoFaktur(InvoiceGenerator.generateNoFaktur());
         newOrder.setTipeCucian(tipeCucian);
         newOrder.setJenisCucian(jenisCucian);
-        newOrder.setJenisBarang(request.getJenisBarang());
         newOrder.setQty(request.getQty());
         newOrder.setHarga(hargaTotal); // Menetapkan harga total yang dihitung
         newOrder.setTipePembayaran(PesananTipePembayaran.lookupLiteral(request.getTipePembayaran()));
@@ -121,7 +118,6 @@ public class OrderRepository extends JooqRepository {
                 noTelpCustomer,
                 String.valueOf(newOrder.getTipeCucian()),
                 String.valueOf(newOrder.getJenisCucian()),
-                newOrder.getJenisBarang(),
                 newOrder.getQty(),
                 newOrder.getHarga(),
                 String.valueOf(newOrder.getTipePembayaran()),

@@ -3,7 +3,7 @@ package com.haylaundry.service.backend.core.utils;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
 
-public class HargaCucian {
+public class HargaCucianKiloan {
     // Method untuk mendapatkan harga per kg berdasarkan tipe dan jenis cucian
     public static double getHargaPerKg(PesananTipeCucian tipeCucian, PesananJenisCucian jenisCucian) {
         // Menentukan harga berdasarkan tipe cucian dan jenis cucian
