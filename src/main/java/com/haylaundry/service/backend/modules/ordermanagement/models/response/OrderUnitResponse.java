@@ -1,32 +1,27 @@
 package com.haylaundry.service.backend.modules.ordermanagement.models.response;
 
-import java.util.List;
-
 public class OrderUnitResponse {
     private String idPesananSatuan;
     private String idDetail;
-    private List<DetailOrderUnitResponse> details;
     private String kategoriBarang;
     private String ukuran;
     private String jenisLayanan;
     private Double harga;
     private Integer qty;
 
-    public OrderUnitResponse(){
-
+    public OrderUnitResponse() {
     }
 
-    public OrderUnitResponse(String idPesananSatuan, String idDetail, List<DetailOrderUnitResponse> details, String kategoriBarang, String ukuran, String jenisLayanan, Double harga, Integer qty) {
+    public OrderUnitResponse(String idPesananSatuan, String idDetail, String kategoriBarang, String ukuran,
+                             String jenisLayanan, Double harga, Integer qty) {
         this.idPesananSatuan = idPesananSatuan;
         this.idDetail = idDetail;
-        this.details = details;
         this.kategoriBarang = kategoriBarang;
         this.ukuran = ukuran;
         this.jenisLayanan = jenisLayanan;
         this.harga = harga;
         this.qty = qty;
     }
-
 
     public String getIdPesananSatuan() {
         return idPesananSatuan;
@@ -42,14 +37,6 @@ public class OrderUnitResponse {
 
     public void setIdDetail(String idDetail) {
         this.idDetail = idDetail;
-    }
-
-    public List<DetailOrderUnitResponse> getDetails() {
-        return details;
-    }
-
-    public void setDetails(List<DetailOrderUnitResponse> details) {
-        this.details = details;
     }
 
     public String getKategoriBarang() {
@@ -75,6 +62,7 @@ public class OrderUnitResponse {
     public void setJenisLayanan(String jenisLayanan) {
         this.jenisLayanan = jenisLayanan;
     }
+
     public Double getHarga() {
         return harga;
     }

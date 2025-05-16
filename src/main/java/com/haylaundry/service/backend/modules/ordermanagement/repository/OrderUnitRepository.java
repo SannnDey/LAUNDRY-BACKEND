@@ -78,13 +78,14 @@ public class OrderUnitRepository extends JooqRepository {
                             })
                             .collect(Collectors.toList());
 
-                    // Menyisipkan detail list ke masing-masing OrderUnitResponse
-                    detailItems.forEach(item -> item.setDetails(Collections.singletonList(detailResponse)));
+                    // Tambahkan items ke detail response
+                    detailResponse.setItems(detailItems);
 
                     return detailResponse;
                 })
                 .collect(Collectors.toList());
     }
+
 
 
 
@@ -155,133 +156,123 @@ public class OrderUnitRepository extends JooqRepository {
 
 
 
-    public OrderUnitResponse createOrderUnit(OrderUnitRequest request) {
-        // Step 1: Generate ID dan timestamp
-        String orderUnitId = UuidCreator.getTimeOrderedEpoch().toString();
+    public DetailOrderUnitResponse createOrderUnit(DetailOrderUnitRequest request) {
         LocalDateTime now = LocalDateTime.now();
 
-        // Step 2: Validasi input - cek detail pesanan tidak kosong
-        if (request.getDetails() == null || request.getDetails().isEmpty()) {
-            throw new IllegalArgumentException("Detail pesanan tidak boleh kosong");
-        }
-
-        // Step 3: Ambil idCustomer dari detail pertama
-        String idCustomer = request.getDetails().get(0).getIdCustomer();
-
-        // Step 4: Cek apakah customer ada di database
+        // Validasi customer ada
         var customer = jooq.selectFrom(Tables.CUSTOMER)
-                .where(Tables.CUSTOMER.ID_CUSTOMER.eq(idCustomer))
+                .where(Tables.CUSTOMER.ID_CUSTOMER.eq(request.getIdCustomer()))
                 .fetchOne();
+
         if (customer == null) {
-            throw new IllegalArgumentException("Customer dengan ID " + idCustomer + " tidak ditemukan.");
+            throw new IllegalArgumentException("Customer dengan ID " + request.getIdCustomer() + " tidak ditemukan.");
         }
 
-        // Step 5: Validasi enum kategori, ukuran, dan jenis layanan
-        var kategori = EnumValidator.validateEnum(
-                PesananSatuanKategoriBarang.class,
-                request.getKategoriBarang(),
-                "Kategori Barang"
+        // Generate ID dan nomor faktur untuk detail pesanan
+        String detailId = UuidCreator.getTimeOrderedEpoch().toString();
+        String noFaktur = InvoiceGenerator.generateNoFaktur();
+
+        // Validasi enum tipe pembayaran, status bayar, dan status order di detail
+        var tipePembayaran = EnumValidator.validateEnum(
+                DetailPesananSatuanTipePembayaran.class,
+                request.getTipePembayaran(),
+                "Tipe Pembayaran"
         );
-        var ukuran = EnumValidator.validateEnum(
-                PesananSatuanUkuran.class,
-                request.getUkuran(),
-                "Ukuran"
+        var statusBayar = EnumValidator.validateEnum(
+                DetailPesananSatuanStatusBayar.class,
+                request.getStatusBayar(),
+                "Status Bayar"
         );
-        var jenisLayanan = EnumValidator.validateEnum(
-                PesananSatuanJenisLayanan.class,
-                request.getJenisLayanan(),
-                "Jenis Layanan"
+        var statusOrder = EnumValidator.validateEnum(
+                DetailPesananSatuanStatusOrder.class,
+                request.getStatusOrder(),
+                "Status Order"
         );
 
-        // **Hitung harga otomatis menggunakan kelas HargaCucianSatuan**
-        double hargaHitung = HargaCucianSatuan.hitungHarga(kategori, ukuran, jenisLayanan);
+        // Simpan DetailPesananSatuan ke DB
+        DetailPesananSatuanRecord detailRecord = jooq.newRecord(Tables.DETAIL_PESANAN_SATUAN);
+        detailRecord.setIdDetail(detailId);
+        detailRecord.setIdCustomer(request.getIdCustomer());
+        detailRecord.setNoFaktur(noFaktur);
+        detailRecord.setTipePembayaran(tipePembayaran);
+        detailRecord.setStatusBayar(statusBayar);
+        detailRecord.setStatusOrder(statusOrder);
+        detailRecord.setTglMasuk(request.getTglMasuk() != null ? request.getTglMasuk() : now);
+        detailRecord.setTglSelesai(request.getTglSelesai());
+        detailRecord.setCatatan(request.getCatatan());
+        detailRecord.setDeletedAt(request.getDeletedAt());
+        detailRecord.store();
 
-        // Step 6: Persiapkan list untuk menampung response detail dan variabel untuk FK di pesanan_satuan
-        List<DetailOrderUnitResponse> detailResponses = new ArrayList<>();
-        String detailIdForOrderUnit = null;
+        // List untuk menampung response OrderUnitResponse
+        List<OrderUnitResponse> orderUnitResponses = new ArrayList<>();
 
-        // Step 7: Simpan setiap detail pesanan satuan ke database
-        for (DetailOrderUnitRequest detailReq : request.getDetails()) {
-            // Generate ID untuk detail dan nomor faktur
-            String detailId = UuidCreator.getTimeOrderedEpoch().toString();
-            String noFaktur = InvoiceGenerator.generateNoFaktur();
-
-            // Validasi enum tipe pembayaran, status bayar, dan status order pada detail
-            var tipePembayaran = EnumValidator.validateEnum(
-                    DetailPesananSatuanTipePembayaran.class,
-                    detailReq.getTipePembayaran(),
-                    "Tipe Pembayaran"
-            );
-            var statusBayar = EnumValidator.validateEnum(
-                    DetailPesananSatuanStatusBayar.class,
-                    detailReq.getStatusBayar(),
-                    "Status Bayar"
-            );
-            var statusOrder = EnumValidator.validateEnum(
-                    DetailPesananSatuanStatusOrder.class,
-                    detailReq.getStatusOrder(),
-                    "Status Order"
-            );
-
-            // Buat record baru detail pesanan satuan
-            DetailPesananSatuanRecord detailRecord = jooq.newRecord(Tables.DETAIL_PESANAN_SATUAN);
-            detailRecord.setIdDetail(detailId);
-            detailRecord.setIdCustomer(detailReq.getIdCustomer());
-            detailRecord.setNoFaktur(noFaktur);
-            detailRecord.setTipePembayaran(tipePembayaran);
-            detailRecord.setStatusBayar(statusBayar);
-            detailRecord.setStatusOrder(statusOrder);
-            detailRecord.setTglMasuk(now);
-            detailRecord.setTglSelesai(null);
-            detailRecord.setCatatan(detailReq.getCatatan());
-            detailRecord.setDeletedAt(null);
-            detailRecord.store();
-
-            // Set FK detail pertama ke order unit
-            if (detailIdForOrderUnit == null) {
-                detailIdForOrderUnit = detailId;
+        // Iterasi setiap item OrderUnitRequest dalam DetailOrderUnitRequest.items
+        for (OrderUnitRequest item : request.getItems()) {
+        // Validasi qty minimal 1
+            if (item.getQty() < 1) {
+                throw new IllegalArgumentException("Quantity untuk item kategori " + item.getKategoriBarang() + " minimal 1.");
             }
+            // Validasi enum kategori, ukuran, dan jenis layanan di setiap item
+            var kategori = EnumValidator.validateEnum(
+                    PesananSatuanKategoriBarang.class,
+                    item.getKategoriBarang(),
+                    "Kategori Barang"
+            );
+            var ukuran = EnumValidator.validateEnum(
+                    PesananSatuanUkuran.class,
+                    item.getUkuran(),
+                    "Ukuran"
+            );
+            var jenisLayanan = EnumValidator.validateEnum(
+                    PesananSatuanJenisLayanan.class,
+                    item.getJenisLayanan(),
+                    "Jenis Layanan"
+            );
 
-            // Tambahkan response detail ke list
-            detailResponses.add(new DetailOrderUnitResponse(
+            // Hitung harga otomatis
+            double hargaHitung = HargaCucianSatuan.hitungHarga(kategori, ukuran, jenisLayanan);
+
+            // Simpan PesananSatuan record untuk tiap item
+            PesananSatuanRecord orderUnitRecord = jooq.newRecord(Tables.PESANAN_SATUAN);
+            orderUnitRecord.setIdPesananSatuan(UuidCreator.getTimeOrderedEpoch().toString());
+            orderUnitRecord.setIdDetail(detailId); // FK ke detail pesanan
+            orderUnitRecord.setKategoriBarang(kategori);
+            orderUnitRecord.setUkuran(ukuran);
+            orderUnitRecord.setJenisLayanan(jenisLayanan);
+            orderUnitRecord.setHarga(hargaHitung * item.getQty());
+            orderUnitRecord.setQty(item.getQty());
+            orderUnitRecord.store();
+
+            // Tambahkan ke response list
+            orderUnitResponses.add(new OrderUnitResponse(
+                    orderUnitRecord.getIdPesananSatuan(),
                     detailId,
-                    detailReq.getIdCustomer(),
-                    noFaktur,
-                    customer.getNama(),
-                    customer.getNoTelp(),
-                    detailReq.getTipePembayaran(),
-                    detailReq.getStatusBayar(),
-                    detailReq.getStatusOrder(),
-                    detailRecord.getTglMasuk(),
-                    detailRecord.getTglSelesai(),
-                    detailRecord.getCatatan(),
-                    detailRecord.getDeletedAt()
+                    kategori.getLiteral(),
+                    ukuran.getLiteral(),
+                    jenisLayanan.getLiteral(),
+                    orderUnitRecord.getHarga(),
+                    orderUnitRecord.getQty()
             ));
         }
 
-        // Step 8: Simpan data pesanan satuan (order unit) dengan FK ke detail pesanan
-        PesananSatuanRecord orderUnitRecord = jooq.newRecord(Tables.PESANAN_SATUAN);
-        orderUnitRecord.setIdPesananSatuan(orderUnitId);
-        orderUnitRecord.setIdDetail(detailIdForOrderUnit);
-        orderUnitRecord.setKategoriBarang(kategori);
-        orderUnitRecord.setUkuran(ukuran);
-        orderUnitRecord.setJenisLayanan(jenisLayanan);
-        orderUnitRecord.setHarga(hargaHitung * request.getQty()); // Harga sudah dihitung otomatis
-        orderUnitRecord.setQty(request.getQty());
-        orderUnitRecord.store();
-
-        // Step 9: Bangun dan kembalikan response lengkap
-        return new OrderUnitResponse(
-                orderUnitRecord.getIdPesananSatuan(),
-                orderUnitRecord.getIdDetail(),
-                detailResponses,
-                orderUnitRecord.getKategoriBarang().getLiteral(),
-                orderUnitRecord.getUkuran().getLiteral(),
-                orderUnitRecord.getJenisLayanan().getLiteral(),
-                orderUnitRecord.getHarga(),
-                orderUnitRecord.getQty()
+        // Build dan return response DetailOrderUnitResponse dengan list items
+        return new DetailOrderUnitResponse(
+                detailId,
+                request.getIdCustomer(),
+                noFaktur,
+                customer.getNama(),
+                customer.getNoTelp(),
+                request.getTipePembayaran(),
+                request.getStatusBayar(),
+                request.getStatusOrder(),
+                detailRecord.getTglMasuk(),
+                detailRecord.getTglSelesai(),
+                detailRecord.getCatatan(),
+                detailRecord.getDeletedAt(),
+                orderUnitResponses
         );
     }
+
 
 
 }

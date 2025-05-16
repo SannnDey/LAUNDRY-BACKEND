@@ -1,6 +1,7 @@
 package com.haylaundry.service.backend.modules.ordermanagement.controller;
 
 import com.haylaundry.service.backend.core.exception.ErrorResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.DetailOrderUnitRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.OrderUnitRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.DetailOrderUnitResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderUnitResponse;
@@ -25,9 +26,9 @@ public class OrderUnitController {
     }
 
     @POST
-    public Response createOrderUnit(OrderUnitRequest request) {
+    public Response createOrderUnit(DetailOrderUnitRequest request) {
         try {
-            OrderUnitResponse createdOrder = orderUnitService.createOrderUnit(request);
+            DetailOrderUnitResponse createdOrder = orderUnitService.createOrderUnit(request);
             return Response.status(Response.Status.CREATED).entity(createdOrder).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -39,4 +40,5 @@ public class OrderUnitController {
                     .build();
         }
     }
+
 }

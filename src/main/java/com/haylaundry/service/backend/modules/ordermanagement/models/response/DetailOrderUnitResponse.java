@@ -17,12 +17,15 @@ public class DetailOrderUnitResponse {
     private String catatan;
     private LocalDateTime deletedAt;
 
+    // ✅ Tambahan: list item pesanan
+    private List<OrderUnitResponse> items;
 
     public DetailOrderUnitResponse() {
-
     }
 
-    public DetailOrderUnitResponse(String idDetail, String idCustomer, String noFaktur, String namaCustomer, String customerPhone, String tipePembayaran, String statusBayar, String statusOrder, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan, LocalDateTime deletedAt) {
+    public DetailOrderUnitResponse(String idDetail, String idCustomer, String noFaktur, String namaCustomer, String customerPhone, String tipePembayaran,
+                                   String statusBayar, String statusOrder, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan,
+                                   LocalDateTime deletedAt, List<OrderUnitResponse> items) {
         this.idDetail = idDetail;
         this.idCustomer = idCustomer;
         this.noFaktur = noFaktur;
@@ -35,9 +38,8 @@ public class DetailOrderUnitResponse {
         this.tglSelesai = tglSelesai;
         this.catatan = catatan;
         this.deletedAt = deletedAt;
+        this.items = items;
     }
-
-
 
     public String getIdDetail() {
         return idDetail;
@@ -133,5 +135,13 @@ public class DetailOrderUnitResponse {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public List<OrderUnitResponse> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderUnitResponse> items) {
+        this.items = items;
     }
 }

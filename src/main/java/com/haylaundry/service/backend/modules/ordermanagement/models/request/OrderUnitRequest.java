@@ -4,7 +4,6 @@ import java.util.List;
 
 public class OrderUnitRequest {
     private String idDetail;
-    private List<DetailOrderUnitRequest> details;
     private String kategoriBarang;
     private String ukuran;
     private String jenisLayanan;
@@ -19,14 +18,6 @@ public class OrderUnitRequest {
 
     public void setIdDetail(String idDetail) {
         this.idDetail = idDetail;
-    }
-
-    public List<DetailOrderUnitRequest> getDetails() {
-        return details;
-    }
-
-    public void setDetails(List<DetailOrderUnitRequest> details) {
-        this.details = details;
     }
 
     public String getKategoriBarang() {

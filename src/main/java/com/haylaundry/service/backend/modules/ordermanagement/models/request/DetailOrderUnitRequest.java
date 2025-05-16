@@ -13,6 +13,7 @@ public class DetailOrderUnitRequest {
     private LocalDateTime tglSelesai;
     private String catatan;
     private LocalDateTime deletedAt;
+    private List<OrderUnitRequest> items;
 
 
     public String getIdCustomer() {
@@ -85,5 +86,13 @@ public class DetailOrderUnitRequest {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public List<OrderUnitRequest> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderUnitRequest> items) {
+        this.items = items;
     }
 }

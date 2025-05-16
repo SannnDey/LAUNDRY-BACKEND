@@ -1,5 +1,6 @@
 package com.haylaundry.service.backend.modules.ordermanagement.service;
 
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.DetailOrderUnitRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.OrderUnitRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.DetailOrderUnitResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderUnitResponse;
@@ -20,10 +21,10 @@ public class OrderUnitService {
     }
 
     // Membuat order unit baru
-    public OrderUnitResponse createOrderUnit(OrderUnitRequest request) {
-        // Bisa ditambahkan validasi tambahan di sini jika perlu
-
+    public DetailOrderUnitResponse createOrderUnit(DetailOrderUnitRequest request) {
+        // Bisa tambahkan validasi lain seperti validasi customer, dsb, atau langsung lempar ke repository
         return orderUnitRepository.createOrderUnit(request);
     }
+
 
 }
