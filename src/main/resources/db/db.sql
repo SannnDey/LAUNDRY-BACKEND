@@ -31,3 +31,39 @@ CREATE TABLE pesanan (
                                  ON UPDATE CASCADE
                                  ON DELETE cascade
 );
+
+
+CREATE TABLE detail_pesanan_satuan (
+                                       id_detail VARCHAR(36) PRIMARY KEY,
+                                       id_customer VARCHAR(36) NOT NULL,
+                                       no_faktur VARCHAR(9) NOT NULL,
+                                       tipe_pembayaran ENUM('Cash', 'QRIS') NOT NULL,
+                                       status_bayar ENUM('Belum Lunas', 'Lunas') NOT NULL,
+                                       status_order ENUM('Pickup', 'Cuci', 'Selesai') NOT NULL,
+                                       tgl_masuk TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                       tgl_selesai TIMESTAMP NULL,
+                                       catatan VARCHAR(255) NULL,
+                                       deleted_at TIMESTAMP NULL,
+
+                                       CONSTRAINT fk_customer_satuan
+                                           FOREIGN KEY (id_customer)
+                                               REFERENCES customer(id_customer)
+                                               ON UPDATE CASCADE
+                                               ON DELETE CASCADE
+);
+
+
+CREATE TABLE pesanan_satuan (
+                                id_pesanan_satuan VARCHAR(36) PRIMARY KEY,
+                                id_detail VARCHAR(36) NOT NULL,
+                                kategori_barang ENUM('Bed Cover', 'Boneka', 'Bantal/Guling') NOT NULL,
+                                ukuran ENUM('Kecil', 'Sedang', 'Besar') NOT NULL,
+                                jenis_layanan ENUM('Standar 3 Hari', 'Express 1 Hari') NOT NULL,
+                                harga DOUBLE NOT NULL,
+                                qty DOUBLE NOT NULL,
+
+                                FOREIGN KEY (id_detail)
+                                    REFERENCES detail_pesanan_satuan(id_detail)
+                                    ON UPDATE CASCADE
+                                    ON DELETE CASCADE
+);

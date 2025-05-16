@@ -1,43 +1,30 @@
 package com.haylaundry.service.backend.modules.ordermanagement.models.response;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderUnitResponse {
     private String idPesananSatuan;
-    private String idCustomer;
-    private String noFaktur;
-    private String namaCustomer;
-    private String customerPhone;
-    private String tipePembayaran;
-    private String statusBayar;
-    private String statusOrder;
-    private LocalDateTime tglMasuk;
-    private LocalDateTime tglSelesai;
-    private String catatan;
-    private LocalDateTime deletedAt;
+    private String idDetail;
     private List<DetailOrderUnitResponse> details;
-    private Double totalHarga;
+    private String kategoriBarang;
+    private String ukuran;
+    private String jenisLayanan;
+    private Double harga;
+    private Integer qty;
 
-
-    public OrderUnitResponse () {
+    public OrderUnitResponse(){
 
     }
 
-    public OrderUnitResponse(String idPesananSatuan, String idCustomer, String noFaktur, String namaCustomer, String customerPhone, String tipePembayaran, String statusBayar, String statusOrder, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan, LocalDateTime deletedAt, Double totalHarga) {
+    public OrderUnitResponse(String idPesananSatuan, String idDetail, List<DetailOrderUnitResponse> details, String kategoriBarang, String ukuran, String jenisLayanan, Double harga, Integer qty) {
         this.idPesananSatuan = idPesananSatuan;
-        this.idCustomer = idCustomer;
-        this.noFaktur = noFaktur;
-        this.namaCustomer = namaCustomer;
-        this.customerPhone = customerPhone;
-        this.tipePembayaran = tipePembayaran;
-        this.statusBayar = statusBayar;
-        this.statusOrder = statusOrder;
-        this.tglMasuk = tglMasuk;
-        this.tglSelesai = tglSelesai;
-        this.catatan = catatan;
-        this.deletedAt = deletedAt;
-        this.totalHarga = totalHarga;
+        this.idDetail = idDetail;
+        this.details = details;
+        this.kategoriBarang = kategoriBarang;
+        this.ukuran = ukuran;
+        this.jenisLayanan = jenisLayanan;
+        this.harga = harga;
+        this.qty = qty;
     }
 
 
@@ -49,92 +36,12 @@ public class OrderUnitResponse {
         this.idPesananSatuan = idPesananSatuan;
     }
 
-    public String getIdCustomer() {
-        return idCustomer;
+    public String getIdDetail() {
+        return idDetail;
     }
 
-    public void setIdCustomer(String idCustomer) {
-        this.idCustomer = idCustomer;
-    }
-
-    public String getNoFaktur() {
-        return noFaktur;
-    }
-
-    public void setNoFaktur(String noFaktur) {
-        this.noFaktur = noFaktur;
-    }
-
-    public String getNamaCustomer() {
-        return namaCustomer;
-    }
-
-    public void setNamaCustomer(String namaCustomer) {
-        this.namaCustomer = namaCustomer;
-    }
-
-    public String getCustomerPhone() {
-        return customerPhone;
-    }
-
-    public void setCustomerPhone(String customerPhone) {
-        this.customerPhone = customerPhone;
-    }
-
-    public String getTipePembayaran() {
-        return tipePembayaran;
-    }
-
-    public void setTipePembayaran(String tipePembayaran) {
-        this.tipePembayaran = tipePembayaran;
-    }
-
-    public String getStatusBayar() {
-        return statusBayar;
-    }
-
-    public void setStatusBayar(String statusBayar) {
-        this.statusBayar = statusBayar;
-    }
-
-    public String getStatusOrder() {
-        return statusOrder;
-    }
-
-    public void setStatusOrder(String statusOrder) {
-        this.statusOrder = statusOrder;
-    }
-
-    public LocalDateTime getTglMasuk() {
-        return tglMasuk;
-    }
-
-    public void setTglMasuk(LocalDateTime tglMasuk) {
-        this.tglMasuk = tglMasuk;
-    }
-
-    public LocalDateTime getTglSelesai() {
-        return tglSelesai;
-    }
-
-    public void setTglSelesai(LocalDateTime tglSelesai) {
-        this.tglSelesai = tglSelesai;
-    }
-
-    public String getCatatan() {
-        return catatan;
-    }
-
-    public void setCatatan(String catatan) {
-        this.catatan = catatan;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
+    public void setIdDetail(String idDetail) {
+        this.idDetail = idDetail;
     }
 
     public List<DetailOrderUnitResponse> getDetails() {
@@ -145,11 +52,42 @@ public class OrderUnitResponse {
         this.details = details;
     }
 
-    public Double getTotalHarga() {
-        return totalHarga;
+    public String getKategoriBarang() {
+        return kategoriBarang;
     }
 
-    public void setTotalHarga(Double harga) {
-        this.totalHarga = harga;
+    public void setKategoriBarang(String kategoriBarang) {
+        this.kategoriBarang = kategoriBarang;
+    }
+
+    public String getUkuran() {
+        return ukuran;
+    }
+
+    public void setUkuran(String ukuran) {
+        this.ukuran = ukuran;
+    }
+
+    public String getJenisLayanan() {
+        return jenisLayanan;
+    }
+
+    public void setJenisLayanan(String jenisLayanan) {
+        this.jenisLayanan = jenisLayanan;
+    }
+    public Double getHarga() {
+        return harga;
+    }
+
+    public void setHarga(Double harga) {
+        this.harga = harga;
+    }
+
+    public Integer getQty() {
+        return qty;
+    }
+
+    public void setQty(Integer qty) {
+        this.qty = qty;
     }
 }

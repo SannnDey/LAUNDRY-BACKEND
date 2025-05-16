@@ -1,50 +1,89 @@
 package com.haylaundry.service.backend.modules.ordermanagement.models.request;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public class DetailOrderUnitRequest {
-    private String kategoriBarang;
-    private String ukuran;
-    private String jenisLayanan;
-    private Double harga;
-    private Double qty;
+    private String idCustomer;
+    private String noFaktur;
+    private String tipePembayaran;
+    private String statusBayar;
+    private String statusOrder;
+    private LocalDateTime tglMasuk;
+    private LocalDateTime tglSelesai;
+    private String catatan;
+    private LocalDateTime deletedAt;
 
 
-    public String getKategoriBarang() {
-        return kategoriBarang;
+    public String getIdCustomer() {
+        return idCustomer;
     }
 
-    public void setKategoriBarang(String kategoriBarang) {
-        this.kategoriBarang = kategoriBarang;
+    public void setIdCustomer(String idCustomer) {
+        this.idCustomer = idCustomer;
     }
 
-    public String getUkuran() {
-        return ukuran;
+    public String getNoFaktur() {
+        return noFaktur;
     }
 
-    public void setUkuran(String ukuran) {
-        this.ukuran = ukuran;
+    public void setNoFaktur(String noFaktur) {
+        this.noFaktur = noFaktur;
     }
 
-    public String getJenisLayanan() {
-        return jenisLayanan;
+    public String getTipePembayaran() {
+        return tipePembayaran;
     }
 
-    public void setJenisLayanan(String jenisLayanan) {
-        this.jenisLayanan = jenisLayanan;
+    public void setTipePembayaran(String tipePembayaran) {
+        this.tipePembayaran = tipePembayaran;
     }
 
-    public Double getHarga() {
-        return harga;
+    public String getStatusBayar() {
+        return statusBayar;
     }
 
-    public void setHarga(Double harga) {
-        this.harga = harga;
+    public void setStatusBayar(String statusBayar) {
+        this.statusBayar = statusBayar;
     }
 
-    public double getQty() {
-        return qty;
+    public String getStatusOrder() {
+        return statusOrder;
     }
 
-    public void setQty(Double qty) {
-        this.qty = qty;
+    public void setStatusOrder(String statusOrder) {
+        this.statusOrder = statusOrder;
+    }
+
+    public LocalDateTime getTglMasuk() {
+        return tglMasuk;
+    }
+
+    public void setTglMasuk(LocalDateTime tglMasuk) {
+        this.tglMasuk = tglMasuk;
+    }
+
+    public LocalDateTime getTglSelesai() {
+        return tglSelesai;
+    }
+
+    public void setTglSelesai(LocalDateTime tglSelesai) {
+        this.tglSelesai = tglSelesai;
+    }
+
+    public String getCatatan() {
+        return catatan;
+    }
+
+    public void setCatatan(String catatan) {
+        this.catatan = catatan;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

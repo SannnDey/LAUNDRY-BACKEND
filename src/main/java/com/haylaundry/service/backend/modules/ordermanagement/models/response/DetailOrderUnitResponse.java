@@ -1,26 +1,40 @@
 package com.haylaundry.service.backend.modules.ordermanagement.models.response;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public class DetailOrderUnitResponse {
     private String idDetail;
-    private String idPesananSatuan;
-    private String kategoriBarang;
-    private String ukuran;
-    private String jenisLayanan;
-    private Double harga;
-    private Double qty;
+    private String idCustomer;
+    private String noFaktur;
+    private String namaCustomer;
+    private String customerPhone;
+    private String tipePembayaran;
+    private String statusBayar;
+    private String statusOrder;
+    private LocalDateTime tglMasuk;
+    private LocalDateTime tglSelesai;
+    private String catatan;
+    private LocalDateTime deletedAt;
 
-    public DetailOrderUnitResponse (){
+
+    public DetailOrderUnitResponse() {
 
     }
 
-    public DetailOrderUnitResponse(String idDetail, String idPesananSatuan, String kategoriBarang, String ukuran, String jenisLayanan, Double harga, Double qty) {
+    public DetailOrderUnitResponse(String idDetail, String idCustomer, String noFaktur, String namaCustomer, String customerPhone, String tipePembayaran, String statusBayar, String statusOrder, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan, LocalDateTime deletedAt) {
         this.idDetail = idDetail;
-        this.idPesananSatuan = idPesananSatuan;
-        this.kategoriBarang = kategoriBarang;
-        this.ukuran = ukuran;
-        this.jenisLayanan = jenisLayanan;
-        this.harga = harga;
-        this.qty = qty;
+        this.idCustomer = idCustomer;
+        this.noFaktur = noFaktur;
+        this.namaCustomer = namaCustomer;
+        this.customerPhone = customerPhone;
+        this.tipePembayaran = tipePembayaran;
+        this.statusBayar = statusBayar;
+        this.statusOrder = statusOrder;
+        this.tglMasuk = tglMasuk;
+        this.tglSelesai = tglSelesai;
+        this.catatan = catatan;
+        this.deletedAt = deletedAt;
     }
 
 
@@ -33,50 +47,91 @@ public class DetailOrderUnitResponse {
         this.idDetail = idDetail;
     }
 
-    public String getIdPesananSatuan() {
-        return idPesananSatuan;
+    public String getIdCustomer() {
+        return idCustomer;
     }
 
-    public void setIdPesananSatuan(String idPesananSatuan) {
-        this.idPesananSatuan = idPesananSatuan;
+    public void setIdCustomer(String idCustomer) {
+        this.idCustomer = idCustomer;
     }
 
-    public String getKategoriBarang() {
-        return kategoriBarang;
+    public String getNoFaktur() {
+        return noFaktur;
     }
 
-    public void setKategoriBarang(String kategoriBarang) {
-        this.kategoriBarang = kategoriBarang;
+    public void setNoFaktur(String noFaktur) {
+        this.noFaktur = noFaktur;
     }
 
-    public String getUkuran() {
-        return ukuran;
+    public String getNamaCustomer() {
+        return namaCustomer;
     }
 
-    public void setUkuran(String ukuran) {
-        this.ukuran = ukuran;
+    public void setNamaCustomer(String namaCustomer) {
+        this.namaCustomer = namaCustomer;
     }
 
-    public String getJenisLayanan() {
-        return jenisLayanan;
+    public String getCustomerPhone() {
+        return customerPhone;
     }
 
-    public void setJenisLayanan(String jenisLayanan) {
-        this.jenisLayanan = jenisLayanan;
-    }
-    public Double getHarga() {
-        return harga;
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
-    public void setHarga(Double harga) {
-        this.harga = harga;
+    public String getTipePembayaran() {
+        return tipePembayaran;
     }
 
-    public Double getQty() {
-        return qty;
+    public void setTipePembayaran(String tipePembayaran) {
+        this.tipePembayaran = tipePembayaran;
     }
 
-    public void setQty(Double qty) {
-        this.qty = qty;
+    public String getStatusBayar() {
+        return statusBayar;
+    }
+
+    public void setStatusBayar(String statusBayar) {
+        this.statusBayar = statusBayar;
+    }
+
+    public String getStatusOrder() {
+        return statusOrder;
+    }
+
+    public void setStatusOrder(String statusOrder) {
+        this.statusOrder = statusOrder;
+    }
+
+    public LocalDateTime getTglMasuk() {
+        return tglMasuk;
+    }
+
+    public void setTglMasuk(LocalDateTime tglMasuk) {
+        this.tglMasuk = tglMasuk;
+    }
+
+    public LocalDateTime getTglSelesai() {
+        return tglSelesai;
+    }
+
+    public void setTglSelesai(LocalDateTime tglSelesai) {
+        this.tglSelesai = tglSelesai;
+    }
+
+    public String getCatatan() {
+        return catatan;
+    }
+
+    public void setCatatan(String catatan) {
+        this.catatan = catatan;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }
