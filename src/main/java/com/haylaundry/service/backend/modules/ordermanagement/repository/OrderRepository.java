@@ -5,10 +5,10 @@ import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PesananRecord;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.OrderRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderResponse;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusBayar;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.OrderRequest;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;
 import com.haylaundry.service.backend.core.utils.HargaCucianKiloan;
 import com.haylaundry.service.backend.core.utils.InvoiceGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -54,13 +54,13 @@ public class OrderRepository extends JooqRepository {
                         record.get(Tables.PESANAN.NO_FAKTUR),
                         record.get(Tables.CUSTOMER.NAMA),
                         record.get(Tables.CUSTOMER.NO_TELP),
-                        String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)).replace("_"," "),
-                        String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)).replace("_"," "),
+                        String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
+                        String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
                         record.get(Tables.PESANAN.QTY),
                         record.get(Tables.PESANAN.HARGA),
-                        String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)).replace("_"," "),
-                        String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)).replace("_"," "),
-                        String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)).replace("_"," "),
+                        String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
+                        String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
+                        String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
                         record.get(Tables.PESANAN.TGL_MASUK),
                         record.get(Tables.PESANAN.TGL_SELESAI),
                         record.get(Tables.PESANAN.CATATAN),
@@ -178,19 +178,28 @@ public class OrderRepository extends JooqRepository {
         }
 
         // Update status bayar pesanan
-        PesananStatusBayar status = PesananStatusBayar.valueOf(statusBayar);
+        PesananStatusBayar status = PesananStatusBayar.lookupLiteral(statusBayar);
         orderToUpdate.setStatusBayar(status);
 
         // Simpan perubahan
+        orderToUpdate.setStatusBayar(status);
         orderToUpdate.store();
 
         // Return ringkas dengan OrderStatusResponse
         return new OrderStatusBayar(
                 orderToUpdate.getIdPesanan(),
                 orderToUpdate.getNoFaktur(),
-                orderToUpdate.getStatusBayar()
+                status.getLiteral()
         );
     }
 
+
+    public boolean deleteById(String idPesanan) {
+        int deleted = jooq.deleteFrom(Tables.PESANAN)
+                .where(Tables.PESANAN.ID_PESANAN.eq(idPesanan))
+                .execute();
+
+        return deleted > 0;
+    }
 
 }

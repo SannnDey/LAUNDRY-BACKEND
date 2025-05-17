@@ -1,9 +1,9 @@
 package com.haylaundry.service.backend.modules.ordermanagement.service;
 
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.DetailOrderUnitRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.OrderUnitRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.DetailOrderUnitResponse;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderUnitResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.DetailOrderUnitRequest;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.DetailOrderUnitResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusBayar;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.repository.OrderUnitRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,5 +26,12 @@ public class OrderUnitService {
         return orderUnitRepository.createOrderUnit(request);
     }
 
+    public OrderUnitStatusBayar updateStatusBayar (String idDetail, String statusBayar) {
+        return orderUnitRepository.updateStatusBayar(idDetail, statusBayar);
+    }
+
+    public OrderUnitStatusResponse updateStatusOrderUnit (String idDetail, String statusOrder) {
+        return orderUnitRepository.updateStatusOrder(idDetail, statusOrder);
+    }
 
 }

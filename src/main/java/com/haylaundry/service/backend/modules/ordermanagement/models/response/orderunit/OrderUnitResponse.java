@@ -1,8 +1,7 @@
-package com.haylaundry.service.backend.modules.ordermanagement.models.request;
+package com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit;
 
-import java.util.List;
-
-public class OrderUnitRequest {
+public class OrderUnitResponse {
+    private String idPesananSatuan;
     private String idDetail;
     private String kategoriBarang;
     private String ukuran;
@@ -10,7 +9,27 @@ public class OrderUnitRequest {
     private Double harga;
     private Integer qty;
 
+    public OrderUnitResponse() {
+    }
 
+    public OrderUnitResponse(String idPesananSatuan, String idDetail, String kategoriBarang, String ukuran,
+                             String jenisLayanan, Double harga, Integer qty) {
+        this.idPesananSatuan = idPesananSatuan;
+        this.idDetail = idDetail;
+        this.kategoriBarang = kategoriBarang;
+        this.ukuran = ukuran;
+        this.jenisLayanan = jenisLayanan;
+        this.harga = harga;
+        this.qty = qty;
+    }
+
+    public String getIdPesananSatuan() {
+        return idPesananSatuan;
+    }
+
+    public void setIdPesananSatuan(String idPesananSatuan) {
+        this.idPesananSatuan = idPesananSatuan;
+    }
 
     public String getIdDetail() {
         return idDetail;

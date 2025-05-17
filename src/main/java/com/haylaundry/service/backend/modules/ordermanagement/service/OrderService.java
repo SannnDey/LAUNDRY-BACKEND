@@ -1,9 +1,9 @@
 package com.haylaundry.service.backend.modules.ordermanagement.service;
 
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.OrderRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderResponse;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusBayar;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.OrderRequest;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.repository.OrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,6 +33,11 @@ public class OrderService {
 
     public OrderStatusBayar updateBayarStatus(String idPesanan, String statusBayar) {
         return orderRepository.updateBayarStatus(idPesanan, statusBayar);
+    }
+
+    // ✅ Hapus pesanan (hard delete)
+    public void deleteOrder(String idPesanan) {
+        orderRepository.deleteById(idPesanan);
     }
 
 }

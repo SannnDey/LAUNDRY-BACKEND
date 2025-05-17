@@ -2,12 +2,12 @@ package com.haylaundry.service.backend.modules.ordermanagement.controller;
 
 import com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.HargaRequestBody;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.OrderRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.HargaResponseBody;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderResponse;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusBayar;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderStatusResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.HargaRequestBody;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.OrderRequest;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.HargaResponseBody;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.service.OrderService;
 import com.haylaundry.service.backend.core.utils.HargaCucianKiloan;
 import jakarta.inject.Inject;
@@ -67,5 +67,25 @@ public class OrderController {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
+
+    // ✅ Endpoint untuk menghapus pesanan berdasarkan ID
+    @DELETE
+    @Path("/hapus")
+    public Response deleteOrder(@QueryParam("idPesanan") String idPesanan) {
+        if (idPesanan == null || idPesanan.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("idPesanan tidak boleh kosong").build();
+        }
+
+        try {
+            orderService.deleteOrder(idPesanan);
+            return Response.ok("Pesanan dengan ID " + idPesanan + " berhasil dihapus.").build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Gagal menghapus pesanan").build();
+        }
+    }
+
 
 }

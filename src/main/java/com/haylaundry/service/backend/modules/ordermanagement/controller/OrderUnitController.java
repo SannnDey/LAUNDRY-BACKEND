@@ -1,15 +1,13 @@
 package com.haylaundry.service.backend.modules.ordermanagement.controller;
 
-import com.haylaundry.service.backend.core.exception.ErrorResponse;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.DetailOrderUnitRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.OrderUnitRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.DetailOrderUnitResponse;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderUnitResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.DetailOrderUnitRequest;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.DetailOrderUnitResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusBayar;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.service.OrderUnitService;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
@@ -29,6 +27,7 @@ public class OrderUnitController {
     }
 
     @POST
+    @Path("/create")
     public Response createOrderUnit(DetailOrderUnitRequest request) {
         try {
             DetailOrderUnitResponse createdOrder = orderUnitService.createOrderUnit(request);
@@ -41,6 +40,42 @@ public class OrderUnitController {
             logger.error("Gagal membuat order unit", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Terjadi kesalahan: " + e.getMessage()))
+                    .build();
+        }
+
+    }
+
+    // Versi menggunakan query param
+    @PUT
+    @Path("/update-status")
+    public Response updateStatusBayar(
+            @QueryParam("idDetail") String idDetail,
+            @QueryParam("statusBayar") String statusBayar) {
+        try {
+            OrderUnitStatusBayar response = orderUnitService.updateStatusBayar(idDetail, statusBayar);
+            return Response.ok(response).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Terjadi kesalahan.").build();
+        }
+    }
+
+
+    @PUT
+    @Path("/update-status-order")
+    public Response updateStatusOrderUnit(@QueryParam("idDetail") String idDetail,
+                                          @QueryParam("statusOrder") String statusOrder) {
+        try {
+            OrderUnitStatusResponse response = orderUnitService.updateStatusOrderUnit(idDetail, statusOrder);
+            return Response.ok(response).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Terjadi kesalahan saat memperbarui status pesanan.")
                     .build();
         }
     }

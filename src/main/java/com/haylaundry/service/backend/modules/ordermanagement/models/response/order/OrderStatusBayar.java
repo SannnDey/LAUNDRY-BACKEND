@@ -1,14 +1,14 @@
-package com.haylaundry.service.backend.modules.ordermanagement.models.response;
+package com.haylaundry.service.backend.modules.ordermanagement.models.response.order;
 
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar;
 
 public class OrderStatusBayar {
     private String idPesanan;
     private String noFaktur;
-    private PesananStatusBayar statusBayar;
+    private String statusBayar;
 
 
-    public OrderStatusBayar(String idPesanan, String noFaktur, PesananStatusBayar statusBayar) {
+    public OrderStatusBayar(String idPesanan, String noFaktur, String statusBayar) {
         this.idPesanan = idPesanan;
         this.noFaktur = noFaktur;
         this.statusBayar = statusBayar;
@@ -31,11 +31,11 @@ public class OrderStatusBayar {
         this.noFaktur = noFaktur;
     }
 
-    public PesananStatusBayar getStatusBayar() {
+    public String getStatusBayar() {
         return statusBayar;
     }
 
-    public void setStatusBayar(PesananStatusBayar statusBayar) {
+    public void setStatusBayar(String statusBayar) {
         this.statusBayar = statusBayar;
     }
 }

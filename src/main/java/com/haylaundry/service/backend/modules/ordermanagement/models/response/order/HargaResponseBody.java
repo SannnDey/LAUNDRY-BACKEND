@@ -1,4 +1,4 @@
-package com.haylaundry.service.backend.modules.ordermanagement.models.response;
+package com.haylaundry.service.backend.modules.ordermanagement.models.response.order;
 
 public class HargaResponseBody {
     private Double hargaTotal;

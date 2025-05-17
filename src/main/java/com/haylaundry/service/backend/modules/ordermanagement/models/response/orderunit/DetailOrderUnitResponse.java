@@ -1,11 +1,14 @@
-package com.haylaundry.service.backend.modules.ordermanagement.models.request;
+package com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class DetailOrderUnitRequest {
+public class DetailOrderUnitResponse {
+    private String idDetail;
     private String idCustomer;
     private String noFaktur;
+    private String namaCustomer;
+    private String customerPhone;
     private String tipePembayaran;
     private String statusBayar;
     private String statusOrder;
@@ -14,8 +17,39 @@ public class DetailOrderUnitRequest {
     private LocalDateTime tglSelesai;
     private String catatan;
     private LocalDateTime deletedAt;
-    private List<OrderUnitRequest> items;
 
+    // ✅ Tambahan: list item pesanan
+    private List<OrderUnitResponse> items;
+
+    public DetailOrderUnitResponse() {
+    }
+
+    public DetailOrderUnitResponse(String idDetail, String idCustomer, String noFaktur, String namaCustomer, String customerPhone, String tipePembayaran,
+                                   String statusBayar, String statusOrder, Double totalHarga, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan,
+                                   LocalDateTime deletedAt, List<OrderUnitResponse> items) {
+        this.idDetail = idDetail;
+        this.idCustomer = idCustomer;
+        this.noFaktur = noFaktur;
+        this.namaCustomer = namaCustomer;
+        this.customerPhone = customerPhone;
+        this.tipePembayaran = tipePembayaran;
+        this.statusBayar = statusBayar;
+        this.statusOrder = statusOrder;
+        this.totalHarga = totalHarga;
+        this.tglMasuk = tglMasuk;
+        this.tglSelesai = tglSelesai;
+        this.catatan = catatan;
+        this.deletedAt = deletedAt;
+        this.items = items;
+    }
+
+    public String getIdDetail() {
+        return idDetail;
+    }
+
+    public void setIdDetail(String idDetail) {
+        this.idDetail = idDetail;
+    }
 
     public String getIdCustomer() {
         return idCustomer;
@@ -31,6 +65,22 @@ public class DetailOrderUnitRequest {
 
     public void setNoFaktur(String noFaktur) {
         this.noFaktur = noFaktur;
+    }
+
+    public String getNamaCustomer() {
+        return namaCustomer;
+    }
+
+    public void setNamaCustomer(String namaCustomer) {
+        this.namaCustomer = namaCustomer;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
     public String getTipePembayaran() {
@@ -97,11 +147,11 @@ public class DetailOrderUnitRequest {
         this.deletedAt = deletedAt;
     }
 
-    public List<OrderUnitRequest> getItems() {
+    public List<OrderUnitResponse> getItems() {
         return items;
     }
 
-    public void setItems(List<OrderUnitRequest> items) {
+    public void setItems(List<OrderUnitResponse> items) {
         this.items = items;
     }
 }

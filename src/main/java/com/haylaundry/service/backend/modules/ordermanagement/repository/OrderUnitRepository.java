@@ -8,11 +8,16 @@ import com.haylaundry.service.backend.core.utils.InvoiceGenerator;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 import com.haylaundry.service.backend.jooq.gen.tables.records.DetailPesananSatuanRecord;
+import com.haylaundry.service.backend.jooq.gen.tables.records.PesananRecord;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PesananSatuanRecord;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.OrderUnitRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.DetailOrderUnitRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.OrderUnitResponse;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.DetailOrderUnitResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.OrderUnitRequest;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.DetailOrderUnitRequest;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.DetailOrderUnitResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusBayar;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jooq.DSLContext;
@@ -20,7 +25,6 @@ import org.jooq.Record;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,72 +92,6 @@ public class OrderUnitRepository extends JooqRepository {
     }
 
 
-
-
-
-
-//    public OrderUnitResponse create(DetailOrderUnitRequest request, List<OrderUnitRequest> detailRequests) {
-//        String idPesananSatuan = UuidCreator.getTimeOrderedEpoch().toString();
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        // 1. Validasi customer
-//        var customer = jooq.selectFrom(Tables.CUSTOMER)
-//                .where(Tables.CUSTOMER.ID_CUSTOMER.eq(request.getIdCustomer()))
-//                .fetchOne();
-//
-//        if (customer == null) {
-//            throw new IllegalArgumentException("Customer dengan ID " + request.getIdCustomer() + " tidak ditemukan.");
-//        }
-//
-//        // 2. Hitung harga total (misalnya harga cucian satuan, kamu bisa sesuaikan logika ini)
-//        // Contoh hitung harga total dari detail (dummy: 10000 per item), sesuaikan dengan HargaCucianSatuan atau lainnya
-////        double hargaTotal = detailRequests.stream()
-////                .mapToDouble(d -> HargaCucianSatuan.hitungHarga(d.getKategoriBarang(), d.getUkuran(), d.getJenisLayanan()))
-////                .sum();
-//
-//        // 3. Simpan data pesanan satuan
-//        var newOrder = jooq.newRecord(Tables.PESANAN_SATUAN);
-//        newOrder.setIdPesananSatuan(idPesananSatuan);
-//        newOrder.setIdCustomer(request.getIdCustomer());
-//        newOrder.setNoFaktur(InvoiceGenerator.generateNoFaktur());
-//        newOrder.setTipePembayaran(PesananSatuanTipePembayaran.lookupLiteral(request.getTipePembayaran()));
-//        newOrder.setStatusBayar(PesananSatuanStatusBayar.lookupLiteral(request.getStatusBayar()));
-//        newOrder.setStatusOrder(PesananSatuanStatusOrder.lookupLiteral(request.getStatusOrder()));
-//        newOrder.setTglMasuk(now);
-//        newOrder.setTglSelesai(request.getTglSelesai());
-//        newOrder.setCatatan(request.getCatatan());
-//        newOrder.setDeletedAt(null);
-//        newOrder.setTotalHarga(hargaTotal); // simpan harga total
-//        newOrder.store();
-//
-//        // 4. Simpan detail pesanan satuan
-//        for (OrderUnitRequest detail : detailRequests) {
-//            var detailRecord = jooq.newRecord(Tables.DETAIL_PESANAN_SATUAN);
-//            detailRecord.setIdDetail(UuidCreator.getTimeOrderedEpoch().toString());
-//            detailRecord.setIdPesananSatuan(idPesananSatuan);
-//            detailRecord.setKategoriBarang(DetailPesananSatuanKategoriBarang.lookupLiteral(detail.getKategoriBarang()));
-//            detailRecord.setUkuran(DetailPesananSatuanUkuran.lookupLiteral(detail.getUkuran()));
-//            detailRecord.setJenisLayanan(DetailPesananSatuanJenisLayanan.lookupLiteral(detail.getJenisLayanan()));
-//            detailRecord.store();
-//        }
-//
-//        // 5. Kembalikan response sesuai constructor yang ada
-//        return new DetailOrderUnitResponse(
-//                newOrder.getIdPesananSatuan(),
-//                newOrder.getIdCustomer(),
-//                newOrder.getNoFaktur(),
-//                customer.getNama(),
-//                customer.getNoTelp(),
-//                String.valueOf(newOrder.getTipePembayaran()),
-//                String.valueOf(newOrder.getStatusBayar()),
-//                String.valueOf(newOrder.getStatusOrder()),
-//                newOrder.getTglMasuk(),
-//                newOrder.getTglSelesai(),
-//                newOrder.getCatatan(),
-//                newOrder.getDeletedAt(),
-//                newOrder.getTotalHarga()
-//        );
-//    }
 
 
 
@@ -288,5 +226,60 @@ public class OrderUnitRepository extends JooqRepository {
         );
     }
 
+
+    public OrderUnitStatusBayar updateStatusBayar(String idDetail, String statusBayar) {
+        DetailPesananSatuanRecord orderUnitToUpdate = jooq.selectFrom(Tables.DETAIL_PESANAN_SATUAN)
+                .where(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+                .fetchOne();
+
+        if (orderUnitToUpdate == null) {
+            throw new IllegalArgumentException("Pesanan tidak ditemukan.");
+        }
+
+        // Gunakan lookupLiteral untuk mencari enum dari string literal
+        DetailPesananSatuanStatusBayar status = DetailPesananSatuanStatusBayar.lookupLiteral(statusBayar);
+
+        if (status == null) {
+            throw new IllegalArgumentException("Status bayar tidak valid: " + statusBayar);
+        }
+
+        orderUnitToUpdate.setStatusBayar(status);
+        orderUnitToUpdate.store();
+
+        return new OrderUnitStatusBayar(
+                orderUnitToUpdate.getIdDetail(),
+                orderUnitToUpdate.getNoFaktur(),
+                status.getLiteral() // Pastikan ini yang dikirim ke FE
+        );
+    }
+
+
+    public OrderUnitStatusResponse updateStatusOrder(String idDetail, String statusOrder) {
+        DetailPesananSatuanRecord orderUnitTopUpdate = jooq.selectFrom(Tables.DETAIL_PESANAN_SATUAN)
+                .where(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+                .fetchOne();
+
+            if (orderUnitTopUpdate == null ) {
+                throw new IllegalArgumentException("Pesanan tidak ditemukan.");
+            }
+
+            DetailPesananSatuanStatusOrder status = DetailPesananSatuanStatusOrder.lookupLiteral(statusOrder);
+            orderUnitTopUpdate.setStatusOrder(status);
+
+            if (DetailPesananSatuanStatusOrder.Selesai.equals(status)) {
+                orderUnitTopUpdate.setTglSelesai(LocalDateTime.now());
+            }
+
+            orderUnitTopUpdate.setStatusOrder(status);
+            orderUnitTopUpdate.store();
+
+            return new OrderUnitStatusResponse(
+                    orderUnitTopUpdate.getIdDetail(),
+                    orderUnitTopUpdate.getNoFaktur(),
+                    orderUnitTopUpdate.getStatusBayar().toString(),
+                    status.getLiteral(),
+                    orderUnitTopUpdate.getTglSelesai()
+            );
+    }
 
 }

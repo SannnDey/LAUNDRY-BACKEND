@@ -1,4 +1,4 @@
-package com.haylaundry.service.backend.modules.ordermanagement.models.request;
+package com.haylaundry.service.backend.modules.ordermanagement.models.request.order;
 
 public class HargaRequestBody {
     private String tipeCucian;

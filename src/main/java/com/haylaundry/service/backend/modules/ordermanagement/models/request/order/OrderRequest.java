@@ -1,4 +1,4 @@
-package com.haylaundry.service.backend.modules.ordermanagement.models.request;
+package com.haylaundry.service.backend.modules.ordermanagement.models.request.order;
 
 import java.time.LocalDateTime;
 
