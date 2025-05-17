@@ -9,6 +9,7 @@ public class DetailOrderUnitRequest {
     private String tipePembayaran;
     private String statusBayar;
     private String statusOrder;
+    private Double totalHarga;
     private LocalDateTime tglMasuk;
     private LocalDateTime tglSelesai;
     private String catatan;
@@ -54,6 +55,14 @@ public class DetailOrderUnitRequest {
 
     public void setStatusOrder(String statusOrder) {
         this.statusOrder = statusOrder;
+    }
+
+    public Double getTotalHarga() {
+        return totalHarga;
+    }
+
+    public void setTotalHarga(Double totalHarga) {
+        this.totalHarga = totalHarga;
     }
 
     public LocalDateTime getTglMasuk() {

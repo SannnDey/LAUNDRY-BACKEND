@@ -56,9 +56,10 @@ public class OrderUnitRepository extends JooqRepository {
                     detailResponse.setNoFaktur(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.NO_FAKTUR));
                     detailResponse.setNamaCustomer(firstRecord.get(Tables.CUSTOMER.NAMA));
                     detailResponse.setCustomerPhone(firstRecord.get(Tables.CUSTOMER.NO_TELP));
-                    detailResponse.setTipePembayaran(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TIPE_PEMBAYARAN)));
-                    detailResponse.setStatusBayar(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR)));
-                    detailResponse.setStatusOrder(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_ORDER)));
+                    detailResponse.setTipePembayaran(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TIPE_PEMBAYARAN)).replace('_', ' '));
+                    detailResponse.setStatusBayar(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR)).replace('_', ' '));
+                    detailResponse.setStatusOrder(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_ORDER)).replace('_', ' '));
+                    detailResponse.setTotalHarga(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA));
                     detailResponse.setTglMasuk(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_MASUK));
                     detailResponse.setTglSelesai(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_SELESAI));
                     detailResponse.setCatatan(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.CATATAN));
@@ -69,9 +70,9 @@ public class OrderUnitRepository extends JooqRepository {
                                 OrderUnitResponse item = new OrderUnitResponse();
                                 item.setIdPesananSatuan(record.get(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN));
                                 item.setIdDetail(record.get(Tables.PESANAN_SATUAN.ID_DETAIL));
-                                item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)));
-                                item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)));
-                                item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)));
+                                item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace('_', ' '));
+                                item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace('_', ' '));
+                                item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace('_', ' '));
                                 item.setHarga(record.get(Tables.PESANAN_SATUAN.HARGA));
                                 item.setQty(record.get(Tables.PESANAN_SATUAN.QTY));
                                 return item;
@@ -189,7 +190,7 @@ public class OrderUnitRepository extends JooqRepository {
                 "Status Order"
         );
 
-        // Simpan DetailPesananSatuan ke DB
+        // Simpan dulu DetailPesananSatuan ke DB (parent) dengan totalHarga 0 sementara
         DetailPesananSatuanRecord detailRecord = jooq.newRecord(Tables.DETAIL_PESANAN_SATUAN);
         detailRecord.setIdDetail(detailId);
         detailRecord.setIdCustomer(request.getIdCustomer());
@@ -197,6 +198,7 @@ public class OrderUnitRepository extends JooqRepository {
         detailRecord.setTipePembayaran(tipePembayaran);
         detailRecord.setStatusBayar(statusBayar);
         detailRecord.setStatusOrder(statusOrder);
+        detailRecord.setTotalHarga(0.0); // sementara 0, akan diupdate nanti
         detailRecord.setTglMasuk(request.getTglMasuk() != null ? request.getTglMasuk() : now);
         detailRecord.setTglSelesai(request.getTglSelesai());
         detailRecord.setCatatan(request.getCatatan());
@@ -206,12 +208,16 @@ public class OrderUnitRepository extends JooqRepository {
         // List untuk menampung response OrderUnitResponse
         List<OrderUnitResponse> orderUnitResponses = new ArrayList<>();
 
+        // Variabel untuk menghitung total harga semua item
+        double totalHarga = 0.0;
+
         // Iterasi setiap item OrderUnitRequest dalam DetailOrderUnitRequest.items
         for (OrderUnitRequest item : request.getItems()) {
-        // Validasi qty minimal 1
+            // Validasi qty minimal 1
             if (item.getQty() < 1) {
                 throw new IllegalArgumentException("Quantity untuk item kategori " + item.getKategoriBarang() + " minimal 1.");
             }
+
             // Validasi enum kategori, ukuran, dan jenis layanan di setiap item
             var kategori = EnumValidator.validateEnum(
                     PesananSatuanKategoriBarang.class,
@@ -231,15 +237,19 @@ public class OrderUnitRepository extends JooqRepository {
 
             // Hitung harga otomatis
             double hargaHitung = HargaCucianSatuan.hitungHarga(kategori, ukuran, jenisLayanan);
+            double hargaFinal = hargaHitung * item.getQty();
 
-            // Simpan PesananSatuan record untuk tiap item
+            // Tambahkan ke total harga
+            totalHarga += hargaFinal;
+
+            // Simpan PesananSatuan record untuk tiap item (child)
             PesananSatuanRecord orderUnitRecord = jooq.newRecord(Tables.PESANAN_SATUAN);
             orderUnitRecord.setIdPesananSatuan(UuidCreator.getTimeOrderedEpoch().toString());
-            orderUnitRecord.setIdDetail(detailId); // FK ke detail pesanan
+            orderUnitRecord.setIdDetail(detailId); // FK ke detail pesanan yang sudah ada
             orderUnitRecord.setKategoriBarang(kategori);
             orderUnitRecord.setUkuran(ukuran);
             orderUnitRecord.setJenisLayanan(jenisLayanan);
-            orderUnitRecord.setHarga(hargaHitung * item.getQty());
+            orderUnitRecord.setHarga(hargaFinal);
             orderUnitRecord.setQty(item.getQty());
             orderUnitRecord.store();
 
@@ -250,10 +260,14 @@ public class OrderUnitRepository extends JooqRepository {
                     kategori.getLiteral(),
                     ukuran.getLiteral(),
                     jenisLayanan.getLiteral(),
-                    orderUnitRecord.getHarga(),
+                    hargaFinal,
                     orderUnitRecord.getQty()
             ));
         }
+
+        // Update totalHarga di detailRecord setelah insert semua pesanan_satuan
+        detailRecord.setTotalHarga(totalHarga);
+        detailRecord.store();
 
         // Build dan return response DetailOrderUnitResponse dengan list items
         return new DetailOrderUnitResponse(
@@ -265,6 +279,7 @@ public class OrderUnitRepository extends JooqRepository {
                 request.getTipePembayaran(),
                 request.getStatusBayar(),
                 request.getStatusOrder(),
+                totalHarga,
                 detailRecord.getTglMasuk(),
                 detailRecord.getTglSelesai(),
                 detailRecord.getCatatan(),
@@ -272,7 +287,6 @@ public class OrderUnitRepository extends JooqRepository {
                 orderUnitResponses
         );
     }
-
 
 
 }

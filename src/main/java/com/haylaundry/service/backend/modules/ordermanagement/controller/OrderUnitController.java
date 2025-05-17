@@ -13,11 +13,14 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Map;
+import org.jboss.logging.Logger;
 
 @Path("/api/order-unit")
 public class OrderUnitController {
     @Inject
     private OrderUnitService orderUnitService;
+    private static final Logger logger = Logger.getLogger(OrderUnitController.class.getName());
 
     @GET
     public Response getAllOrderUnits() {
@@ -32,11 +35,12 @@ public class OrderUnitController {
             return Response.status(Response.Status.CREATED).entity(createdOrder).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorResponse(e.getMessage()))
+                    .entity(Map.of("error", e.getMessage()))
                     .build();
         } catch (Exception e) {
+            logger.error("Gagal membuat order unit", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ErrorResponse("Terjadi kesalahan pada server"))
+                    .entity(Map.of("error", "Terjadi kesalahan: " + e.getMessage()))
                     .build();
         }
     }
