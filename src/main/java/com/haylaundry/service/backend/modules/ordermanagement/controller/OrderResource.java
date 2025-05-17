@@ -20,7 +20,7 @@ public class OrderResource {
     @GET
     @Path("/{idPesanan}")
     @Produces("application/pdf")
-    public Response downloadStruk(@QueryParam("idPesanan") String idPesanan) {
+    public Response downloadStruk(@PathParam("idPesanan") String idPesanan) {
         var order = orderRepository.getAll().stream()
                 .filter(o -> o.getIdPesanan().equals(idPesanan))
                 .findFirst()
