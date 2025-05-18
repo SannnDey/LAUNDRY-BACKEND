@@ -19,7 +19,7 @@ import com.itextpdf.text.pdf.draw.LineSeparator;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-public class StrukPdfGenerator {
+public class StrukOrderGenerator {
 
     public static byte[] generateStruk(
             String noFaktur,
@@ -50,7 +50,7 @@ public class StrukPdfGenerator {
             Font footerBoldFont = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.BOLD, darkBlue);
 
             // Logo
-            InputStream logoStream = StrukPdfGenerator.class.getResourceAsStream("/logo1.jpg");
+            InputStream logoStream = StrukOrderGenerator.class.getResourceAsStream("/logo1.jpg");
             if (logoStream != null) {
                 Image logo = Image.getInstance(logoStream.readAllBytes());
                 logo.scaleToFit(90, 90);
@@ -151,8 +151,8 @@ public class StrukPdfGenerator {
             document.add(Chunk.NEWLINE);
 
             // Kontak
-            InputStream phoneIconStream = StrukPdfGenerator.class.getResourceAsStream("/phone_icon.png");
-            InputStream igIconStream = StrukPdfGenerator.class.getResourceAsStream("/instagram_icon.png");
+            InputStream phoneIconStream = StrukOrderGenerator.class.getResourceAsStream("/phone_icon.png");
+            InputStream igIconStream = StrukOrderGenerator.class.getResourceAsStream("/instagram_icon.png");
 
             PdfPTable contactTable = new PdfPTable(2);
             contactTable.setWidthPercentage(40);

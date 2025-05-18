@@ -76,7 +76,6 @@ public class OrderController {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("idPesanan tidak boleh kosong").build();
         }
-
         try {
             orderService.deleteOrder(idPesanan);
             return Response.ok("Pesanan dengan ID " + idPesanan + " berhasil dihapus.").build();

@@ -1,6 +1,6 @@
 package com.haylaundry.service.backend.modules.ordermanagement.controller;
 
-import com.haylaundry.service.backend.core.utils.StrukPdfGenerator;
+import com.haylaundry.service.backend.core.utils.StrukOrderGenerator;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusOrder;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
@@ -31,7 +31,7 @@ public class OrderResource {
                 ? order.getTglSelesai().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
                 : null;
 
-        byte[] pdf = StrukPdfGenerator.generateStruk(
+        byte[] pdf = StrukOrderGenerator.generateStruk(
                 order.getNoFaktur(),
                 order.getCustomerName(),
                 order.getQty() + " KG",
