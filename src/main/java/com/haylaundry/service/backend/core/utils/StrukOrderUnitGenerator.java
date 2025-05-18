@@ -207,7 +207,7 @@ public class StrukOrderUnitGenerator {
         return outputStream.toByteArray();
     }
 
-        // Item class bisa didefinisikan sebagai inner class atau di tempat lain
+        // Item class bisa didefinisikan sebagai inner class atau di tempat lainn
     public static class Item {
         private String namaItem;
         private int qty;
