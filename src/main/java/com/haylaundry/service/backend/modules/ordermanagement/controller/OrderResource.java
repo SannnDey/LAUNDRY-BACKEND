@@ -7,6 +7,7 @@ import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
 import com.haylaundry.service.backend.modules.ordermanagement.repository.OrderRepository;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.time.format.DateTimeFormatter;
@@ -48,4 +49,5 @@ public class OrderResource {
                 .header("Content-Disposition", "inline; filename=\"struk-" + order.getNoFaktur() + ".pdf\"")
                 .build();
     }
+
 }

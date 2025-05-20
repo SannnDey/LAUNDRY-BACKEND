@@ -92,6 +92,51 @@ public class OrderUnitRepository extends JooqRepository {
     }
 
 
+    public DetailOrderUnitResponse getOrderUnitById(String idDetail) {
+        List<Record> records = jooq.select()
+                .from(Tables.DETAIL_PESANAN_SATUAN)
+                .join(Tables.PESANAN_SATUAN)
+                .on(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(Tables.PESANAN_SATUAN.ID_DETAIL))
+                .leftJoin(Tables.CUSTOMER)
+                .on(Tables.DETAIL_PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
+                .where(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+                .fetch();
+
+        if (records.isEmpty()) {
+            throw new IllegalArgumentException("Pesanan dengan ID " + idDetail + " tidak ditemukan.");
+        }
+
+        Record firstRecord = records.get(0);
+        DetailOrderUnitResponse detailResponse = new DetailOrderUnitResponse();
+        detailResponse.setIdDetail(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL));
+        detailResponse.setIdCustomer(firstRecord.get(Tables.CUSTOMER.ID_CUSTOMER));
+        detailResponse.setNoFaktur(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.NO_FAKTUR));
+        detailResponse.setNamaCustomer(firstRecord.get(Tables.CUSTOMER.NAMA));
+        detailResponse.setCustomerPhone(firstRecord.get(Tables.CUSTOMER.NO_TELP));
+        detailResponse.setTipePembayaran(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TIPE_PEMBAYARAN)).replace("_", " "));
+        detailResponse.setStatusBayar(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR)).replace("_", " "));
+        detailResponse.setStatusOrder(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_ORDER)).replace("_", " "));
+        detailResponse.setTotalHarga(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA));
+        detailResponse.setTglMasuk(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_MASUK));
+        detailResponse.setTglSelesai(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_SELESAI));
+        detailResponse.setCatatan(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.CATATAN));
+        detailResponse.setDeletedAt(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.DELETED_AT));
+
+        List<OrderUnitResponse> items = records.stream().map(record -> {
+            OrderUnitResponse item = new OrderUnitResponse();
+            item.setIdPesananSatuan(record.get(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN));
+            item.setIdDetail(record.get(Tables.PESANAN_SATUAN.ID_DETAIL));
+            item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
+            item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace("_", " "));
+            item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
+            item.setHarga(record.get(Tables.PESANAN_SATUAN.HARGA));
+            item.setQty(record.get(Tables.PESANAN_SATUAN.QTY));
+            return item;
+        }).collect(Collectors.toList());
+
+        detailResponse.setItems(items);
+        return detailResponse;
+    }
 
 
 
@@ -281,5 +326,21 @@ public class OrderUnitRepository extends JooqRepository {
                     orderUnitTopUpdate.getTglSelesai()
             );
     }
+
+
+    public boolean deleteOrderUnitById(String idDetail) {
+        // Hapus dulu item anak (pesanan_satuan)
+        int deletedItems = jooq.deleteFrom(Tables.PESANAN_SATUAN)
+                .where(Tables.PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+                .execute();
+
+        // Hapus parent (detail_pesanan_satuan)
+        int deletedParent = jooq.deleteFrom(Tables.DETAIL_PESANAN_SATUAN)
+                .where(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+                .execute();
+
+        return deletedParent > 0;
+    }
+
 
 }

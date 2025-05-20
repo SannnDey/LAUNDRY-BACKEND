@@ -26,6 +26,13 @@ public class OrderUnitController {
         return Response.ok(allOrders).build();
     }
 
+    @GET
+    @Path("/detail")
+    public Response getOrderUnitById(@QueryParam("idDetail") String idDetail) {
+        DetailOrderUnitResponse orderUnit = orderUnitService.getOrderUnitById(idDetail);
+        return Response.ok(orderUnit).build();
+    }
+
     @POST
     @Path("/create")
     public Response createOrderUnit(DetailOrderUnitRequest request) {
@@ -79,5 +86,19 @@ public class OrderUnitController {
                     .build();
         }
     }
+
+    @DELETE
+    @Path("/delete")
+    public Response deleteOrderUnitById(@QueryParam("idDetail") String idDetail) {
+        boolean isDeleted = orderUnitService.deleteOrderUnitById(idDetail);
+        if (isDeleted) {
+            return Response.ok(Map.of("message", "Order unit dengan ID " + idDetail + " berhasil dihapus.")).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "Order unit dengan ID " + idDetail + " tidak ditemukan."))
+                    .build();
+        }
+    }
+
 
 }

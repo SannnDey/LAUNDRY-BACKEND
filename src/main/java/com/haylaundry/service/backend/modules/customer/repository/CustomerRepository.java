@@ -28,7 +28,7 @@ public class CustomerRepository extends JooqRepository {
                 .fetch()
                 .stream()
                 .map(record -> new CustomerResponseBody(
-                        record.get(Tables.CUSTOMER.ID_CUSTOMER),   // ini ambil dari kolom id_customer
+                        record.get(Tables.CUSTOMER.ID_CUSTOMER),
                         record.get(Tables.CUSTOMER.NAMA),
                         record.get(Tables.CUSTOMER.NO_TELP),
                         record.get(Tables.CUSTOMER.CREATED_AT),
@@ -39,10 +39,10 @@ public class CustomerRepository extends JooqRepository {
         return result;
     }
 
-    // GET Customer by noTelp - customerId ditampilkan
     public Optional<CustomerResponseBody> findByNoTelp(String noTelp) {
+        String formattedPhone = convertToInternationalPhone(noTelp);
         return jooq.selectFrom(Tables.CUSTOMER)
-                .where(Tables.CUSTOMER.NO_TELP.eq(noTelp))
+                .where(Tables.CUSTOMER.NO_TELP.eq(formattedPhone))
                 .fetchOptional()
                 .map(record -> new CustomerResponseBody(
                         record.get(Tables.CUSTOMER.ID_CUSTOMER),
@@ -60,15 +60,16 @@ public class CustomerRepository extends JooqRepository {
         String customerId = UuidCreator.getTimeOrderedEpoch().toString();
         LocalDateTime now = LocalDateTime.now();
 
+        String formattedPhone = convertToInternationalPhone(request.getNoTelp());
+
         CustomerRecord newCustomer = jooq.newRecord(Tables.CUSTOMER);
         newCustomer.setIdCustomer(customerId);
         newCustomer.setNama(request.getNama());
-        newCustomer.setNoTelp(request.getNoTelp());
+        newCustomer.setNoTelp(formattedPhone);
         newCustomer.setCreatedAt(now);
         newCustomer.setUpdatedAt(now);
         newCustomer.store();
 
-        // Mengembalikan customer baru dengan customerId diset ke null
         return new CustomerResponseBody(
                 newCustomer.getIdCustomer(),
                 newCustomer.getNama(),
@@ -79,9 +80,27 @@ public class CustomerRepository extends JooqRepository {
         );
     }
 
+
     // Fungsi gabungan createOrGet tetap dengan logika yang sama
     public CustomerResponseBody createOrGet(CustomerRequestBody request) {
-        return findByNoTelp(request.getNoTelp())
-                .orElseGet(() -> create(request));
+        String formattedPhone = convertToInternationalPhone(request.getNoTelp());
+        return findByNoTelp(formattedPhone)
+                .orElseGet(() -> {
+                    // Pastikan juga set noTelp sudah di format internasional saat create
+                    request.setNoTelp(formattedPhone);
+                    return create(request);
+                });
     }
+
+    private String convertToInternationalPhone(String localPhone) {
+        if (localPhone == null) return "";
+        localPhone = localPhone.replaceAll("[^0-9]", "");
+
+        if (localPhone.startsWith("0")) {
+            return "62" + localPhone.substring(1);
+        }
+        return localPhone;
+    }
+
+
 }

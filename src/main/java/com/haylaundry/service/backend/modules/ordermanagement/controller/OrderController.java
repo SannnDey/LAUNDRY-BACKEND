@@ -28,6 +28,18 @@ public class OrderController {
         return Response.ok(orders).build();
     }
 
+    @GET
+    @Path("/detail")
+    public Response getOrderById(@QueryParam("idPesanan") String idPesanan) {
+        if (idPesanan == null || idPesanan.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Parameter idPesanan tidak boleh kosong.").build();
+        }
+
+        OrderResponse order = orderService.getOrderById(idPesanan);
+        return Response.ok(order).build();
+    }
+
     // ✅ Endpoint untuk membuat pesanan baru
     @POST
     public Response createOrder(OrderRequest orderRequest) {

@@ -21,6 +21,11 @@ public class OrderService {
         return orderRepository.getAll();
     }
 
+    // ✅ Ambil data pesanan berdasarkan ID
+    public OrderResponse getOrderById(String idPesanan) {
+        return orderRepository.getById(idPesanan);
+    }
+
     // ✅ Buat pesanan baru
     public OrderResponse createOrder(OrderRequest request) {
         return orderRepository.create(request);

@@ -20,6 +20,11 @@ public class OrderUnitService {
         return orderUnitRepository.getAllOrderUnit();
     }
 
+    public DetailOrderUnitResponse getOrderUnitById(String idDetail) {
+        return orderUnitRepository.getOrderUnitById(idDetail);
+    }
+
+
     // Membuat order unit baru
     public DetailOrderUnitResponse createOrderUnit(DetailOrderUnitRequest request) {
         // Bisa tambahkan validasi lain seperti validasi customer, dsb, atau langsung lempar ke repository
@@ -33,5 +38,10 @@ public class OrderUnitService {
     public OrderUnitStatusResponse updateStatusOrderUnit (String idDetail, String statusOrder) {
         return orderUnitRepository.updateStatusOrder(idDetail, statusOrder);
     }
+
+    public boolean deleteOrderUnitById(String idDetail) {
+        return orderUnitRepository.deleteOrderUnitById(idDetail);
+    }
+
 
 }
