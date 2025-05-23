@@ -40,6 +40,7 @@ CREATE TABLE detail_pesanan_satuan (
                                        tipe_pembayaran ENUM('Cash', 'QRIS') NOT NULL,
                                        status_bayar ENUM('Belum Lunas', 'Lunas') NOT NULL,
                                        status_order ENUM('Pickup', 'Cuci', 'Selesai') NOT NULL,
+                                       total_harga DOUBLE,
                                        tgl_masuk TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                        tgl_selesai TIMESTAMP NULL,
                                        catatan VARCHAR(255) NULL,

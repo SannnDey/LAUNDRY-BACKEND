@@ -11,6 +11,7 @@ import com.haylaundry.service.backend.modules.ordermanagement.models.response.or
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;
 import com.haylaundry.service.backend.core.utils.HargaCucianKiloan;
 import com.haylaundry.service.backend.core.utils.InvoiceGenerator;
+import com.haylaundry.service.backend.modules.report.service.DailyIncomeService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jooq.DSLContext;
@@ -23,6 +24,9 @@ import java.util.stream.Collectors;
 public class OrderRepository extends JooqRepository {
     @Inject
     private DSLContext jooq;
+
+    @Inject
+    private DailyIncomeService dailyIncomeService;
 
     // ✅ Ambil semua data pesanan
     public List<OrderResponse> getAll() {
@@ -155,6 +159,18 @@ public class OrderRepository extends JooqRepository {
         newOrder.setDeletedAt(null);
         newOrder.store(); // ✅ Simpan setelah customer valid
 
+        // Menambahkan pengecekan status bayar
+        // Jika status bayar "Lunas", update laporan pemasukan
+        if (PesananStatusBayar.Lunas.equals(newOrder.getStatusBayar())) {
+            // Memperbarui laporan pemasukan harian berdasarkan tanggal pesanan
+            dailyIncomeService.createLaporan(newOrder.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+        }
+        // Jika status bayar "Belum Lunas", update laporan piutang
+        else if (PesananStatusBayar.Belum_Lunas.equals(newOrder.getStatusBayar())) {
+            // Memperbarui laporan piutang harian jika belum lunas
+            dailyIncomeService.createLaporan(newOrder.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+        }
+
         // ✅ 4. Ambil data dari customer (sudah tidak null)
         String namaCustomer = customer.getNama();
         String noTelpCustomer = customer.getNoTelp();
@@ -217,8 +233,9 @@ public class OrderRepository extends JooqRepository {
 
 
 
+    // Fungsi untuk memperbarui status bayar pesanan
     public OrderStatusBayar updateBayarStatus(String idPesanan, String statusBayar) {
-        // Ambil pesanan berdasarkan ID
+        // Ambil pesanan berdasarkan idPesanan
         PesananRecord orderToUpdate = jooq.selectFrom(Tables.PESANAN)
                 .where(Tables.PESANAN.ID_PESANAN.eq(idPesanan))
                 .fetchOne();
@@ -231,17 +248,24 @@ public class OrderRepository extends JooqRepository {
         PesananStatusBayar status = PesananStatusBayar.lookupLiteral(statusBayar);
         orderToUpdate.setStatusBayar(status);
 
-        // Simpan perubahan
-        orderToUpdate.setStatusBayar(status);
+        // Simpan perubahan status bayar
         orderToUpdate.store();
 
-        // Return ringkas dengan OrderStatusResponse
+        // Jika status bayar "Lunas", update laporan pemasukan
+        if (PesananStatusBayar.Lunas.equals(status)) {
+            // Memperbarui laporan pemasukan harian berdasarkan tanggal pesanan
+            dailyIncomeService.createLaporan(orderToUpdate.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+        }
+
+        // Jika status bayar masih "Belum Lunas", kita tidak perlu melakukan apa-apa pada laporan
+
         return new OrderStatusBayar(
                 orderToUpdate.getIdPesanan(),
                 orderToUpdate.getNoFaktur(),
                 status.getLiteral()
         );
     }
+
 
 
     public boolean deleteById(String idPesanan) {

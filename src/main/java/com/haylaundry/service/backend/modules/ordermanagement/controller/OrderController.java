@@ -15,11 +15,13 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Path("/api/order")
 public class OrderController {
     @Inject
     private OrderService orderService;
+
 
     // ✅ Endpoint untuk mengambil semua pesanan
     @GET
@@ -27,6 +29,7 @@ public class OrderController {
         List<OrderResponse> orders = orderService.getAllOrders();
         return Response.ok(orders).build();
     }
+
 
     @GET
     @Path("/detail")

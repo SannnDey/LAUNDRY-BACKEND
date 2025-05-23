@@ -18,11 +18,13 @@ import com.haylaundry.service.backend.modules.ordermanagement.models.response.or
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.DetailOrderUnitResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusBayar;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusResponse;
+import com.haylaundry.service.backend.modules.report.service.DailyIncomeService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,9 @@ public class OrderUnitRepository extends JooqRepository {
 
     @Inject
     private DSLContext jooq;
+
+    @Inject
+    private DailyIncomeService dailyIncomeService;
 
     public List<DetailOrderUnitResponse> getAllOrderUnit() {
         List<Record> records = jooq.select()
@@ -188,6 +193,7 @@ public class OrderUnitRepository extends JooqRepository {
         detailRecord.setDeletedAt(request.getDeletedAt());
         detailRecord.store();
 
+
         // List untuk menampung response OrderUnitResponse
         List<OrderUnitResponse> orderUnitResponses = new ArrayList<>();
 
@@ -236,6 +242,8 @@ public class OrderUnitRepository extends JooqRepository {
             orderUnitRecord.setQty(item.getQty());
             orderUnitRecord.store();
 
+
+
             // Tambahkan ke response list
             orderUnitResponses.add(new OrderUnitResponse(
                     orderUnitRecord.getIdPesananSatuan(),
@@ -251,6 +259,14 @@ public class OrderUnitRepository extends JooqRepository {
         // Update totalHarga di detailRecord setelah insert semua pesanan_satuan
         detailRecord.setTotalHarga(totalHarga);
         detailRecord.store();
+
+        // Update laporan otomatis setelah menyimpan pesanan satuan
+        if (DetailPesananSatuanStatusBayar.Lunas.equals(detailRecord.getStatusBayar())) {
+            dailyIncomeService.createLaporan(detailRecord.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+        } else if (DetailPesananSatuanStatusBayar.Belum_Lunas.equals(detailRecord.getStatusBayar())) {
+            // Jika status bayar belum lunas, kita tidak update laporan pemasukan, tapi tetap ke piutang
+            dailyIncomeService.createLaporan(detailRecord.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+        }
 
         // Build dan return response DetailOrderUnitResponse dengan list items
         return new DetailOrderUnitResponse(
@@ -272,7 +288,9 @@ public class OrderUnitRepository extends JooqRepository {
     }
 
 
+    // Fungsi untuk memperbarui status bayar pesanan satuan
     public OrderUnitStatusBayar updateStatusBayar(String idDetail, String statusBayar) {
+        // Ambil detail pesanan satuan berdasarkan idDetail
         DetailPesananSatuanRecord orderUnitToUpdate = jooq.selectFrom(Tables.DETAIL_PESANAN_SATUAN)
                 .where(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
                 .fetchOne();
@@ -288,8 +306,18 @@ public class OrderUnitRepository extends JooqRepository {
             throw new IllegalArgumentException("Status bayar tidak valid: " + statusBayar);
         }
 
+        // Update status bayar
         orderUnitToUpdate.setStatusBayar(status);
         orderUnitToUpdate.store();
+
+        // Jika status bayar "Lunas", update laporan pemasukan
+        if (DetailPesananSatuanStatusBayar.Lunas.equals(status)) {
+            // Memperbarui laporan pemasukan harian berdasarkan tanggal pesanan satuan
+            dailyIncomeService.createLaporan(orderUnitToUpdate.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+        } else if (DetailPesananSatuanStatusBayar.Belum_Lunas.equals(status)) {
+            // Memperbarui laporan piutang harian jika belum lunas
+            dailyIncomeService.createLaporan(orderUnitToUpdate.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+        }
 
         return new OrderUnitStatusBayar(
                 orderUnitToUpdate.getIdDetail(),
@@ -298,34 +326,35 @@ public class OrderUnitRepository extends JooqRepository {
         );
     }
 
-
+    // Fungsi untuk memperbarui status order pesanan satuan
     public OrderUnitStatusResponse updateStatusOrder(String idDetail, String statusOrder) {
         DetailPesananSatuanRecord orderUnitTopUpdate = jooq.selectFrom(Tables.DETAIL_PESANAN_SATUAN)
                 .where(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
                 .fetchOne();
 
-            if (orderUnitTopUpdate == null ) {
-                throw new IllegalArgumentException("Pesanan tidak ditemukan.");
-            }
+        if (orderUnitTopUpdate == null ) {
+            throw new IllegalArgumentException("Pesanan tidak ditemukan.");
+        }
 
-            DetailPesananSatuanStatusOrder status = DetailPesananSatuanStatusOrder.lookupLiteral(statusOrder);
-            orderUnitTopUpdate.setStatusOrder(status);
+        DetailPesananSatuanStatusOrder status = DetailPesananSatuanStatusOrder.lookupLiteral(statusOrder);
+        orderUnitTopUpdate.setStatusOrder(status);
 
-            if (DetailPesananSatuanStatusOrder.Selesai.equals(status)) {
-                orderUnitTopUpdate.setTglSelesai(LocalDateTime.now());
-            }
+        if (DetailPesananSatuanStatusOrder.Selesai.equals(status)) {
+            orderUnitTopUpdate.setTglSelesai(LocalDateTime.now());
+        }
 
-            orderUnitTopUpdate.setStatusOrder(status);
-            orderUnitTopUpdate.store();
+        orderUnitTopUpdate.setStatusOrder(status);
+        orderUnitTopUpdate.store();
 
-            return new OrderUnitStatusResponse(
-                    orderUnitTopUpdate.getIdDetail(),
-                    orderUnitTopUpdate.getNoFaktur(),
-                    orderUnitTopUpdate.getStatusBayar().toString(),
-                    status.getLiteral(),
-                    orderUnitTopUpdate.getTglSelesai()
-            );
+        return new OrderUnitStatusResponse(
+                orderUnitTopUpdate.getIdDetail(),
+                orderUnitTopUpdate.getNoFaktur(),
+                orderUnitTopUpdate.getStatusBayar().toString(),
+                status.getLiteral(),
+                orderUnitTopUpdate.getTglSelesai()
+        );
     }
+
 
 
     public boolean deleteOrderUnitById(String idDetail) {
