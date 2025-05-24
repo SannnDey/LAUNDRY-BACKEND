@@ -43,12 +43,27 @@ public class OrderController {
         return Response.ok(order).build();
     }
 
+
+    @GET
+    @Path("/noFaktur")
+    public Response getOrderByNoFaktur(@QueryParam("noFaktur") String nomor) {
+        if (nomor == null || nomor.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Parameter noFaktur tidak boleh kosong.").build();
+        }
+
+        OrderResponse order = orderService.getOrderBynoFaktur(nomor);
+        return Response.ok(order).build();
+    }
+
+
     // ✅ Endpoint untuk membuat pesanan baru
     @POST
     public Response createOrder(OrderRequest orderRequest) {
         OrderResponse orderResponse = orderService.createOrder(orderRequest);
         return Response.status(Response.Status.CREATED).entity(orderResponse).build();
     }
+
 
     // ✅ Endpoint untuk memperbarui status pesanan
     @PUT

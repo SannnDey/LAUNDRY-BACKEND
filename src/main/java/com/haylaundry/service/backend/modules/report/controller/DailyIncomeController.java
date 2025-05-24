@@ -37,26 +37,26 @@ public class DailyIncomeController {
         }
     }
 
-    /**
-     * Endpoint untuk mengambil laporan pemasukan harian berdasarkan tanggal
-     *
-     * @param tanggal Tanggal laporan yang ingin diambil
-     * @return Response dengan data laporan pemasukan harian
-     */
+    // Endpoint to get the daily income report by date
     @GET
-    @Path("/get")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getDailyReport(@QueryParam("tanggal") String tanggal) {
+    @Path("/report")
+    public Response getDailyIncomeReport(@QueryParam("date") String dateString) {
         try {
-            // Mengonversi tanggal dari String ke LocalDate
-            LocalDate tglReport = LocalDate.parse(tanggal);
+            // Call the service to fetch the report
+            DailyIncomeResponse response = dailyIncomeService.getLaporanByDate(dateString);
 
-            // Memanggil service untuk mendapatkan laporan berdasarkan tanggal
-            DailyIncomeResponse laporan = dailyIncomeService.getLaporanByDate(tglReport);
-            return Response.ok(laporan).build();
+            // Return the response with status 200 OK
+            return Response.ok(response).build();
+        } catch (IllegalArgumentException e) {
+            // Return a BAD_REQUEST response with the error message if the date is invalid or the report is not found
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: " + e.getMessage())
+                    .build();
         } catch (Exception e) {
+            // Return a 500 Internal Server Error response for any unexpected error
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Terjadi kesalahan saat mengambil laporan: " + e.getMessage()).build();
+                    .entity("Internal Server Error: " + e.getMessage())
+                    .build();
         }
     }
 }

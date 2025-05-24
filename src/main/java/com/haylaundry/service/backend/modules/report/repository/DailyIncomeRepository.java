@@ -16,7 +16,10 @@ import jakarta.inject.Inject;
 import org.jooq.DSLContext;
 
 import java.time.LocalDate;
+import java.sql.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 @ApplicationScoped
 public class DailyIncomeRepository {
@@ -24,30 +27,39 @@ public class DailyIncomeRepository {
     @Inject
     private DSLContext jooq;
 
-    public DailyIncomeResponse getLaporanByDate(LocalDate tglReport) {
-        // Pastikan perbandingan tanggal dilakukan hanya berdasarkan tanggal
-        LaporanPemasukanHarianRecord report = jooq.selectFrom(Tables.LAPORAN_PEMASUKAN_HARIAN)
-                .where(Tables.LAPORAN_PEMASUKAN_HARIAN.TGL_REPORT.eq(tglReport)) // Menggunakan LocalDate untuk perbandingan
-                .fetchOne(); // Ambil satu entri
+    public DailyIncomeResponse getLaporanByDate(String dateString) {
+        // Define the date format and specify the Indonesian locale
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("id-ID"));
 
-        if (report == null) {
-            // Jika laporan tidak ada, coba buat laporan baru
-            throw new IllegalArgumentException("Laporan tidak ditemukan untuk tanggal: " + tglReport);
+        try {
+            // Parse the input date string to a LocalDate object
+            LocalDate tglReport = LocalDate.parse(dateString, formatter);
+
+            // Pastikan perbandingan tanggal dilakukan hanya berdasarkan tanggal
+            LaporanPemasukanHarianRecord report = jooq.selectFrom(Tables.LAPORAN_PEMASUKAN_HARIAN)
+                    .where(Tables.LAPORAN_PEMASUKAN_HARIAN.TGL_REPORT.cast(Date.class).eq(Date.valueOf(tglReport))) // Using java.sql.Date for comparison
+                    .fetchOne(); // Fetch one entry
+
+            if (report == null) {
+                // If no report is found, throw an exception
+                throw new IllegalArgumentException("Laporan tidak ditemukan untuk tanggal: " + tglReport);
+            }
+
+            // Convert data from record to response model
+            return new DailyIncomeResponse(
+                    report.getIdLaporanHarian(),
+                    report.getTglReport(),
+                    report.getTotalPemasukan(),
+                    report.getTotalPiutang(),
+                    report.getTotalPengeluaran(),
+                    report.getTotalKasMasuk(),
+                    report.getTotalOmset()
+            );
+        } catch (Exception e) {
+            // Handle parsing errors or any other issues gracefully
+            throw new IllegalArgumentException("Invalid date format. Please use the format 'dd MMMM yyyy' (e.g., '24 Mei 2025').", e);
         }
-
-        // Mengonversi data dari record ke response model
-        return new DailyIncomeResponse(
-                report.getIdLaporanHarian(),
-                report.getTglReport(),
-                report.getTotalPemasukan(),
-                report.getTotalPiutang(),
-                report.getTotalPengeluaran(),
-                report.getTotalKasMasuk(),
-                report.getTotalOmset()
-        );
     }
-
-
 
 
 

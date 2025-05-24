@@ -33,6 +33,15 @@ public class OrderUnitController {
         return Response.ok(orderUnit).build();
     }
 
+
+    @GET
+    @Path("/nofaktur")
+    public Response getOrderUnitBynoFaktur(@QueryParam("noFaktur") String nomor) {
+        DetailOrderUnitResponse orderUnit = orderUnitService.getOrderUnitNoFaktur(nomor);
+        return Response.ok(orderUnit).build();
+    }
+
+
     @POST
     @Path("/create")
     public Response createOrderUnit(DetailOrderUnitRequest request) {

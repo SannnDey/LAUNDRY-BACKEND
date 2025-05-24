@@ -17,6 +17,11 @@ public class ExpenseService {
         return expenseRepository.getAll();
     }
 
+    // New method to get expenses by date
+    public List<ExpenseResponse> getExpenseByDate(String dateString) {
+        return expenseRepository.getByDate(dateString);
+    }
+
     public ExpenseResponse create(ExpenseRequest body) {
         return expenseRepository.createExpense(body);
     }

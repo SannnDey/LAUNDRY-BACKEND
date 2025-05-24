@@ -40,14 +40,5 @@ public class ExpenseRequest {
         this.tglPengeluaran = tglPengeluaran;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     private LocalDateTime tglPengeluaran;
-    private LocalDateTime updatedAt;
 }

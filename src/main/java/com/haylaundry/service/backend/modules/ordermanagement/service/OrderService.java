@@ -26,6 +26,12 @@ public class OrderService {
         return orderRepository.getById(idPesanan);
     }
 
+    public OrderResponse getOrderBynoFaktur(String nomor) {
+        return orderRepository.getByNoFaktur(nomor);
+    }
+
+
+
     // ✅ Buat pesanan baru
     public OrderResponse createOrder(OrderRequest request) {
         return orderRepository.create(request);

@@ -26,9 +26,9 @@ public class DailyIncomeService {
         dailyIncomeRepository.createLaporan(tglReport);
     }
 
-    // Metode untuk mendapatkan laporan pemasukan harian berdasarkan tanggal
-    public DailyIncomeResponse getLaporanByDate(LocalDate tglReport) {
-        // Memanggil repository untuk mendapatkan laporan berdasarkan tanggal
-        return dailyIncomeRepository.getLaporanByDate(tglReport);
+    // Method to retrieve the daily income report based on the date
+    public DailyIncomeResponse getLaporanByDate(String dateString) {
+        // Directly call the repository method to fetch the report
+        return dailyIncomeRepository.getLaporanByDate(dateString);  // Calls the repository to fetch the report
     }
 }

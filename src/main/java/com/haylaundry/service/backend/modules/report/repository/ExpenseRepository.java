@@ -13,7 +13,9 @@ import org.jooq.DSLContext;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -35,8 +37,31 @@ public class ExpenseRepository extends JooqRepository {
                         record.get(Tables.PENGELUARAN.JENIS_PENGELUARAN),
                         record.get(Tables.PENGELUARAN.NOMINAL),
                         record.get(Tables.PENGELUARAN.CATATAN),
-                        record.get(Tables.PENGELUARAN.TGL_PENGELUARAN),
-                        record.get(Tables.PENGELUARAN.UPDATED_AT)
+                        record.get(Tables.PENGELUARAN.TGL_PENGELUARAN)
+                ))
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    // New method to get expenses by date with format DDDD-MMMM-YYYY
+    public List<ExpenseResponse> getByDate(String dateString) {
+        // Define the date format and specify the Indonesian locale
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("id-ID"));
+
+        // Parse the input date string to a LocalDate object
+        LocalDate date = LocalDate.parse(dateString, formatter);
+
+        // Fetch records that match the given date (ignore time)
+        List<ExpenseResponse> result = jooq.selectFrom(Tables.PENGELUARAN)
+                .where(Tables.PENGELUARAN.TGL_PENGELUARAN.cast(java.sql.Date.class).eq(java.sql.Date.valueOf(date))) // Compare date part only
+                .fetch()
+                .stream()
+                .map(record -> new ExpenseResponse(
+                        record.get(Tables.PENGELUARAN.ID_PENGELUARAN),
+                        record.get(Tables.PENGELUARAN.JENIS_PENGELUARAN),
+                        record.get(Tables.PENGELUARAN.NOMINAL),
+                        record.get(Tables.PENGELUARAN.CATATAN),
+                        record.get(Tables.PENGELUARAN.TGL_PENGELUARAN)
                 ))
                 .collect(Collectors.toList());
         return result;
@@ -54,7 +79,6 @@ public class ExpenseRepository extends JooqRepository {
         newPengeluaran.setNominal(request.getNominal());
         newPengeluaran.setCatatan(request.getCatatan());
         newPengeluaran.setTglPengeluaran(now);
-        newPengeluaran.setUpdatedAt(null);
         newPengeluaran.store();
 
         // Update laporan harian setelah pengeluaran baru tercatat
@@ -65,8 +89,7 @@ public class ExpenseRepository extends JooqRepository {
                 newPengeluaran.getJenisPengeluaran(),
                 newPengeluaran.getNominal(),
                 newPengeluaran.getCatatan(),
-                newPengeluaran.getTglPengeluaran(),
-                newPengeluaran.getUpdatedAt()
+                newPengeluaran.getTglPengeluaran()
         );
     }
 }

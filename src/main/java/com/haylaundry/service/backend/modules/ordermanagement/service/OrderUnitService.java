@@ -24,6 +24,10 @@ public class OrderUnitService {
         return orderUnitRepository.getOrderUnitById(idDetail);
     }
 
+    public DetailOrderUnitResponse getOrderUnitNoFaktur(String nomor) {
+        return orderUnitRepository.getOrderUnitByNoFaktur(nomor);
+    }
+
 
     // Membuat order unit baru
     public DetailOrderUnitResponse createOrderUnit(DetailOrderUnitRequest request) {

@@ -7,26 +7,19 @@ public class ExpenseResponse {
     private String jenisPengeluaran;
     private Double nominal;
     private String catatan;
+    private LocalDateTime tglPengeluaran;
 
     public ExpenseResponse () {
 
     }
 
-    public ExpenseResponse(String idPengeluaran, String jenisPengeluaran, Double nominal, String catatan, LocalDateTime tglPengeluaran, LocalDateTime updatedAt) {
+    public ExpenseResponse(String idPengeluaran, String jenisPengeluaran, Double nominal, String catatan, LocalDateTime tglPengeluaran) {
         this.idPengeluaran = idPengeluaran;
         this.jenisPengeluaran = jenisPengeluaran;
         this.nominal = nominal;
         this.catatan = catatan;
         this.tglPengeluaran = tglPengeluaran;
-        this.updatedAt = updatedAt;
     }
-
-    private LocalDateTime tglPengeluaran;
-    private LocalDateTime updatedAt;
-
-
-
-
 
     public String getIdPengeluaran() {
         return idPengeluaran;
@@ -68,11 +61,4 @@ public class ExpenseResponse {
         this.tglPengeluaran = tglPengeluaran;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

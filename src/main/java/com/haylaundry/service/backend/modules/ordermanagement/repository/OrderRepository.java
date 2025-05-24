@@ -122,6 +122,59 @@ public class OrderRepository extends JooqRepository {
     }
 
 
+    public OrderResponse getByNoFaktur(String nomor) {
+        // Format the nomor into the complete noFaktur string, adding "INV-" prefix
+        String noFaktur = "INV-" + nomor;
+
+        var record = jooq.select(
+                        Tables.PESANAN.ID_PESANAN,
+                        Tables.CUSTOMER.ID_CUSTOMER,
+                        Tables.PESANAN.NO_FAKTUR,
+                        Tables.CUSTOMER.NAMA,
+                        Tables.CUSTOMER.NO_TELP,
+                        Tables.PESANAN.TIPE_CUCIAN,
+                        Tables.PESANAN.JENIS_CUCIAN,
+                        Tables.PESANAN.QTY,
+                        Tables.PESANAN.HARGA,
+                        Tables.PESANAN.TIPE_PEMBAYARAN,
+                        Tables.PESANAN.STATUS_BAYAR,
+                        Tables.PESANAN.STATUS_ORDER,
+                        Tables.PESANAN.TGL_MASUK,
+                        Tables.PESANAN.TGL_SELESAI,
+                        Tables.PESANAN.CATATAN,
+                        Tables.PESANAN.DELETED_AT
+                )
+                .from(Tables.PESANAN)
+                .leftJoin(Tables.CUSTOMER).on(Tables.PESANAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
+                .where(Tables.PESANAN.NO_FAKTUR.eq(noFaktur))
+                .fetchOne();
+
+        if (record == null) {
+            throw new IllegalArgumentException("Pesanan dengan No Faktur " + noFaktur + " tidak ditemukan.");
+        }
+
+        return new OrderResponse(
+                record.get(Tables.PESANAN.ID_PESANAN),
+                record.get(Tables.CUSTOMER.ID_CUSTOMER),
+                record.get(Tables.PESANAN.NO_FAKTUR),
+                record.get(Tables.CUSTOMER.NAMA),
+                record.get(Tables.CUSTOMER.NO_TELP),
+                String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
+                String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
+                record.get(Tables.PESANAN.QTY),
+                record.get(Tables.PESANAN.HARGA),
+                String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
+                String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
+                String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
+                record.get(Tables.PESANAN.TGL_MASUK),
+                record.get(Tables.PESANAN.TGL_SELESAI),
+                record.get(Tables.PESANAN.CATATAN),
+                record.get(Tables.PESANAN.DELETED_AT)
+        );
+    }
+
+
+
 
     public OrderResponse create(OrderRequest request) {
         String orderId = UuidCreator.getTimeOrderedEpoch().toString();
