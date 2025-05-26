@@ -3,17 +3,14 @@ package com.haylaundry.service.backend.modules.ordermanagement.repository;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.core.utils.EnumValidator;
-import com.haylaundry.service.backend.core.utils.HargaCucianSatuan;
+import com.haylaundry.service.backend.core.utils.PriceOrderUnit;
 import com.haylaundry.service.backend.core.utils.InvoiceGenerator;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 import com.haylaundry.service.backend.jooq.gen.tables.records.DetailPesananSatuanRecord;
-import com.haylaundry.service.backend.jooq.gen.tables.records.PesananRecord;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PesananSatuanRecord;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.OrderUnitRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.DetailOrderUnitRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.DetailOrderUnitResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitStatusBayar;
@@ -24,7 +21,6 @@ import jakarta.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -276,7 +272,7 @@ public class OrderUnitRepository extends JooqRepository {
             );
 
             // Hitung harga otomatis
-            double hargaHitung = HargaCucianSatuan.hitungHarga(kategori, ukuran, jenisLayanan);
+            double hargaHitung = PriceOrderUnit.hitungHarga(kategori, ukuran, jenisLayanan);
             double hargaFinal = hargaHitung * item.getQty();
 
             // Tambahkan ke total harga

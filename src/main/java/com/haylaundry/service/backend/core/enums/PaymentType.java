@@ -3,13 +3,13 @@ package com.haylaundry.service.backend.core.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum StatusBayar {
-    BELUM_LUNAS("Belum Lunas"),
-    LUNAS("Lunas");
+public enum PaymentType {
+    CASH("Cash"),
+    QRIS("QRIS");
 
     private final String value;
 
-    StatusBayar(String value) {
+    PaymentType(String value) {
         this.value = value;
     }
 
@@ -19,10 +19,10 @@ public enum StatusBayar {
     }
 
     @JsonCreator
-    public static StatusBayar fromValue(String value) {
-        for (StatusBayar status : StatusBayar.values()) {
-            if (status.value.equalsIgnoreCase(value)) {
-                return status;
+    public static PaymentType fromValue(String value) {
+        for (PaymentType tipe : PaymentType.values()) {
+            if (tipe.value.equalsIgnoreCase(value)) {
+                return tipe;
             }
         }
         throw new IllegalArgumentException("Unknown value: " + value);

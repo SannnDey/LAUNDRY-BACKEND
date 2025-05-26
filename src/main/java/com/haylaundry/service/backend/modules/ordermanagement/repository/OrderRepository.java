@@ -9,7 +9,7 @@ import com.haylaundry.service.backend.modules.ordermanagement.models.request.ord
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;
-import com.haylaundry.service.backend.core.utils.HargaCucianKiloan;
+import com.haylaundry.service.backend.core.utils.PriceOrder;
 import com.haylaundry.service.backend.core.utils.InvoiceGenerator;
 import com.haylaundry.service.backend.modules.report.service.DailyIncomeService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -192,7 +192,7 @@ public class OrderRepository extends JooqRepository {
         // ✅ 2. Menghitung harga total menggunakan HargaCucian
         PesananTipeCucian tipeCucian = PesananTipeCucian.lookupLiteral(request.getTipeCucian());
         PesananJenisCucian jenisCucian = PesananJenisCucian.lookupLiteral(request.getJenisCucian());
-        double hargaTotal = HargaCucianKiloan.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty()); // Menggunakan HargaCucian untuk menghitung harga
+        double hargaTotal = PriceOrder.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty()); // Menggunakan HargaCucian untuk menghitung harga
 
         // ✅ 3. Simpan data pesanan
         PesananRecord newOrder = jooq.newRecord(Tables.PESANAN);

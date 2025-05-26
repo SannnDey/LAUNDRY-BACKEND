@@ -65,19 +65,19 @@ public class EnumConverter {
     }
 
     // Konversi StatusBayar dari PesananRecord ke OrderRequest
-    public static StatusBayar convertPesananStatusBayarToStatusBayar(com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar pesananStatusBayar) {
+    public static PaymentStatus convertPesananStatusBayarToStatusBayar(com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar pesananStatusBayar) {
         switch (pesananStatusBayar) {
             case Belum_Lunas:
-                return StatusBayar.BELUM_LUNAS;
+                return PaymentStatus.BELUM_LUNAS;
             case Lunas:
-                return StatusBayar.LUNAS;
+                return PaymentStatus.LUNAS;
             default:
                 throw new IllegalArgumentException("Unknown StatusBayar: " + pesananStatusBayar);
         }
     }
 
     // Konversi StatusBayar dari OrderRequest ke PesananRecord
-    public static com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar convertStatusBayarToPesananStatusBayar(StatusBayar statusBayar) {
+    public static com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar convertStatusBayarToPesananStatusBayar(PaymentStatus statusBayar) {
         switch (statusBayar) {
             case BELUM_LUNAS:
                 return PesananStatusBayar.Belum_Lunas;
@@ -117,19 +117,19 @@ public class EnumConverter {
     }
 
     // Konversi TipePembayaran dari PesananRecord ke OrderRequest
-    public static TipePembayaran convertPesananTipePembayaranToTipePembayaran(com.haylaundry.service.backend.jooq.gen.enums.PesananTipePembayaran pesananTipePembayaran) {
+    public static PaymentType convertPesananTipePembayaranToTipePembayaran(com.haylaundry.service.backend.jooq.gen.enums.PesananTipePembayaran pesananTipePembayaran) {
         switch (pesananTipePembayaran) {
             case Cash:
-                return TipePembayaran.CASH;
+                return PaymentType.CASH;
             case QRIS:
-                return TipePembayaran.QRIS;
+                return PaymentType.QRIS;
             default:
                 throw new IllegalArgumentException("Unknown TipePembayaran: " + pesananTipePembayaran);
         }
     }
 
     // Konversi TipePembayaran dari OrderRequest ke PesananRecord
-    public static com.haylaundry.service.backend.jooq.gen.enums.PesananTipePembayaran convertTipePembayaranToPesananTipePembayaran(TipePembayaran tipePembayaran) {
+    public static com.haylaundry.service.backend.jooq.gen.enums.PesananTipePembayaran convertTipePembayaranToPesananTipePembayaran(PaymentType tipePembayaran) {
         switch (tipePembayaran) {
             case CASH:
                 return PesananTipePembayaran.Cash;

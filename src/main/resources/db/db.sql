@@ -68,3 +68,24 @@ CREATE TABLE pesanan_satuan (
                                     ON UPDATE CASCADE
                                     ON DELETE CASCADE
 );
+
+CREATE TABLE pengeluaran (
+                             id_pengeluaran  VARCHAR(36) PRIMARY KEY,
+                             jenis_pengeluaran VARCHAR(255) NOT NULL,
+                             nominal DOUBLE NOT NULL,
+                             catatan VARCHAR(255) NULL,
+                             tgl_pengeluaran TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                             updated_at TIMESTAMP NULL
+);
+
+
+CREATE TABLE laporan_pemasukan_harian (
+                                          id_laporan_harian VARCHAR(36) PRIMARY KEY,
+                                          tgl_report DATE NOT NULL UNIQUE,
+                                          total_pemasukan DOUBLE NOT NULL DEFAULT 0,
+                                          total_piutang DOUBLE NOT NULL DEFAULT 0,
+                                          total_pengeluaran DOUBLE NOT NULL DEFAULT 0,
+                                          total_kas_masuk DOUBLE NOT NULL DEFAULT 0,
+                                          total_omset DOUBLE NOT NULL DEFAULT 0,
+                                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

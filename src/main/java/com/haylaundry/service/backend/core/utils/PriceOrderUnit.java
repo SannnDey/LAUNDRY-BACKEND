@@ -4,7 +4,7 @@ import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanKategoriBarang
 import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanUkuran;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanJenisLayanan;
 
-public class HargaCucianSatuan {
+public class PriceOrderUnit {
 
     public static double hitungHarga(String kategoriBarang, String ukuran, String jenisLayanan) {
         if (kategoriBarang == null || kategoriBarang.trim().isEmpty()) {
