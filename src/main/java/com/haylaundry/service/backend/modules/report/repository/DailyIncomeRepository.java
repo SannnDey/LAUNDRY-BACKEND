@@ -1,15 +1,13 @@
 package com.haylaundry.service.backend.modules.report.repository;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.DetailPesananSatuanStatusBayar;
 import com.haylaundry.service.backend.jooq.gen.enums.DetailPesananSatuanStatusOrder;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusOrder;
-import com.haylaundry.service.backend.jooq.gen.tables.records.DetailPesananSatuanRecord;
-import com.haylaundry.service.backend.jooq.gen.tables.records.LaporanPemasukanHarianRecord;
-import com.haylaundry.service.backend.jooq.gen.tables.records.PengeluaranRecord;
-import com.haylaundry.service.backend.jooq.gen.tables.records.PesananRecord;
+import com.haylaundry.service.backend.jooq.gen.tables.records.*;
 import com.haylaundry.service.backend.modules.report.models.dailyincome.response.DailyIncomeResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,10 +20,11 @@ import java.util.List;
 import java.util.Locale;
 
 @ApplicationScoped
-public class DailyIncomeRepository {
+public class DailyIncomeRepository extends JooqRepository {
 
     @Inject
     private DSLContext jooq;
+
 
     public DailyIncomeResponse getLaporanByDate(String dateString) {
         // Define the date format and specify the Indonesian locale
@@ -62,9 +61,9 @@ public class DailyIncomeRepository {
     }
 
 
-
+    // Method to create or update daily income report and rekap to monthly report
     public void createLaporan(LocalDate tglReport) {
-        // Cek apakah laporan sudah ada untuk tanggal yang sama
+        // Cek apakah laporan harian sudah ada untuk tanggal yang sama
         LaporanPemasukanHarianRecord existingReport = jooq.selectFrom(Tables.LAPORAN_PEMASUKAN_HARIAN)
                 .where(Tables.LAPORAN_PEMASUKAN_HARIAN.TGL_REPORT.eq(tglReport))
                 .fetchOne();
@@ -76,8 +75,9 @@ public class DailyIncomeRepository {
         double totalKasMasuk = totalPemasukan - totalPengeluaran;
         double totalOmset = totalPemasukan + totalPiutang - totalPengeluaran;
 
+        // Cek dan simpan laporan harian
         if (existingReport != null) {
-            // Jika laporan sudah ada, lakukan update
+            // Jika laporan harian sudah ada, lakukan update
             existingReport.setTotalPemasukan(totalPemasukan);
             existingReport.setTotalPiutang(totalPiutang);
             existingReport.setTotalPengeluaran(totalPengeluaran);
@@ -85,7 +85,7 @@ public class DailyIncomeRepository {
             existingReport.setTotalOmset(totalOmset);
             existingReport.store();  // Simpan update
         } else {
-            // Jika laporan tidak ada, buat laporan baru
+            // Jika laporan harian tidak ada, buat laporan baru
             String idLaporanHarian = UuidCreator.getTimeOrderedEpoch().toString();
 
             LaporanPemasukanHarianRecord laporan = jooq.newRecord(Tables.LAPORAN_PEMASUKAN_HARIAN);
@@ -96,8 +96,109 @@ public class DailyIncomeRepository {
             laporan.setTotalPengeluaran(totalPengeluaran);
             laporan.setTotalKasMasuk(totalKasMasuk);
             laporan.setTotalOmset(totalOmset);
-            laporan.store();  // Simpan laporan baru
+            laporan.store();  // Simpan laporan harian baru
         }
+
+        // Rekap laporan keuangan bulanan otomatis setelah laporan harian dibuat atau diperbarui
+        rekapLaporanKeuanganBulanan(tglReport);
+    }
+
+
+    public void rekapLaporanKeuanganBulanan(LocalDate tglReport) {
+        // Ambil bulan dan tahun dari tanggal laporan
+        LocalDate firstOfMonth = tglReport.withDayOfMonth(1);
+        LocalDate lastOfMonth = tglReport.withDayOfMonth(tglReport.lengthOfMonth());
+
+        // Menghitung total pemasukan, piutang, pengeluaran, kas masuk, dan omset untuk bulan ini
+        double totalPemasukanBulanan = hitungTotalPemasukanBulanan(firstOfMonth, lastOfMonth);
+        double totalPiutangBulanan = hitungTotalPiutangBulanan(firstOfMonth, lastOfMonth);
+        double totalPengeluaranBulanan = hitungTotalPengeluaranBulanan(firstOfMonth, lastOfMonth);
+        double totalKasMasukBulanan = totalPemasukanBulanan - totalPengeluaranBulanan;
+        double totalOmsetBulanan = totalPemasukanBulanan + totalPiutangBulanan - totalPengeluaranBulanan;
+
+        // Format firstOfMonth menjadi "YYYY-MM" untuk dibandingkan dengan tgl_report (yang disimpan dalam format VARCHAR(7))
+        String formattedDate = firstOfMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
+        // Cek apakah laporan bulanan sudah ada
+        LaporanKeuanganRecord existingMonthlyReport = jooq.selectFrom(Tables.LAPORAN_KEUANGAN)
+                .where(Tables.LAPORAN_KEUANGAN.TGL_REPORT.eq(formattedDate))  // Laporan keuangan untuk bulan ini (format "YYYY-MM")
+                .fetchOne();
+
+        // Jika laporan bulanan sudah ada, lakukan update
+        if (existingMonthlyReport != null) {
+            existingMonthlyReport.setTotalPemasukan(totalPemasukanBulanan);
+            existingMonthlyReport.setTotalPiutang(totalPiutangBulanan);
+            existingMonthlyReport.setTotalPengeluaran(totalPengeluaranBulanan);
+            existingMonthlyReport.setTotalKasMasuk(totalKasMasukBulanan);
+            existingMonthlyReport.setTotalOmset(totalOmsetBulanan);
+            existingMonthlyReport.store();  // Update laporan bulanan yang sudah ada
+        } else {
+            // Jika laporan bulanan belum ada, buat laporan baru
+            // Generate unique ID for laporan_keuangan
+            String idLaporanKeuangan = UuidCreator.getTimeOrderedEpoch().toString();
+
+            // Buat objek LaporanKeuanganRecord baru
+            LaporanKeuanganRecord laporanBulanan = jooq.newRecord(Tables.LAPORAN_KEUANGAN);
+
+            // Set ID, tanggal, dan nilai lainnya
+            laporanBulanan.setIdLaporanKeuangan(idLaporanKeuangan);  // Set ID for the report
+            laporanBulanan.setTglReport(formattedDate);  // Tanggal laporan adalah 1 bulan ini dalam format "YYYY-MM"
+            laporanBulanan.setTotalPemasukan(totalPemasukanBulanan);
+            laporanBulanan.setTotalPiutang(totalPiutangBulanan);
+            laporanBulanan.setTotalPengeluaran(totalPengeluaranBulanan);
+            laporanBulanan.setTotalKasMasuk(totalKasMasukBulanan);
+            laporanBulanan.setTotalOmset(totalOmsetBulanan);
+
+            // Simpan laporan bulanan baru ke database
+            laporanBulanan.store();
+        }
+    }
+
+
+
+
+
+
+
+
+    // Method to calculate total pemasukan for the month
+    private double hitungTotalPemasukanBulanan(LocalDate startOfMonth, LocalDate endOfMonth) {
+        return jooq.selectFrom(Tables.LAPORAN_PEMASUKAN_HARIAN)
+                .where(Tables.LAPORAN_PEMASUKAN_HARIAN.TGL_REPORT.between(startOfMonth, endOfMonth))
+                .fetch()
+                .stream()
+                .mapToDouble(LaporanPemasukanHarianRecord::getTotalPemasukan)
+                .sum();
+    }
+
+    // Method to calculate total piutang for the month
+    private double hitungTotalPiutangBulanan(LocalDate startOfMonth, LocalDate endOfMonth) {
+        return jooq.selectFrom(Tables.LAPORAN_PEMASUKAN_HARIAN)
+                .where(Tables.LAPORAN_PEMASUKAN_HARIAN.TGL_REPORT.between(startOfMonth, endOfMonth))
+                .fetch()
+                .stream()
+                .mapToDouble(LaporanPemasukanHarianRecord::getTotalPiutang)
+                .sum();
+    }
+
+    // Method to calculate total pengeluaran for the month
+    private double hitungTotalPengeluaranBulanan(LocalDate startOfMonth, LocalDate endOfMonth) {
+        return jooq.selectFrom(Tables.LAPORAN_PEMASUKAN_HARIAN)
+                .where(Tables.LAPORAN_PEMASUKAN_HARIAN.TGL_REPORT.between(startOfMonth, endOfMonth))
+                .fetch()
+                .stream()
+                .mapToDouble(LaporanPemasukanHarianRecord::getTotalPengeluaran)
+                .sum();
+    }
+
+    // Method to calculate total kas masuk for the month (Kas Masuk = Pemasukan - Pengeluaran)
+    private double hitungTotalKasMasukBulanan(LocalDate startOfMonth, LocalDate endOfMonth) {
+        return hitungTotalPemasukanBulanan(startOfMonth, endOfMonth) - hitungTotalPengeluaranBulanan(startOfMonth, endOfMonth);
+    }
+
+    // Method to calculate total omset for the month (Omset = Pemasukan + Piutang - Pengeluaran)
+    private double hitungTotalOmsetBulanan(LocalDate startOfMonth, LocalDate endOfMonth) {
+        return hitungTotalPemasukanBulanan(startOfMonth, endOfMonth) + hitungTotalPiutangBulanan(startOfMonth, endOfMonth) - hitungTotalPengeluaranBulanan(startOfMonth, endOfMonth);
     }
 
 

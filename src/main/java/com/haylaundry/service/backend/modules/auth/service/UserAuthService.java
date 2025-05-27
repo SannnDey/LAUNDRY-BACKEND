@@ -1,10 +1,12 @@
 package com.haylaundry.service.backend.modules.auth.service;
 
+import com.haylaundry.service.backend.core.utils.PasswordService;
 import com.haylaundry.service.backend.modules.auth.models.request.UserAuthRequest;
 import com.haylaundry.service.backend.modules.auth.models.response.UserAuthResponse;
 import com.haylaundry.service.backend.modules.auth.repository.UserAuthRepository;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,9 @@ public class UserAuthService {
 
     private final UserAuthRepository userAuthRepository;
 
+    @Inject
+    private PasswordService passwordService;
+
     public UserAuthService(UserAuthRepository userAuthRepository) {
         this.userAuthRepository = userAuthRepository;
     }
@@ -28,9 +33,14 @@ public class UserAuthService {
         return userAuthRepository.getAll();
     }
 
-    // Registrasi pengguna baru
+    // Registrasi pengguna baru dengan hashing password
     public UserAuthResponse create(UserAuthRequest body) {
         logger.info("Mendaftarkan pengguna baru: {}", body.getUsername());
+
+        // Hash the password before storing it
+        String hashedPassword = passwordService.hashPassword(body.getPassword());
+        body.setPassword(hashedPassword);
+
         userAuthRepository.create(body);
         return userAuthRepository.getAll().stream()
                 .filter(user -> user.getUsername().equals(body.getUsername()) && user.getRole().equals(body.getRole()))
@@ -38,14 +48,22 @@ public class UserAuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Gagal membuat user"));
     }
 
-    // Login pengguna
+    // Login pengguna dan verifikasi password
     public UserAuthResponse login(String username, String password) {
         logger.info("Proses login untuk pengguna: {}", username);
-        return userAuthRepository.getAll().stream()
-                .filter(user -> user.getUsername().equals(username)
-                        && user.getPassword().equals(password))
+
+        // Get user from database (simulating the fetch)
+        UserAuthResponse user = userAuthRepository.getAll().stream()
+                .filter(u -> u.getUsername().equals(username))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Username atau password salah"));
+
+        // Verify the password with the stored hash
+        if (!passwordService.verifyPassword(password, user.getPassword())) {
+            throw new IllegalArgumentException("Username atau password salah");
+        }
+
+        return user;
     }
 
     // Menghasilkan token JWT

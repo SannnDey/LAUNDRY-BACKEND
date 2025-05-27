@@ -89,3 +89,14 @@ CREATE TABLE laporan_pemasukan_harian (
                                           total_omset DOUBLE NOT NULL DEFAULT 0,
                                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE laporan_keuangan (
+                                  id_laporan_keuangan VARCHAR(36) PRIMARY KEY,
+                                  tgl_report VARCHAR(07) NOT NULL UNIQUE,
+                                  total_pemasukan DOUBLE NOT NULL DEFAULT 0,
+                                  total_piutang DOUBLE NOT NULL DEFAULT 0,
+                                  total_pengeluaran DOUBLE NOT NULL DEFAULT 0,
+                                  total_kas_masuk DOUBLE NOT NULL DEFAULT 0,
+                                  total_omset DOUBLE NOT NULL DEFAULT 0,
+                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
