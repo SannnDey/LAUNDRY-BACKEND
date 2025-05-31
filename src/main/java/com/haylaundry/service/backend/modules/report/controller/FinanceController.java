@@ -1,5 +1,6 @@
 package com.haylaundry.service.backend.modules.report.controller;
 
+import com.haylaundry.service.backend.modules.report.models.finance.response.FinanceDateResponse;
 import com.haylaundry.service.backend.modules.report.models.finance.response.FinanceResponse;
 import com.haylaundry.service.backend.modules.report.service.FinanceService;
 import com.haylaundry.service.backend.jooq.gen.tables.records.LaporanKeuanganRecord;
@@ -44,4 +45,21 @@ public class FinanceController {
                     .build();
         }
     }
+
+
+    // Endpoint to get financial report by date range
+    @GET
+    @Path("/byDateRange")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getReportByDateRange(@QueryParam("startDate") String startDate, @QueryParam("endDate") String endDate) {
+        try {
+            FinanceDateResponse response = financeService.getReportByDateRange(startDate, endDate);
+            return Response.ok(response).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error: " + e.getMessage())
+                    .build();
+        }
+    }
+
 }

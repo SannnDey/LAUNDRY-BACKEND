@@ -4,6 +4,7 @@ import com.github.f4b6a3.uuid.UuidCreator;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.tables.records.LaporanKeuanganRecord;
 import com.haylaundry.service.backend.jooq.gen.tables.records.LaporanPemasukanHarianRecord;
+import com.haylaundry.service.backend.modules.report.models.finance.response.FinanceDateResponse;
 import com.haylaundry.service.backend.modules.report.models.finance.response.FinanceResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,6 +21,45 @@ public class FinanceRepository {
 
     @Inject
     private DSLContext jooq;
+
+
+    // Method to get the report by date range
+    public FinanceDateResponse getLaporanByDateRange(String startDate, String endDate) {
+        // Define the date format and specify the Indonesian locale
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+
+        try {
+            // Parse the input start and end date strings to LocalDate objects
+            LocalDate startLocalDate = LocalDate.parse(startDate.trim(), formatter);
+            LocalDate endLocalDate = LocalDate.parse(endDate.trim(), formatter);
+
+            // Convert data from the date range to response model
+            double totalPemasukan = hitungTotalPemasukanBulanan(startLocalDate, endLocalDate);
+            double totalPiutang = hitungTotalPiutangBulanan(startLocalDate, endLocalDate);
+            double totalPengeluaran = hitungTotalPengeluaranBulanan(startLocalDate, endLocalDate);
+            double totalKasMasuk = hitungTotalKasMasukBulanan(startLocalDate, endLocalDate);
+            double totalOmset = hitungTotalOmsetBulanan(startLocalDate, endLocalDate);
+
+            // Create the report ID
+            String idLaporanKeuangan = UuidCreator.getTimeOrderedEpoch().toString();  // Assuming UUID is used as the ID
+
+            // Return the report data in the FinanceDateResponse model
+            return new FinanceDateResponse(
+                    idLaporanKeuangan,
+                    startLocalDate.toString(),  // Set the report start date
+                    endLocalDate.toString(),    // Set the report end date
+                    totalPemasukan,
+                    totalPiutang,
+                    totalPengeluaran,
+                    totalKasMasuk,
+                    totalOmset
+            );
+
+        } catch (DateTimeParseException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid date format. Please use the format 'dd MMMM yyyy' (e.g., '21 Mei 2025 - 30 Mei 2025').", e);
+        }
+    }
 
     public FinanceResponse getLaporanByMonth(String date) {
         // Define the date format and specify the Indonesian locale
