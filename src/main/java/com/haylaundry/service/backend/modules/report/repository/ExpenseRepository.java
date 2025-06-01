@@ -7,6 +7,7 @@ import com.haylaundry.service.backend.jooq.gen.tables.records.PengeluaranRecord;
 import com.haylaundry.service.backend.modules.report.models.expense.request.ExpenseRequest;
 import com.haylaundry.service.backend.modules.report.models.expense.response.ExpenseResponse;
 import com.haylaundry.service.backend.modules.report.service.DailyIncomeService;
+import java.text.DecimalFormat;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jooq.DSLContext;
@@ -29,13 +30,17 @@ public class ExpenseRepository extends JooqRepository {
 
 
     public List<ExpenseResponse> getAll() {
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
+        // Ambil semua data pengeluaran dan format nominal
         List<ExpenseResponse> result = jooq.selectFrom(Tables.PENGELUARAN)
                 .fetch()
                 .stream()
                 .map(record -> new ExpenseResponse(
                         record.get(Tables.PENGELUARAN.ID_PENGELUARAN),
                         record.get(Tables.PENGELUARAN.JENIS_PENGELUARAN),
-                        record.get(Tables.PENGELUARAN.NOMINAL),
+                        formatter.format(record.get(Tables.PENGELUARAN.NOMINAL)),  // Format nominal dengan pemisah ribuan
                         record.get(Tables.PENGELUARAN.CATATAN),
                         record.get(Tables.PENGELUARAN.TGL_PENGELUARAN)
                 ))
@@ -45,21 +50,24 @@ public class ExpenseRepository extends JooqRepository {
 
     // New method to get expenses by date with format DDDD-MMMM-YYYY
     public List<ExpenseResponse> getByDate(String dateString) {
-        // Define the date format and specify the Indonesian locale
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("id-ID"));
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
 
-        // Parse the input date string to a LocalDate object
-        LocalDate date = LocalDate.parse(dateString, formatter);
+        // Format tanggal dan tentukan locale Indonesia
+        DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("id-ID"));
 
-        // Fetch records that match the given date (ignore time)
+        // Parse input date string ke objek LocalDate
+        LocalDate date = LocalDate.parse(dateString, formatterDate);
+
+        // Ambil pengeluaran berdasarkan tanggal yang diberikan dan format nominal
         List<ExpenseResponse> result = jooq.selectFrom(Tables.PENGELUARAN)
-                .where(Tables.PENGELUARAN.TGL_PENGELUARAN.cast(java.sql.Date.class).eq(java.sql.Date.valueOf(date))) // Compare date part only
+                .where(Tables.PENGELUARAN.TGL_PENGELUARAN.cast(java.sql.Date.class).eq(java.sql.Date.valueOf(date))) // Bandingkan hanya tanggal
                 .fetch()
                 .stream()
                 .map(record -> new ExpenseResponse(
                         record.get(Tables.PENGELUARAN.ID_PENGELUARAN),
                         record.get(Tables.PENGELUARAN.JENIS_PENGELUARAN),
-                        record.get(Tables.PENGELUARAN.NOMINAL),
+                        formatter.format(record.get(Tables.PENGELUARAN.NOMINAL)),  // Format nominal dengan pemisah ribuan
                         record.get(Tables.PENGELUARAN.CATATAN),
                         record.get(Tables.PENGELUARAN.TGL_PENGELUARAN)
                 ))
@@ -68,11 +76,12 @@ public class ExpenseRepository extends JooqRepository {
     }
 
 
-    public  ExpenseResponse createExpense(ExpenseRequest request) {
+    public ExpenseResponse createExpense(ExpenseRequest request) {
         String idPengeluaran = UuidCreator.getTimeOrderedEpoch().toString();
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = LocalDate.now();
 
+        // Membuat record pengeluaran baru
         PengeluaranRecord newPengeluaran = jooq.newRecord(Tables.PENGELUARAN);
         newPengeluaran.setIdPengeluaran(idPengeluaran);
         newPengeluaran.setJenisPengeluaran(request.getJenisPengeluaran());
@@ -84,10 +93,15 @@ public class ExpenseRepository extends JooqRepository {
         // Update laporan harian setelah pengeluaran baru tercatat
         dailyIncomeService.createLaporan(today);
 
+        // Format nominal dengan pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        String formattedNominal = formatter.format(request.getNominal());  // Format nominal dengan pemisah ribuan
+
+        // Mengembalikan response dengan nominal yang sudah diformat
         return new ExpenseResponse(
                 newPengeluaran.getIdPengeluaran(),
                 newPengeluaran.getJenisPengeluaran(),
-                newPengeluaran.getNominal(),
+                formattedNominal,  // Menggunakan formatted nominal
                 newPengeluaran.getCatatan(),
                 newPengeluaran.getTglPengeluaran()
         );

@@ -9,6 +9,7 @@ import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusOrder;
 import com.haylaundry.service.backend.jooq.gen.tables.records.*;
 import com.haylaundry.service.backend.modules.report.models.dailyincome.response.DailyIncomeResponse;
+import java.text.DecimalFormat;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jooq.DSLContext;
@@ -30,6 +31,9 @@ public class DailyIncomeRepository extends JooqRepository {
         // Define the date format and specify the Indonesian locale
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("id-ID"));
 
+        // Create a DecimalFormat instance to format totals with thousand separator
+        DecimalFormat formatterRibuan = new DecimalFormat("#,###");
+
         try {
             // Parse the input date string to a LocalDate object
             LocalDate tglReport = LocalDate.parse(dateString, formatter);
@@ -44,15 +48,22 @@ public class DailyIncomeRepository extends JooqRepository {
                 throw new IllegalArgumentException("Laporan tidak ditemukan untuk tanggal: " + tglReport);
             }
 
-            // Convert data from record to response model
+            // Format the totals with the thousand separator
+            String formattedTotalPemasukan = formatterRibuan.format(report.getTotalPemasukan());
+            String formattedTotalPiutang = formatterRibuan.format(report.getTotalPiutang());
+            String formattedTotalPengeluaran = formatterRibuan.format(report.getTotalPengeluaran());
+            String formattedTotalKasMasuk = formatterRibuan.format(report.getTotalKasMasuk());
+            String formattedTotalOmset = formatterRibuan.format(report.getTotalOmset());
+
+            // Convert data from record to response model, including the formatted totals
             return new DailyIncomeResponse(
                     report.getIdLaporanHarian(),
                     report.getTglReport(),
-                    report.getTotalPemasukan(),
-                    report.getTotalPiutang(),
-                    report.getTotalPengeluaran(),
-                    report.getTotalKasMasuk(),
-                    report.getTotalOmset()
+                    formattedTotalPemasukan,
+                    formattedTotalPiutang,
+                    formattedTotalPengeluaran,
+                    formattedTotalKasMasuk,
+                    formattedTotalOmset
             );
         } catch (Exception e) {
             // Handle parsing errors or any other issues gracefully
@@ -63,6 +74,9 @@ public class DailyIncomeRepository extends JooqRepository {
 
     // Method to create or update daily income report and rekap to monthly report
     public void createLaporan(LocalDate tglReport) {
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
         // Cek apakah laporan harian sudah ada untuk tanggal yang sama
         LaporanPemasukanHarianRecord existingReport = jooq.selectFrom(Tables.LAPORAN_PEMASUKAN_HARIAN)
                 .where(Tables.LAPORAN_PEMASUKAN_HARIAN.TGL_REPORT.eq(tglReport))
@@ -74,6 +88,13 @@ public class DailyIncomeRepository extends JooqRepository {
         double totalPengeluaran = hitungTotalPengeluaran(tglReport);
         double totalKasMasuk = totalPemasukan - totalPengeluaran;
         double totalOmset = totalPemasukan + totalPiutang - totalPengeluaran;
+
+        // Format setiap total menggunakan pemisah ribuan
+        String formattedTotalPemasukan = formatter.format(totalPemasukan);
+        String formattedTotalPiutang = formatter.format(totalPiutang);
+        String formattedTotalPengeluaran = formatter.format(totalPengeluaran);
+        String formattedTotalKasMasuk = formatter.format(totalKasMasuk);
+        String formattedTotalOmset = formatter.format(totalOmset);
 
         // Cek dan simpan laporan harian
         if (existingReport != null) {
@@ -153,11 +174,6 @@ public class DailyIncomeRepository extends JooqRepository {
             laporanBulanan.store();
         }
     }
-
-
-
-
-
 
 
 

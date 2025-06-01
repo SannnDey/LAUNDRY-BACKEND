@@ -4,13 +4,13 @@ public class FinanceDateResponse {
     private String idLaporanKeuangan;   // ID laporan keuangan
     private String startDate;  // Start date of the range
     private String endDate;    // End date of the range
-    private double totalPemasukan;
-    private double totalPiutang;
-    private double totalPengeluaran;
-    private double totalKasMasuk;
-    private double totalOmset;
+    private String totalPemasukan;
+    private String totalPiutang;
+    private String totalPengeluaran;
+    private String totalKasMasuk;
+    private String totalOmset;
 
-    public FinanceDateResponse(String idLaporanKeuangan, String startDate, String endDate, double totalPemasukan, double totalPiutang, double totalPengeluaran, double totalKasMasuk, double totalOmset) {
+    public FinanceDateResponse(String idLaporanKeuangan, String startDate, String endDate, String totalPemasukan, String totalPiutang, String totalPengeluaran, String totalKasMasuk, String totalOmset) {
         this.idLaporanKeuangan = idLaporanKeuangan;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -47,43 +47,43 @@ public class FinanceDateResponse {
         this.endDate = endDate;
     }
 
-    public double getTotalPemasukan() {
+    public String getTotalPemasukan() {
         return totalPemasukan;
     }
 
-    public void setTotalPemasukan(double totalPemasukan) {
+    public void setTotalPemasukan(String totalPemasukan) {
         this.totalPemasukan = totalPemasukan;
     }
 
-    public double getTotalPiutang() {
+    public String getTotalPiutang() {
         return totalPiutang;
     }
 
-    public void setTotalPiutang(double totalPiutang) {
+    public void setTotalPiutang(String totalPiutang) {
         this.totalPiutang = totalPiutang;
     }
 
-    public double getTotalPengeluaran() {
+    public String getTotalPengeluaran() {
         return totalPengeluaran;
     }
 
-    public void setTotalPengeluaran(double totalPengeluaran) {
+    public void setTotalPengeluaran(String totalPengeluaran) {
         this.totalPengeluaran = totalPengeluaran;
     }
 
-    public double getTotalKasMasuk() {
+    public String getTotalKasMasuk() {
         return totalKasMasuk;
     }
 
-    public void setTotalKasMasuk(double totalKasMasuk) {
+    public void setTotalKasMasuk(String totalKasMasuk) {
         this.totalKasMasuk = totalKasMasuk;
     }
 
-    public double getTotalOmset() {
+    public String getTotalOmset() {
         return totalOmset;
     }
 
-    public void setTotalOmset(double totalOmset) {
+    public void setTotalOmset(String totalOmset) {
         this.totalOmset = totalOmset;
     }
 }

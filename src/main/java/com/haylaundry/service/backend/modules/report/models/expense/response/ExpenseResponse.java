@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class ExpenseResponse {
     private String idPengeluaran;
     private String jenisPengeluaran;
-    private Double nominal;
+    private String nominal;
     private String catatan;
     private LocalDateTime tglPengeluaran;
 
@@ -13,7 +13,7 @@ public class ExpenseResponse {
 
     }
 
-    public ExpenseResponse(String idPengeluaran, String jenisPengeluaran, Double nominal, String catatan, LocalDateTime tglPengeluaran) {
+    public ExpenseResponse(String idPengeluaran, String jenisPengeluaran, String nominal, String catatan, LocalDateTime tglPengeluaran) {
         this.idPengeluaran = idPengeluaran;
         this.jenisPengeluaran = jenisPengeluaran;
         this.nominal = nominal;
@@ -37,11 +37,11 @@ public class ExpenseResponse {
         this.jenisPengeluaran = jenisPengeluaran;
     }
 
-    public Double getNominal() {
+    public String getNominal() {
         return nominal;
     }
 
-    public void setNominal(Double nominal) {
+    public void setNominal(String nominal) {
         this.nominal = nominal;
     }
 

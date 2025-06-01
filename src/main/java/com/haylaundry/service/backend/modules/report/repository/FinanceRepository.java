@@ -7,6 +7,7 @@ import com.haylaundry.service.backend.jooq.gen.tables.records.LaporanPemasukanHa
 import com.haylaundry.service.backend.modules.report.models.finance.response.FinanceDateResponse;
 import com.haylaundry.service.backend.modules.report.models.finance.response.FinanceResponse;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.text.DecimalFormat;
 import jakarta.inject.Inject;
 import org.jooq.DSLContext;
 
@@ -28,6 +29,9 @@ public class FinanceRepository {
         // Define the date format and specify the Indonesian locale
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
 
+        // Create a DecimalFormat instance to format totals with thousand separator
+        DecimalFormat formatterRibuan = new DecimalFormat("#,###");
+
         try {
             // Parse the input start and end date strings to LocalDate objects
             LocalDate startLocalDate = LocalDate.parse(startDate.trim(), formatter);
@@ -40,19 +44,26 @@ public class FinanceRepository {
             double totalKasMasuk = hitungTotalKasMasukBulanan(startLocalDate, endLocalDate);
             double totalOmset = hitungTotalOmsetBulanan(startLocalDate, endLocalDate);
 
+            // Format the totals with the thousand separator
+            String formattedTotalPemasukan = formatterRibuan.format(totalPemasukan);
+            String formattedTotalPiutang = formatterRibuan.format(totalPiutang);
+            String formattedTotalPengeluaran = formatterRibuan.format(totalPengeluaran);
+            String formattedTotalKasMasuk = formatterRibuan.format(totalKasMasuk);
+            String formattedTotalOmset = formatterRibuan.format(totalOmset);
+
             // Create the report ID
             String idLaporanKeuangan = UuidCreator.getTimeOrderedEpoch().toString();  // Assuming UUID is used as the ID
 
-            // Return the report data in the FinanceDateResponse model
+            // Return the report data in the FinanceDateResponse model with formatted totals
             return new FinanceDateResponse(
                     idLaporanKeuangan,
                     startLocalDate.toString(),  // Set the report start date
                     endLocalDate.toString(),    // Set the report end date
-                    totalPemasukan,
-                    totalPiutang,
-                    totalPengeluaran,
-                    totalKasMasuk,
-                    totalOmset
+                    formattedTotalPemasukan,    // Use formatted total
+                    formattedTotalPiutang,      // Use formatted total
+                    formattedTotalPengeluaran,  // Use formatted total
+                    formattedTotalKasMasuk,     // Use formatted total
+                    formattedTotalOmset        // Use formatted total
             );
 
         } catch (DateTimeParseException e) {
@@ -64,6 +75,9 @@ public class FinanceRepository {
     public FinanceResponse getLaporanByMonth(String date) {
         // Define the date format and specify the Indonesian locale
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("id", "ID"));
+
+        // Create a DecimalFormat instance to format totals with thousand separator
+        DecimalFormat formatterRibuan = new DecimalFormat("#,###");
 
         try {
             // Parse the input date string to a LocalDate object by adding the first day of the month
@@ -83,15 +97,22 @@ public class FinanceRepository {
                 throw new IllegalArgumentException("Laporan tidak ditemukan untuk tanggal: " + formattedDate);
             }
 
-            // Convert data from record to response model
+            // Format each total with thousand separators
+            String formattedTotalPemasukan = formatterRibuan.format(report.getTotalPemasukan());
+            String formattedTotalPiutang = formatterRibuan.format(report.getTotalPiutang());
+            String formattedTotalPengeluaran = formatterRibuan.format(report.getTotalPengeluaran());
+            String formattedTotalKasMasuk = formatterRibuan.format(report.getTotalKasMasuk());
+            String formattedTotalOmset = formatterRibuan.format(report.getTotalOmset());
+
+            // Convert data from record to response model with formatted totals
             return new FinanceResponse(
                     report.getIdLaporanKeuangan(),
                     report.getTglReport(),
-                    report.getTotalPemasukan(),
-                    report.getTotalPiutang(),
-                    report.getTotalPengeluaran(),
-                    report.getTotalKasMasuk(),
-                    report.getTotalOmset()
+                    formattedTotalPemasukan,  // Use formatted total
+                    formattedTotalPiutang,    // Use formatted total
+                    formattedTotalPengeluaran,// Use formatted total
+                    formattedTotalKasMasuk,   // Use formatted total
+                    formattedTotalOmset      // Use formatted total
             );
         } catch (DateTimeParseException e) {
             e.printStackTrace();
