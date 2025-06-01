@@ -3,6 +3,7 @@ package com.haylaundry.service.backend.modules.ordermanagement.controller;
 import com.haylaundry.service.backend.core.utils.StrukOrderUnitGenerator;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.repository.OrderUnitRepository;
+import java.text.DecimalFormat;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -28,7 +29,6 @@ public class OrderUnitResource {
                 .findFirst()
                 .orElseThrow(() -> new WebApplicationException("Pesanan satuan tidak ditemukan", 404));
 
-
         // Format tanggal masuk & selesai
         String tanggalMasuk = orderUnit.getTglMasuk().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
         String tanggalSelesai = orderUnit.getTglSelesai() != null
@@ -50,9 +50,11 @@ public class OrderUnitResource {
                         )
                 ));
 
-        // Total harga
-        String totalHarga = String.valueOf(orderUnit.getTotalHarga());
+        // Format totalHarga dengan pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        String formattedTotalHarga = String.valueOf(orderUnit.getTotalHarga());  // Format total harga dengan pemisah ribuan
 
+        // Generate PDF dengan totalHarga yang sudah diformat
         byte[] pdf = StrukOrderUnitGenerator.generateStrukPesananSatuan(
                 orderUnit.getNoFaktur(),
                 orderUnit.getNamaCustomer(),
@@ -61,7 +63,7 @@ public class OrderUnitResource {
                 orderUnit.getStatusBayar().toUpperCase(),
                 orderUnit.getStatusOrder().toUpperCase(),
                 kategoriItemMap,
-                totalHarga
+                formattedTotalHarga  // Menggunakan total harga yang sudah diformat
         );
 
         return Response.ok(pdf)

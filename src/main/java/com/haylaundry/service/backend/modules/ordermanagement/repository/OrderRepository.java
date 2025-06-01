@@ -4,6 +4,7 @@ import com.github.f4b6a3.uuid.UuidCreator;
 import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
+import java.text.DecimalFormat;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PesananRecord;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.OrderRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderResponse;
@@ -30,6 +31,9 @@ public class OrderRepository extends JooqRepository {
 
     // ✅ Ambil semua data pesanan
     public List<OrderResponse> getAll() {
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
         return jooq.select(
                         Tables.PESANAN.ID_PESANAN,
                         Tables.CUSTOMER.ID_CUSTOMER,
@@ -52,28 +56,38 @@ public class OrderRepository extends JooqRepository {
                 .leftJoin(Tables.CUSTOMER).on(Tables.PESANAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
                 .fetch()
                 .stream()
-                .map(record -> new OrderResponse(
-                        record.get(Tables.PESANAN.ID_PESANAN),
-                        record.get(Tables.CUSTOMER.ID_CUSTOMER),
-                        record.get(Tables.PESANAN.NO_FAKTUR),
-                        record.get(Tables.CUSTOMER.NAMA),
-                        record.get(Tables.CUSTOMER.NO_TELP),
-                        String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
-                        String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
-                        record.get(Tables.PESANAN.QTY),
-                        record.get(Tables.PESANAN.HARGA),
-                        String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
-                        String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
-                        String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
-                        record.get(Tables.PESANAN.TGL_MASUK),
-                        record.get(Tables.PESANAN.TGL_SELESAI),
-                        record.get(Tables.PESANAN.CATATAN),
-                        record.get(Tables.PESANAN.DELETED_AT)
-                ))
+                .map(record -> {
+                    // Format harga menggunakan DecimalFormat
+                    double harga = record.get(Tables.PESANAN.HARGA);
+                    String formattedHarga = formatter.format(harga);  // Format harga ke string dengan pemisah ribuan
+
+                    // Return OrderResponse dengan harga yang diformat
+                    return new OrderResponse(
+                            record.get(Tables.PESANAN.ID_PESANAN),
+                            record.get(Tables.CUSTOMER.ID_CUSTOMER),
+                            record.get(Tables.PESANAN.NO_FAKTUR),
+                            record.get(Tables.CUSTOMER.NAMA),
+                            record.get(Tables.CUSTOMER.NO_TELP),
+                            String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
+                            String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
+                            record.get(Tables.PESANAN.QTY),
+                            formattedHarga,  // Set harga yang sudah diformat
+                            String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
+                            String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
+                            String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
+                            record.get(Tables.PESANAN.TGL_MASUK),
+                            record.get(Tables.PESANAN.TGL_SELESAI),
+                            record.get(Tables.PESANAN.CATATAN),
+                            record.get(Tables.PESANAN.DELETED_AT)
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
     public OrderResponse getById(String idPesanan) {
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
         var record = jooq.select(
                         Tables.PESANAN.ID_PESANAN,
                         Tables.CUSTOMER.ID_CUSTOMER,
@@ -101,6 +115,10 @@ public class OrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Pesanan dengan ID " + idPesanan + " tidak ditemukan.");
         }
 
+        // Format harga menggunakan DecimalFormat
+        double harga = record.get(Tables.PESANAN.HARGA);
+        String formattedHarga = formatter.format(harga);  // Format harga dengan pemisah ribuan
+
         return new OrderResponse(
                 record.get(Tables.PESANAN.ID_PESANAN),
                 record.get(Tables.CUSTOMER.ID_CUSTOMER),
@@ -110,7 +128,7 @@ public class OrderRepository extends JooqRepository {
                 String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
                 String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
                 record.get(Tables.PESANAN.QTY),
-                record.get(Tables.PESANAN.HARGA),
+                formattedHarga,  // Set harga yang diformat dengan pemisah ribuan
                 String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
@@ -153,6 +171,13 @@ public class OrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Pesanan dengan No Faktur " + noFaktur + " tidak ditemukan.");
         }
 
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
+        // Format harga menggunakan DecimalFormat
+        double harga = record.get(Tables.PESANAN.HARGA);
+        String formattedHarga = formatter.format(harga);  // Format harga dengan pemisah ribuan
+
         return new OrderResponse(
                 record.get(Tables.PESANAN.ID_PESANAN),
                 record.get(Tables.CUSTOMER.ID_CUSTOMER),
@@ -162,7 +187,7 @@ public class OrderRepository extends JooqRepository {
                 String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
                 String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
                 record.get(Tables.PESANAN.QTY),
-                record.get(Tables.PESANAN.HARGA),
+                formattedHarga,  // Set harga yang sudah diformat dengan pemisah ribuan
                 String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
@@ -228,7 +253,11 @@ public class OrderRepository extends JooqRepository {
         String namaCustomer = customer.getNama();
         String noTelpCustomer = customer.getNoTelp();
 
-        // ✅ 5. Kembalikan response
+        // ✅ 5. Format Harga untuk ditampilkan dengan pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        String formattedHarga = formatter.format(newOrder.getHarga());
+
+        // ✅ 6. Kembalikan response
         return new OrderResponse(
                 newOrder.getIdPesanan(),
                 newOrder.getIdCustomer(),
@@ -238,7 +267,7 @@ public class OrderRepository extends JooqRepository {
                 String.valueOf(newOrder.getTipeCucian()),
                 String.valueOf(newOrder.getJenisCucian()),
                 newOrder.getQty(),
-                newOrder.getHarga(),
+                formattedHarga,  // Menampilkan harga yang diformat
                 String.valueOf(newOrder.getTipePembayaran()),
                 String.valueOf(newOrder.getStatusBayar()),
                 String.valueOf(newOrder.getStatusOrder()),

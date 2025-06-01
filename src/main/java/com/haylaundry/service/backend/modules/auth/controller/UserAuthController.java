@@ -33,9 +33,11 @@ public class UserAuthController {
     public Response register(UserAuthRequest request) {
         try {
             // Validasi role yang diterima
-            if (!request.getRole().equalsIgnoreCase("admin") && !request.getRole().equalsIgnoreCase("karyawan")) {
+            if (!request.getRole().equalsIgnoreCase("admin") &&
+                    !request.getRole().equalsIgnoreCase("karyawan") &&
+                    !request.getRole().equalsIgnoreCase("pemilik")) {
                 logger.warn("Role yang dipilih tidak valid: {}", request.getRole());
-                return Response.status(Response.Status.BAD_REQUEST).entity("Role harus admin atau karyawan").build();
+                return Response.status(Response.Status.BAD_REQUEST).entity("Role harus admin, karyawan, atau pemilik").build();
             }
 
             var user = userAuthService.create(request);
@@ -46,6 +48,7 @@ public class UserAuthController {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
+
 
     // Login pengguna
     @POST

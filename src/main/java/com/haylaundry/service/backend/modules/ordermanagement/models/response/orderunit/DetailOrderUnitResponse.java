@@ -12,7 +12,7 @@ public class DetailOrderUnitResponse {
     private String tipePembayaran;
     private String statusBayar;
     private String statusOrder;
-    private Double totalHarga;
+    private String totalHarga;
     private LocalDateTime tglMasuk;
     private LocalDateTime tglSelesai;
     private String catatan;
@@ -25,7 +25,7 @@ public class DetailOrderUnitResponse {
     }
 
     public DetailOrderUnitResponse(String idDetail, String idCustomer, String noFaktur, String namaCustomer, String customerPhone, String tipePembayaran,
-                                   String statusBayar, String statusOrder, Double totalHarga, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan,
+                                   String statusBayar, String statusOrder, String totalHarga, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan,
                                    LocalDateTime deletedAt, List<OrderUnitResponse> items) {
         this.idDetail = idDetail;
         this.idCustomer = idCustomer;
@@ -107,11 +107,11 @@ public class DetailOrderUnitResponse {
         this.statusOrder = statusOrder;
     }
 
-    public Double getTotalHarga() {
+    public String getTotalHarga() {
         return totalHarga;
     }
 
-    public void setTotalHarga(Double totalHarga) {
+    public void setTotalHarga(String totalHarga) {
         this.totalHarga = totalHarga;
     }
 

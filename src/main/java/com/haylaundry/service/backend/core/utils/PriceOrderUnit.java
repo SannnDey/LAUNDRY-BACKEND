@@ -30,7 +30,7 @@ public class PriceOrderUnit {
                 return hitungHargaBedCover(ukuran, jenisLayanan);
             case Boneka:
                 return hitungHargaBoneka(ukuran, jenisLayanan);
-            case Bantal_2fGuling:
+            case Bantal_Guling:
                 return hitungHargaBantalGuling(ukuran, jenisLayanan);
             default:
                 throw new IllegalArgumentException("Kategori barang tidak dikenali: " + kategoriBarang);

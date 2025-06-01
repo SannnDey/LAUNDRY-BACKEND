@@ -14,7 +14,7 @@ public class OrderResponse {
         private String tipeCucian;
         private String jenisCucian;
         private Double qty;
-        private Double harga;
+        private String harga;
         private String tipePembayaran;
         private String statusBayar;
         private String statusOrder;
@@ -29,7 +29,7 @@ public class OrderResponse {
 
         // Full-args constructor
         public OrderResponse(String idPesanan, String idCustomer,String noFaktur, String customerName, String customerPhone, String tipeCucian,
-                             String jenisCucian, Double qty, Double harga,
+                             String jenisCucian, Double qty, String harga,
                              String tipePembayaran, String statusBayar, String statusOrder,
                              LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan, LocalDateTime deletedAt) {
             this.idPesanan = idPesanan;
@@ -117,11 +117,11 @@ public class OrderResponse {
             this.qty = qty;
         }
 
-        public Double getHarga() {
+        public String getHarga() {
             return harga;
         }
 
-        public void setHarga(Double harga) {
+        public void setHarga(String harga) {
             this.harga = harga;
         }
 

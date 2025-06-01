@@ -6,14 +6,14 @@ public class OrderUnitResponse {
     private String kategoriBarang;
     private String ukuran;
     private String jenisLayanan;
-    private Double harga;
+    private String harga;
     private Integer qty;
 
     public OrderUnitResponse() {
     }
 
     public OrderUnitResponse(String idPesananSatuan, String idDetail, String kategoriBarang, String ukuran,
-                             String jenisLayanan, Double harga, Integer qty) {
+                             String jenisLayanan, String harga, Integer qty) {
         this.idPesananSatuan = idPesananSatuan;
         this.idDetail = idDetail;
         this.kategoriBarang = kategoriBarang;
@@ -63,11 +63,11 @@ public class OrderUnitResponse {
         this.jenisLayanan = jenisLayanan;
     }
 
-    public Double getHarga() {
+    public String getHarga() {
         return harga;
     }
 
-    public void setHarga(Double harga) {
+    public void setHarga(String harga) {
         this.harga = harga;
     }
 

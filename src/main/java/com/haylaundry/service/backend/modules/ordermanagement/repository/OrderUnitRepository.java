@@ -7,6 +7,7 @@ import com.haylaundry.service.backend.core.utils.PriceOrderUnit;
 import com.haylaundry.service.backend.core.utils.InvoiceGenerator;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
+import java.text.DecimalFormat;
 import com.haylaundry.service.backend.jooq.gen.tables.records.DetailPesananSatuanRecord;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PesananSatuanRecord;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.OrderUnitRequest;
@@ -44,6 +45,9 @@ public class OrderUnitRepository extends JooqRepository {
                 .on(Tables.DETAIL_PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
                 .fetch();
 
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
         return records.stream()
                 .collect(Collectors.groupingBy(
                         record -> record.get(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL),
@@ -55,36 +59,50 @@ public class OrderUnitRepository extends JooqRepository {
                     List<Record> groupRecords = entry.getValue();
                     Record firstRecord = groupRecords.get(0);
 
+                    // Buat DetailOrderUnitResponse
                     DetailOrderUnitResponse detailResponse = new DetailOrderUnitResponse();
                     detailResponse.setIdDetail(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL));
                     detailResponse.setIdCustomer(firstRecord.get(Tables.CUSTOMER.ID_CUSTOMER));
                     detailResponse.setNoFaktur(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.NO_FAKTUR));
                     detailResponse.setNamaCustomer(firstRecord.get(Tables.CUSTOMER.NAMA));
                     detailResponse.setCustomerPhone(firstRecord.get(Tables.CUSTOMER.NO_TELP));
-                    detailResponse.setTipePembayaran(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TIPE_PEMBAYARAN)).replace("_"," "));
-                    detailResponse.setStatusBayar(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR)).replace("_"," "));
-                    detailResponse.setStatusOrder(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_ORDER)).replace("_"," "));
-                    detailResponse.setTotalHarga(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA));
+                    detailResponse.setTipePembayaran(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TIPE_PEMBAYARAN)).replace("_", " "));
+                    detailResponse.setStatusBayar(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR)).replace("_", " "));
+                    detailResponse.setStatusOrder(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_ORDER)).replace("_", " "));
+
+                    // Format totalHarga menggunakan DecimalFormat
+                    double totalHarga = firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA);
+                    String formattedTotalHarga = formatter.format(totalHarga);  // Format totalHarga ke string
+
+                    // Set formatted totalHarga (String)
+                    detailResponse.setTotalHarga(formattedTotalHarga);
+
                     detailResponse.setTglMasuk(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_MASUK));
                     detailResponse.setTglSelesai(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_SELESAI));
                     detailResponse.setCatatan(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.CATATAN));
                     detailResponse.setDeletedAt(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.DELETED_AT));
 
+                    // Menambahkan items
                     List<OrderUnitResponse> detailItems = groupRecords.stream()
                             .map(record -> {
                                 OrderUnitResponse item = new OrderUnitResponse();
                                 item.setIdPesananSatuan(record.get(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN));
                                 item.setIdDetail(record.get(Tables.PESANAN_SATUAN.ID_DETAIL));
-                                item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace("_"," "));
-                                item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace("_"," "));
-                                item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace("_"," "));
-                                item.setHarga(record.get(Tables.PESANAN_SATUAN.HARGA));
+                                item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
+                                item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace("_", " "));
+                                item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
+
+                                // Format harga menggunakan DecimalFormat
+                                double harga = record.get(Tables.PESANAN_SATUAN.HARGA);
+                                String formattedHarga = formatter.format(harga);  // Format harga ke string dengan pemisah ribuan
+
+                                item.setHarga(formattedHarga);  // Set formatted harga as String
                                 item.setQty(record.get(Tables.PESANAN_SATUAN.QTY));
                                 return item;
                             })
                             .collect(Collectors.toList());
 
-                    // Tambahkan items ke detail response
+                    // Set items ke dalam response
                     detailResponse.setItems(detailItems);
 
                     return detailResponse;
@@ -94,6 +112,7 @@ public class OrderUnitRepository extends JooqRepository {
 
 
     public DetailOrderUnitResponse getOrderUnitById(String idDetail) {
+        // Ambil data dari database
         List<Record> records = jooq.select()
                 .from(Tables.DETAIL_PESANAN_SATUAN)
                 .join(Tables.PESANAN_SATUAN)
@@ -107,6 +126,10 @@ public class OrderUnitRepository extends JooqRepository {
             throw new IllegalArgumentException("Pesanan dengan ID " + idDetail + " tidak ditemukan.");
         }
 
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
+        // Ambil record pertama (karena ID_DETAIL harus unik)
         Record firstRecord = records.get(0);
         DetailOrderUnitResponse detailResponse = new DetailOrderUnitResponse();
         detailResponse.setIdDetail(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL));
@@ -117,12 +140,20 @@ public class OrderUnitRepository extends JooqRepository {
         detailResponse.setTipePembayaran(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TIPE_PEMBAYARAN)).replace("_", " "));
         detailResponse.setStatusBayar(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR)).replace("_", " "));
         detailResponse.setStatusOrder(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_ORDER)).replace("_", " "));
-        detailResponse.setTotalHarga(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA));
+
+        // Ambil totalHarga dan format menggunakan DecimalFormat
+        double totalHarga = firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA);
+        String formattedTotalHarga = formatter.format(totalHarga);  // Format totalHarga menjadi string dengan pemisah ribuan
+
+        // Set formatted totalHarga ke dalam response
+        detailResponse.setTotalHarga(formattedTotalHarga);
+
         detailResponse.setTglMasuk(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_MASUK));
         detailResponse.setTglSelesai(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_SELESAI));
         detailResponse.setCatatan(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.CATATAN));
         detailResponse.setDeletedAt(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.DELETED_AT));
 
+        // Mengambil items dan format harga item
         List<OrderUnitResponse> items = records.stream().map(record -> {
             OrderUnitResponse item = new OrderUnitResponse();
             item.setIdPesananSatuan(record.get(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN));
@@ -130,12 +161,19 @@ public class OrderUnitRepository extends JooqRepository {
             item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
             item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace("_", " "));
             item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
-            item.setHarga(record.get(Tables.PESANAN_SATUAN.HARGA));
+
+            // Format harga menggunakan DecimalFormat
+            double harga = record.get(Tables.PESANAN_SATUAN.HARGA);
+            String formattedHarga = formatter.format(harga);  // Format harga ke string dengan pemisah ribuan
+
+            item.setHarga(formattedHarga);  // Set formatted harga as String
             item.setQty(record.get(Tables.PESANAN_SATUAN.QTY));
             return item;
         }).collect(Collectors.toList());
 
+        // Set items ke dalam response
         detailResponse.setItems(items);
+
         return detailResponse;
     }
 
@@ -157,6 +195,10 @@ public class OrderUnitRepository extends JooqRepository {
             throw new IllegalArgumentException("Pesanan dengan No Faktur " + noFaktur + " tidak ditemukan.");
         }
 
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
+        // Ambil record pertama (karena ID_DETAIL harus unik)
         Record firstRecord = records.get(0);
         DetailOrderUnitResponse detailResponse = new DetailOrderUnitResponse();
         detailResponse.setIdDetail(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL));
@@ -167,12 +209,20 @@ public class OrderUnitRepository extends JooqRepository {
         detailResponse.setTipePembayaran(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TIPE_PEMBAYARAN)).replace("_", " "));
         detailResponse.setStatusBayar(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR)).replace("_", " "));
         detailResponse.setStatusOrder(String.valueOf(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.STATUS_ORDER)).replace("_", " "));
-        detailResponse.setTotalHarga(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA));
+
+        // Ambil totalHarga dan format menggunakan DecimalFormat
+        double totalHarga = firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA);
+        String formattedTotalHarga = formatter.format(totalHarga);  // Format totalHarga menjadi string dengan pemisah ribuan
+
+        // Set formatted totalHarga ke dalam response
+        detailResponse.setTotalHarga(formattedTotalHarga);
+
         detailResponse.setTglMasuk(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_MASUK));
         detailResponse.setTglSelesai(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.TGL_SELESAI));
         detailResponse.setCatatan(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.CATATAN));
         detailResponse.setDeletedAt(firstRecord.get(Tables.DETAIL_PESANAN_SATUAN.DELETED_AT));
 
+        // Mengambil items dan format harga item
         List<OrderUnitResponse> items = records.stream().map(record -> {
             OrderUnitResponse item = new OrderUnitResponse();
             item.setIdPesananSatuan(record.get(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN));
@@ -180,12 +230,19 @@ public class OrderUnitRepository extends JooqRepository {
             item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
             item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace("_", " "));
             item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
-            item.setHarga(record.get(Tables.PESANAN_SATUAN.HARGA));
+
+            // Format harga menggunakan DecimalFormat
+            double harga = record.get(Tables.PESANAN_SATUAN.HARGA);
+            String formattedHarga = formatter.format(harga);  // Format harga ke string dengan pemisah ribuan
+
+            item.setHarga(formattedHarga);  // Set formatted harga as String
             item.setQty(record.get(Tables.PESANAN_SATUAN.QTY));
             return item;
         }).collect(Collectors.toList());
 
+        // Set items ke dalam response
         detailResponse.setItems(items);
+
         return detailResponse;
     }
 
@@ -247,6 +304,9 @@ public class OrderUnitRepository extends JooqRepository {
         // Variabel untuk menghitung total harga semua item
         double totalHarga = 0.0;
 
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
         // Iterasi setiap item OrderUnitRequest dalam DetailOrderUnitRequest.items
         for (OrderUnitRequest item : request.getItems()) {
             // Validasi qty minimal 1
@@ -278,6 +338,9 @@ public class OrderUnitRepository extends JooqRepository {
             // Tambahkan ke total harga
             totalHarga += hargaFinal;
 
+            // Format hargaFinal menjadi string dengan pemisah ribuan
+            String formattedHargaFinal = formatter.format(hargaFinal);
+
             // Simpan PesananSatuan record untuk tiap item (child)
             PesananSatuanRecord orderUnitRecord = jooq.newRecord(Tables.PESANAN_SATUAN);
             orderUnitRecord.setIdPesananSatuan(UuidCreator.getTimeOrderedEpoch().toString());
@@ -298,13 +361,16 @@ public class OrderUnitRepository extends JooqRepository {
                     kategori.getLiteral(),
                     ukuran.getLiteral(),
                     jenisLayanan.getLiteral(),
-                    hargaFinal,
+                    formattedHargaFinal,
                     orderUnitRecord.getQty()
             ));
         }
 
+        // Menggunakan DecimalFormat untuk memformat totalHarga dengan pemisah ribuan
+        String formattedTotalHarga = formatter.format(totalHarga);
+
         // Update totalHarga di detailRecord setelah insert semua pesanan_satuan
-        detailRecord.setTotalHarga(totalHarga);
+        detailRecord.setTotalHarga(totalHarga);  // Simpan totalHarga dalam bentuk double
         detailRecord.store();
 
         // Update laporan otomatis setelah menyimpan pesanan satuan
@@ -325,7 +391,7 @@ public class OrderUnitRepository extends JooqRepository {
                 request.getTipePembayaran(),
                 request.getStatusBayar(),
                 request.getStatusOrder(),
-                totalHarga,
+                formattedTotalHarga,
                 detailRecord.getTglMasuk(),
                 detailRecord.getTglSelesai(),
                 detailRecord.getCatatan(),
