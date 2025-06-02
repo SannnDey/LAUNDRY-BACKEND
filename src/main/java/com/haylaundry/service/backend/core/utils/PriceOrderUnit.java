@@ -32,6 +32,8 @@ public class PriceOrderUnit {
                 return hitungHargaBoneka(ukuran, jenisLayanan);
             case Bantal_Guling:
                 return hitungHargaBantalGuling(ukuran, jenisLayanan);
+            case Sepatu:
+                return hitungHargaSepatu(ukuran, jenisLayanan); // Menambahkan case untuk Sepatu
             default:
                 throw new IllegalArgumentException("Kategori barang tidak dikenali: " + kategoriBarang);
         }
@@ -111,4 +113,20 @@ public class PriceOrderUnit {
         }
     }
 
+    // Tambahkan metode untuk menghitung harga Sepatu
+    private static double hitungHargaSepatu(PesananSatuanUkuran ukuran, PesananSatuanJenisLayanan jenisLayanan) {
+        if (jenisLayanan == PesananSatuanJenisLayanan.Standar_4_Hari) {
+            switch (ukuran) {
+                case Kids_Shoes: // Untuk Sepatu Kecil (Kids Shoes)
+                    return 20000;
+                case Leather_Shoes: // Untuk Sepatu Sedang (Leather Shoes dan Sneakers Shoes)
+                    return 35000;
+                case Sneakers_Shoes:
+                    return 35000;
+                default:
+                    throw new IllegalArgumentException("Ukuran sepatu tidak valid");
+            }
+        }
+        throw new IllegalArgumentException("Sepatu hanya tersedia untuk layanan Standar 4 Hari");
+    }
 }
