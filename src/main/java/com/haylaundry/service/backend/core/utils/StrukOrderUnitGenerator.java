@@ -140,11 +140,11 @@ public class StrukOrderUnitGenerator {
 
             addSeparatorLine(document);
 
-            Paragraph statusOrderPar = new Paragraph("STATUS : " + statusOrder.toUpperCase(), normalBoldFont);
+            Paragraph statusOrderPar = new Paragraph("STATUS ORDER : " + statusOrder.toUpperCase(), normalBoldFont);
             statusOrderPar.setAlignment(Element.ALIGN_CENTER);
             document.add(statusOrderPar);
 
-            Paragraph statusBayarPar = new Paragraph("BAYAR : " + statusBayar.toUpperCase(), normalBoldFont);
+            Paragraph statusBayarPar = new Paragraph("STATUS BAYAR : " + statusBayar.toUpperCase(), normalBoldFont);
             statusBayarPar.setAlignment(Element.ALIGN_CENTER);
             document.add(statusBayarPar);
 
