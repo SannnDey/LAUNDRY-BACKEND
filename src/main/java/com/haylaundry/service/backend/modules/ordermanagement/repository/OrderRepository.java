@@ -29,7 +29,7 @@ public class OrderRepository extends JooqRepository {
     @Inject
     private DailyIncomeService dailyIncomeService;
 
-    // ✅ Ambil semua data pesanan
+    // ✅ Ambil semua data pesanan yang belum dihapus
     public List<OrderResponse> getAll() {
         // Format untuk pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
@@ -54,6 +54,8 @@ public class OrderRepository extends JooqRepository {
                 )
                 .from(Tables.PESANAN)
                 .leftJoin(Tables.CUSTOMER).on(Tables.PESANAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
+                // Menambahkan filter untuk tidak mengambil pesanan yang sudah di-soft delete
+                .where(Tables.PESANAN.DELETED_AT.isNull())  // Pastikan hanya pesanan yang belum di-soft delete
                 .fetch()
                 .stream()
                 .map(record -> {
@@ -83,6 +85,7 @@ public class OrderRepository extends JooqRepository {
                 })
                 .collect(Collectors.toList());
     }
+
 
     public OrderResponse getById(String idPesanan) {
         // Format untuk pemisah ribuan
@@ -356,6 +359,17 @@ public class OrderRepository extends JooqRepository {
                 .execute();
 
         return deleted > 0;
+    }
+
+
+    public boolean softDeleteById(String idPesanan) {
+        // Melakukan soft delete dengan mengubah status kolom 'deleted' menjadi true
+        int updated = jooq.update(Tables.PESANAN)
+                .set(Tables.PESANAN.DELETED_AT, LocalDateTime.now())  // Mengubah status deleted menjadi true
+                .where(Tables.PESANAN.ID_PESANAN.eq(idPesanan))
+                .execute();
+
+        return updated > 0;
     }
 
 }

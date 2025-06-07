@@ -36,17 +36,20 @@ public class OrderUnitRepository extends JooqRepository {
     @Inject
     private DailyIncomeService dailyIncomeService;
 
+    // ✅ Ambil semua data pesanan unit yang belum dihapus
     public List<DetailOrderUnitResponse> getAllOrderUnit() {
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
         List<Record> records = jooq.select()
                 .from(Tables.DETAIL_PESANAN_SATUAN)
                 .join(Tables.PESANAN_SATUAN)
                 .on(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(Tables.PESANAN_SATUAN.ID_DETAIL))
                 .leftJoin(Tables.CUSTOMER)
                 .on(Tables.DETAIL_PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
+                // Menambahkan filter untuk memeriksa DELETED_AT
+                .where(Tables.DETAIL_PESANAN_SATUAN.DELETED_AT.isNull())  // Pastikan hanya yang belum di-soft delete
                 .fetch();
-
-        // Format untuk pemisah ribuan
-        DecimalFormat formatter = new DecimalFormat("#,###");
 
         return records.stream()
                 .collect(Collectors.groupingBy(
@@ -109,6 +112,7 @@ public class OrderUnitRepository extends JooqRepository {
                 })
                 .collect(Collectors.toList());
     }
+
 
 
     public DetailOrderUnitResponse getOrderUnitById(String idDetail) {
@@ -482,6 +486,24 @@ public class OrderUnitRepository extends JooqRepository {
                 .execute();
 
         return deletedParent > 0;
+    }
+
+
+    // Soft delete untuk order unit
+    public boolean softDeleteOrderUnitById(String idDetail) {
+        // Soft delete pada item anak (pesanan_satuan)
+        int updatedItems = jooq.update(Tables.PESANAN_SATUAN)
+                .set(Tables.PESANAN_SATUAN.DELETED_AT, LocalDateTime.now())  // Mengatur waktu soft delete
+                .where(Tables.PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+                .execute();
+
+        // Soft delete pada parent (detail_pesanan_satuan)
+        int updatedParent = jooq.update(Tables.DETAIL_PESANAN_SATUAN)
+                .set(Tables.DETAIL_PESANAN_SATUAN.DELETED_AT, LocalDateTime.now())  // Mengatur waktu soft delete
+                .where(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+                .execute();
+
+        return updatedItems > 0 && updatedParent > 0;
     }
 
 

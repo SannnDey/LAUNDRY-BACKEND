@@ -48,4 +48,10 @@ public class OrderUnitService {
     }
 
 
+    // Soft delete untuk Order Unit berdasarkan ID Detail
+    public boolean softDeleteOrderUnitById(String idDetail) {
+        return orderUnitRepository.softDeleteOrderUnitById(idDetail);
+    }
+
+
 }

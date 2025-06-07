@@ -116,4 +116,25 @@ public class OrderController {
     }
 
 
+    // ✅ Endpoint untuk soft delete pesanan berdasarkan ID
+    @PUT
+    @Path("/soft-delete")
+    public Response softDeleteOrder(@QueryParam("idPesanan") String idPesanan) {
+        if (idPesanan == null || idPesanan.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("idPesanan tidak boleh kosong").build();
+        }
+        try {
+            boolean isDeleted = orderService.softDeleteOrder(idPesanan);
+            if (isDeleted) {
+                return Response.ok("Pesanan dengan ID " + idPesanan + " berhasil dihapus (soft delete).").build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("Pesanan tidak ditemukan").build();
+            }
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Gagal menghapus pesanan").build();
+        }
+    }
+
+
 }

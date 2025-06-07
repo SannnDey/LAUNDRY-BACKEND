@@ -52,6 +52,9 @@ public class OrderService {
     }
 
 
-
+    // ✅ Soft delete pesanan
+    public boolean softDeleteOrder(String idPesanan) {
+        return orderRepository.softDeleteById(idPesanan);
+    }
 
 }
