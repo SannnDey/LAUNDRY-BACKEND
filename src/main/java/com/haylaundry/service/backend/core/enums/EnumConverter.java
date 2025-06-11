@@ -3,8 +3,6 @@ package com.haylaundry.service.backend.core.enums;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 
 public class EnumConverter {
-
-    // Konversi TipeCucian dari PesananRecord ke OrderRequest
     public static TipeCucian convertPesananTipeCucianToTipeCucian(com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian pesananTipeCucian) {
         switch (pesananTipeCucian) {
             case Super_Express_3_Jam_Komplit:
@@ -20,7 +18,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi TipeCucian dari OrderRequest ke PesananRecord
     public static com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian convertTipeCucianToPesananTipeCucian(TipeCucian tipeCucian) {
         switch (tipeCucian) {
             case SUPER_EXPRESS_3_JAM_KOMPLIT:
@@ -36,7 +33,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi JenisCucian dari PesananRecord ke OrderRequest
     public static JenisCucian convertPesananJenisCucianToJenisCucian(com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian pesananJenisCucian) {
         switch (pesananJenisCucian) {
             case Komplit:
@@ -50,7 +46,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi JenisCucian dari OrderRequest ke PesananRecord
     public static com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian convertJenisCucianToPesananJenisCucian(JenisCucian jenisCucian) {
         switch (jenisCucian) {
             case KOMPLIT:
@@ -64,7 +59,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi StatusBayar dari PesananRecord ke OrderRequest
     public static PaymentStatus convertPesananStatusBayarToStatusBayar(com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar pesananStatusBayar) {
         switch (pesananStatusBayar) {
             case Belum_Lunas:
@@ -76,7 +70,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi StatusBayar dari OrderRequest ke PesananRecord
     public static com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar convertStatusBayarToPesananStatusBayar(PaymentStatus statusBayar) {
         switch (statusBayar) {
             case BELUM_LUNAS:
@@ -88,7 +81,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi StatusOrder dari PesananRecord ke OrderRequest
     public static StatusOrder convertPesananStatusOrderToStatusOrder(com.haylaundry.service.backend.jooq.gen.enums.PesananStatusOrder pesananStatusOrder) {
         switch (pesananStatusOrder) {
             case Pickup:
@@ -102,7 +94,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi StatusOrder dari OrderRequest ke PesananRecord
     public static com.haylaundry.service.backend.jooq.gen.enums.PesananStatusOrder convertStatusOrderToPesananStatusOrder(StatusOrder statusOrder) {
         switch (statusOrder) {
             case PICKUP:
@@ -116,7 +107,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi TipePembayaran dari PesananRecord ke OrderRequest
     public static PaymentType convertPesananTipePembayaranToTipePembayaran(com.haylaundry.service.backend.jooq.gen.enums.PesananTipePembayaran pesananTipePembayaran) {
         switch (pesananTipePembayaran) {
             case Cash:
@@ -128,7 +118,6 @@ public class EnumConverter {
         }
     }
 
-    // Konversi TipePembayaran dari OrderRequest ke PesananRecord
     public static com.haylaundry.service.backend.jooq.gen.enums.PesananTipePembayaran convertTipePembayaranToPesananTipePembayaran(PaymentType tipePembayaran) {
         switch (tipePembayaran) {
             case CASH:

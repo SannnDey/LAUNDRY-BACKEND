@@ -20,12 +20,12 @@ public class StrukOrderUnitGenerator {
             String tanggalSelesai,
             String statusBayar,
             String statusOrder,
-            Map<String, List<Item>> kategoriItemMap,  // Map kategori -> list item satuan
+            Map<String, List<Item>> kategoriItemMap,
             String totalHarga
     ) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Rectangle pageSize = new Rectangle(226, 567); // 80mm x 200mm
-        Document document = new Document(pageSize, 10, 10, 10, 10); // margin diperkecil jadi 5
+        Document document = new Document(pageSize, 10, 10, 10, 10);
 
         try {
             PdfWriter.getInstance(document, outputStream);
@@ -86,18 +86,15 @@ public class StrukOrderUnitGenerator {
 
             addSeparatorLine(document);
 
-            // === MODIFIKASI: Buat 1 tabel saja untuk semua item tanpa kategori ===
             PdfPTable itemTable = new PdfPTable(3);
             itemTable.setWidthPercentage(100);
             itemTable.setWidths(new float[]{5f, 1.5f, 3f});
             itemTable.setSplitLate(false);
 
-// Header tabel (hanya sekali)
             itemTable.addCell(createHeaderCell("Item", normalBoldFont));
             itemTable.addCell(createHeaderCell("Qty", normalBoldFont));
             itemTable.addCell(createHeaderCell("Harga", normalBoldFont));
 
-// Loop semua item dari setiap kategori, tapi tanpa menampilkan kategori
             for (Map.Entry<String, List<Item>> entry : kategoriItemMap.entrySet()) {
                 List<Item> items = entry.getValue();
 
@@ -207,7 +204,6 @@ public class StrukOrderUnitGenerator {
         return outputStream.toByteArray();
     }
 
-        // Item class bisa didefinisikan sebagai inner class atau di tempat lainn
     public static class Item {
         private String namaItem;
         private int qty;
@@ -224,7 +220,6 @@ public class StrukOrderUnitGenerator {
         public String getHarga() { return harga; }
     }
 
-    // Reuse method createCell, createAlignedCell, createHeaderCell, addSeparatorLine
     private static PdfPCell createCell(String content, Font font) {
         PdfPCell cell = new PdfPCell(new Phrase(content, font));
         cell.setBorder(Rectangle.NO_BORDER);

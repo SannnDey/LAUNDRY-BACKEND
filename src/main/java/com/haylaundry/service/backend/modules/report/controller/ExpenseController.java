@@ -15,9 +15,7 @@ import java.util.logging.Logger;
 
 @Path("api/expense")
 public class ExpenseController {
-
     private static final Logger LOG = Logger.getLogger(ExpenseController.class.getName());
-
     @Inject
     ExpenseService expenseService;
 
@@ -30,7 +28,7 @@ public class ExpenseController {
     @GET
     @Path("/by-date")
     public Response getExpensesByDate(@QueryParam("date") String dateString) {
-        LOG.info("Received request to fetch expenses for date: " + dateString);  // Log the incoming request
+        LOG.info("Received request to fetch expenses for date: " + dateString);
 
         try {
             List<ExpenseResponse> expensesByDate = expenseService.getExpenseByDate(dateString);
@@ -51,14 +49,14 @@ public class ExpenseController {
 
     @POST
     public Response createExpense(ExpenseRequest request) {
-        LOG.info("Received request to create a new expense: " + request);  // Log the incoming request
+        LOG.info("Received request to create a new expense: " + request);
 
         try {
             ExpenseResponse newExpense = expenseService.create(request);
-            LOG.info("Expense created successfully with ID: " + newExpense.getIdPengeluaran());  // Log the success
+            LOG.info("Expense created successfully with ID: " + newExpense.getIdPengeluaran());
             return Response.status(Response.Status.CREATED).entity(newExpense).build();
         } catch (Exception e) {
-            LOG.severe("Error creating expense: " + e.getMessage());  // Log the error
+            LOG.severe("Error creating expense: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Failed to create expense: " + e.getMessage())
                     .build();

@@ -22,7 +22,7 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponseBody create(CustomerRequestBody body) {
-        return customerRepository.create(body); // Langsung return dari repository
+        return customerRepository.create(body);
     }
 
     public CustomerResponseBody findByNoTelp(String noTelp) {

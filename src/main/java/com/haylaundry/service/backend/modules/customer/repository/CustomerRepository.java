@@ -21,8 +21,6 @@ public class CustomerRepository extends JooqRepository {
     @Inject
     private DSLContext jooq;
 
-    // GET All Customers - customerId ditampilkan
-    // ✅ Ambil semua data customer
     public List<CustomerResponseBody> getAll() {
         List<CustomerResponseBody> result = jooq.selectFrom(Tables.CUSTOMER)
                 .fetch()
@@ -55,7 +53,6 @@ public class CustomerRepository extends JooqRepository {
     }
 
 
-    // POST Create Customer - customerId diset ke null pada response
     public CustomerResponseBody create(CustomerRequestBody request) {
         String customerId = UuidCreator.getTimeOrderedEpoch().toString();
         LocalDateTime now = LocalDateTime.now();
@@ -81,12 +78,10 @@ public class CustomerRepository extends JooqRepository {
     }
 
 
-    // Fungsi gabungan createOrGet tetap dengan logika yang sama
     public CustomerResponseBody createOrGet(CustomerRequestBody request) {
         String formattedPhone = convertToInternationalPhone(request.getNoTelp());
         return findByNoTelp(formattedPhone)
                 .orElseGet(() -> {
-                    // Pastikan juga set noTelp sudah di format internasional saat create
                     request.setNoTelp(formattedPhone);
                     return create(request);
                 });

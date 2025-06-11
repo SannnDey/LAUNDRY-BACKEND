@@ -19,7 +19,6 @@ public class UserAuthController {
     @Inject
     private UserAuthService userAuthService;
 
-    // Mendapatkan semua data pengguna (hanya untuk admin)
     @GET
     @RolesAllowed("admin")
     public Response getData() {
@@ -27,12 +26,10 @@ public class UserAuthController {
         return Response.ok(userAuthService.getAllUsers()).build();
     }
 
-    // Registrasi pengguna baru
     @POST
     @Path("/register")
     public Response register(UserAuthRequest request) {
         try {
-            // Validasi role yang diterima
             if (!request.getRole().equalsIgnoreCase("admin") &&
                     !request.getRole().equalsIgnoreCase("karyawan") &&
                     !request.getRole().equalsIgnoreCase("pemilik")) {
@@ -50,14 +47,12 @@ public class UserAuthController {
     }
 
 
-    // Login pengguna
     @POST
     @Path("/login")
     public Response login(UserAuthRequest request) {
         try {
             var user = userAuthService.login(request.getUsername(), request.getPassword());
 
-            // Menghasilkan JWT token
             String jwtToken = userAuthService.generateJwtToken(user);
             var responseBody = new LoginResponse(new UserInfoResponse(user.getUsername(), user.getRole()), jwtToken);
 
@@ -69,7 +64,6 @@ public class UserAuthController {
         }
     }
 
-    // Update data pengguna (hanya untuk admin)
     @PUT
     @RolesAllowed("admin")
     @Path("/update/{userId}")
@@ -84,7 +78,6 @@ public class UserAuthController {
         }
     }
 
-    // Hapus pengguna (hanya untuk admin)
     @DELETE
     @Path("/delete/{userId}")
     @RolesAllowed("admin")

@@ -29,22 +29,19 @@ public class OrderResource {
                 .findFirst()
                 .orElseThrow(() -> new WebApplicationException("Pesanan tidak ditemukan", 404));
 
-        // Format tanggalMasuk dan tanggalSelesai
         String tanggalMasuk = order.getTglMasuk().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
         String tanggalSelesai = order.getTglSelesai() != null
                 ? order.getTglSelesai().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
                 : null;
 
-        // Format harga dengan pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
-        String formattedHarga = String.valueOf(order.getHarga());  // Format harga dengan pemisah ribuan
+        String formattedHarga = String.valueOf(order.getHarga());
 
-        // Generate PDF dengan harga yang sudah diformat
         byte[] pdf = StrukOrderGenerator.generateStruk(
                 order.getNoFaktur(),
                 order.getCustomerName(),
                 order.getQty() + " KG",
-                formattedHarga,  // Menggunakan harga yang sudah diformat
+                formattedHarga,
                 tanggalMasuk,
                 tanggalSelesai,
                 PesananStatusBayar.valueOf(order.getStatusBayar()).getLiteral(),

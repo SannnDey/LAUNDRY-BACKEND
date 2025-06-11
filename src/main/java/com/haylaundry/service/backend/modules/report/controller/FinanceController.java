@@ -20,7 +20,7 @@ public class FinanceController {
     /**
      * Endpoint untuk mengambil laporan keuangan bulanan berdasarkan bulan dan tahun
      *
-     * @param date Bulan dan tahun laporan yang ingin diambil (format: 'MMMM yyyy', misalnya 'Mei 2025')
+     * @param date
      * @return Response dengan status sukses atau gagal
      */
     @GET
@@ -28,18 +28,14 @@ public class FinanceController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMonthlyIncomeReport(@QueryParam("date") String date) {
         try {
-            // Memanggil service untuk mengambil laporan keuangan bulanan
             FinanceResponse response = financeService.getLaporanKeuanganByMonth(date);
 
-            // Mengembalikan response dengan status 200 OK
             return Response.ok(response).build();
         } catch (IllegalArgumentException e) {
-            // Mengembalikan response dengan status BAD_REQUEST jika bulan atau format tidak valid
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Error: " + e.getMessage())
                     .build();
         } catch (Exception e) {
-            // Mengembalikan response dengan status INTERNAL_SERVER_ERROR untuk kesalahan yang tidak terduga
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Internal Server Error: " + e.getMessage())
                     .build();
@@ -47,7 +43,6 @@ public class FinanceController {
     }
 
 
-    // Endpoint to get financial report by date range
     @GET
     @Path("/byDateRange")
     @Produces(MediaType.APPLICATION_JSON)

@@ -29,7 +29,6 @@ public class OrderRepository extends JooqRepository {
     @Inject
     private DailyIncomeService dailyIncomeService;
 
-    // ✅ Ambil semua data pesanan yang belum dihapus
     public List<OrderResponse> getAll() {
         // Format untuk pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
@@ -54,16 +53,14 @@ public class OrderRepository extends JooqRepository {
                 )
                 .from(Tables.PESANAN)
                 .leftJoin(Tables.CUSTOMER).on(Tables.PESANAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
-                // Menambahkan filter untuk tidak mengambil pesanan yang sudah di-soft delete
-                .where(Tables.PESANAN.DELETED_AT.isNull())  // Pastikan hanya pesanan yang belum di-soft delete
+                .where(Tables.PESANAN.DELETED_AT.isNull())
                 .fetch()
                 .stream()
                 .map(record -> {
                     // Format harga menggunakan DecimalFormat
                     double harga = record.get(Tables.PESANAN.HARGA);
-                    String formattedHarga = formatter.format(harga);  // Format harga ke string dengan pemisah ribuan
+                    String formattedHarga = formatter.format(harga);
 
-                    // Return OrderResponse dengan harga yang diformat
                     return new OrderResponse(
                             record.get(Tables.PESANAN.ID_PESANAN),
                             record.get(Tables.CUSTOMER.ID_CUSTOMER),
@@ -118,9 +115,8 @@ public class OrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Pesanan dengan ID " + idPesanan + " tidak ditemukan.");
         }
 
-        // Format harga menggunakan DecimalFormat
         double harga = record.get(Tables.PESANAN.HARGA);
-        String formattedHarga = formatter.format(harga);  // Format harga dengan pemisah ribuan
+        String formattedHarga = formatter.format(harga);
 
         return new OrderResponse(
                 record.get(Tables.PESANAN.ID_PESANAN),
@@ -144,7 +140,6 @@ public class OrderRepository extends JooqRepository {
 
 
     public OrderResponse getByNoFaktur(String nomor) {
-        // Format the nomor into the complete noFaktur string, adding "INV-" prefix
         String noFaktur = "INV-" + nomor;
 
         var record = jooq.select(
@@ -177,9 +172,8 @@ public class OrderRepository extends JooqRepository {
         // Format untuk pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
 
-        // Format harga menggunakan DecimalFormat
         double harga = record.get(Tables.PESANAN.HARGA);
-        String formattedHarga = formatter.format(harga);  // Format harga dengan pemisah ribuan
+        String formattedHarga = formatter.format(harga);
 
         return new OrderResponse(
                 record.get(Tables.PESANAN.ID_PESANAN),
@@ -190,7 +184,7 @@ public class OrderRepository extends JooqRepository {
                 String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
                 String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
                 record.get(Tables.PESANAN.QTY),
-                formattedHarga,  // Set harga yang sudah diformat dengan pemisah ribuan
+                formattedHarga,
                 String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
@@ -208,7 +202,6 @@ public class OrderRepository extends JooqRepository {
         String orderId = UuidCreator.getTimeOrderedEpoch().toString();
         LocalDateTime now = LocalDateTime.now();
 
-        // ✅ 1. Pastikan customer ada
         var customer = jooq.selectFrom(Tables.CUSTOMER)
                 .where(Tables.CUSTOMER.ID_CUSTOMER.eq(request.getIdCustomer()))
                 .fetchOne();
@@ -217,12 +210,10 @@ public class OrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Customer dengan ID " + request.getIdCustomer() + " tidak ditemukan.");
         }
 
-        // ✅ 2. Menghitung harga total menggunakan HargaCucian
         PesananTipeCucian tipeCucian = PesananTipeCucian.lookupLiteral(request.getTipeCucian());
         PesananJenisCucian jenisCucian = PesananJenisCucian.lookupLiteral(request.getJenisCucian());
-        double hargaTotal = PriceOrder.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty()); // Menggunakan HargaCucian untuk menghitung harga
+        double hargaTotal = PriceOrder.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty());
 
-        // ✅ 3. Simpan data pesanan
         PesananRecord newOrder = jooq.newRecord(Tables.PESANAN);
         newOrder.setIdPesanan(orderId);
         newOrder.setIdCustomer(request.getIdCustomer());
@@ -230,7 +221,7 @@ public class OrderRepository extends JooqRepository {
         newOrder.setTipeCucian(tipeCucian);
         newOrder.setJenisCucian(jenisCucian);
         newOrder.setQty(request.getQty());
-        newOrder.setHarga(hargaTotal); // Menetapkan harga total yang dihitung
+        newOrder.setHarga(hargaTotal);
         newOrder.setTipePembayaran(PesananTipePembayaran.lookupLiteral(request.getTipePembayaran()));
         newOrder.setStatusBayar(PesananStatusBayar.lookupLiteral(request.getStatusBayar()));
         newOrder.setStatusOrder(PesananStatusOrder.lookupLiteral(request.getStatusOrder()));
@@ -238,29 +229,21 @@ public class OrderRepository extends JooqRepository {
         newOrder.setTglSelesai(null);
         newOrder.setCatatan(request.getCatatan());
         newOrder.setDeletedAt(null);
-        newOrder.store(); // ✅ Simpan setelah customer valid
+        newOrder.store();
 
-        // Menambahkan pengecekan status bayar
-        // Jika status bayar "Lunas", update laporan pemasukan
         if (PesananStatusBayar.Lunas.equals(newOrder.getStatusBayar())) {
-            // Memperbarui laporan pemasukan harian berdasarkan tanggal pesanan
-            dailyIncomeService.createLaporan(newOrder.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+            dailyIncomeService.createLaporan(newOrder.getTglMasuk().toLocalDate());
         }
-        // Jika status bayar "Belum Lunas", update laporan piutang
         else if (PesananStatusBayar.Belum_Lunas.equals(newOrder.getStatusBayar())) {
-            // Memperbarui laporan piutang harian jika belum lunas
-            dailyIncomeService.createLaporan(newOrder.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+            dailyIncomeService.createLaporan(newOrder.getTglMasuk().toLocalDate());
         }
 
-        // ✅ 4. Ambil data dari customer (sudah tidak null)
         String namaCustomer = customer.getNama();
         String noTelpCustomer = customer.getNoTelp();
 
-        // ✅ 5. Format Harga untuk ditampilkan dengan pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
         String formattedHarga = formatter.format(newOrder.getHarga());
 
-        // ✅ 6. Kembalikan response
         return new OrderResponse(
                 newOrder.getIdPesanan(),
                 newOrder.getIdCustomer(),
@@ -283,7 +266,6 @@ public class OrderRepository extends JooqRepository {
 
 
     public OrderStatusResponse updateStatus(String idPesanan, String statusOrder) {
-        // Ambil pesanan berdasarkan ID
         PesananRecord orderToUpdate = jooq.selectFrom(Tables.PESANAN)
                 .where(Tables.PESANAN.ID_PESANAN.eq(idPesanan))
                 .fetchOne();
@@ -292,19 +274,15 @@ public class OrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Pesanan tidak ditemukan.");
         }
 
-        // Update status pesanan
         PesananStatusOrder status = PesananStatusOrder.valueOf(statusOrder);
         orderToUpdate.setStatusOrder(status);
 
-        // Jika status pesanan "Selesai", set tanggal selesai
         if (PesananStatusOrder.Selesai.equals(status)) {
             orderToUpdate.setTglSelesai(LocalDateTime.now());
         }
 
-        // Simpan perubahan
         orderToUpdate.store();
 
-        // Return ringkas dengan OrderStatusResponse
         return new OrderStatusResponse(
                 orderToUpdate.getIdPesanan(),
                 orderToUpdate.getNoFaktur(),
@@ -317,8 +295,6 @@ public class OrderRepository extends JooqRepository {
     }
 
 
-
-    // Fungsi untuk memperbarui status bayar pesanan
     public OrderStatusBayar updateBayarStatus(String idPesanan, String statusBayar) {
         // Ambil pesanan berdasarkan idPesanan
         PesananRecord orderToUpdate = jooq.selectFrom(Tables.PESANAN)
@@ -329,20 +305,14 @@ public class OrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Pesanan tidak ditemukan.");
         }
 
-        // Update status bayar pesanan
         PesananStatusBayar status = PesananStatusBayar.lookupLiteral(statusBayar);
         orderToUpdate.setStatusBayar(status);
 
-        // Simpan perubahan status bayar
         orderToUpdate.store();
 
-        // Jika status bayar "Lunas", update laporan pemasukan
         if (PesananStatusBayar.Lunas.equals(status)) {
-            // Memperbarui laporan pemasukan harian berdasarkan tanggal pesanan
-            dailyIncomeService.createLaporan(orderToUpdate.getTglMasuk().toLocalDate());  // Pastikan menggunakan LocalDate
+            dailyIncomeService.createLaporan(orderToUpdate.getTglMasuk().toLocalDate());
         }
-
-        // Jika status bayar masih "Belum Lunas", kita tidak perlu melakukan apa-apa pada laporan
 
         return new OrderStatusBayar(
                 orderToUpdate.getIdPesanan(),
@@ -363,9 +333,8 @@ public class OrderRepository extends JooqRepository {
 
 
     public boolean softDeleteById(String idPesanan) {
-        // Melakukan soft delete dengan mengubah status kolom 'deleted' menjadi true
         int updated = jooq.update(Tables.PESANAN)
-                .set(Tables.PESANAN.DELETED_AT, LocalDateTime.now())  // Mengubah status deleted menjadi true
+                .set(Tables.PESANAN.DELETED_AT, LocalDateTime.now())
                 .where(Tables.PESANAN.ID_PESANAN.eq(idPesanan))
                 .execute();
 

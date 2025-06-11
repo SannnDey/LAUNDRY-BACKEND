@@ -12,7 +12,7 @@ public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(Exception ex) {
-        ex.printStackTrace(); // Log error ke console/server log
+        ex.printStackTrace();
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Terjadi kesalahan server");

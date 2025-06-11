@@ -30,17 +30,15 @@ public class ExpenseRepository extends JooqRepository {
 
 
     public List<ExpenseResponse> getAll() {
-        // Format untuk pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
 
-        // Ambil semua data pengeluaran dan format nominal
         List<ExpenseResponse> result = jooq.selectFrom(Tables.PENGELUARAN)
                 .fetch()
                 .stream()
                 .map(record -> new ExpenseResponse(
                         record.get(Tables.PENGELUARAN.ID_PENGELUARAN),
                         record.get(Tables.PENGELUARAN.JENIS_PENGELUARAN),
-                        formatter.format(record.get(Tables.PENGELUARAN.NOMINAL)),  // Format nominal dengan pemisah ribuan
+                        formatter.format(record.get(Tables.PENGELUARAN.NOMINAL)),
                         record.get(Tables.PENGELUARAN.CATATAN),
                         record.get(Tables.PENGELUARAN.TGL_PENGELUARAN)
                 ))
@@ -48,26 +46,22 @@ public class ExpenseRepository extends JooqRepository {
         return result;
     }
 
-    // New method to get expenses by date with format DDDD-MMMM-YYYY
+
     public List<ExpenseResponse> getByDate(String dateString) {
-        // Format untuk pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
 
-        // Format tanggal dan tentukan locale Indonesia
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("id-ID"));
 
-        // Parse input date string ke objek LocalDate
         LocalDate date = LocalDate.parse(dateString, formatterDate);
 
-        // Ambil pengeluaran berdasarkan tanggal yang diberikan dan format nominal
         List<ExpenseResponse> result = jooq.selectFrom(Tables.PENGELUARAN)
-                .where(Tables.PENGELUARAN.TGL_PENGELUARAN.cast(java.sql.Date.class).eq(java.sql.Date.valueOf(date))) // Bandingkan hanya tanggal
+                .where(Tables.PENGELUARAN.TGL_PENGELUARAN.cast(java.sql.Date.class).eq(java.sql.Date.valueOf(date)))
                 .fetch()
                 .stream()
                 .map(record -> new ExpenseResponse(
                         record.get(Tables.PENGELUARAN.ID_PENGELUARAN),
                         record.get(Tables.PENGELUARAN.JENIS_PENGELUARAN),
-                        formatter.format(record.get(Tables.PENGELUARAN.NOMINAL)),  // Format nominal dengan pemisah ribuan
+                        formatter.format(record.get(Tables.PENGELUARAN.NOMINAL)),
                         record.get(Tables.PENGELUARAN.CATATAN),
                         record.get(Tables.PENGELUARAN.TGL_PENGELUARAN)
                 ))
@@ -81,7 +75,6 @@ public class ExpenseRepository extends JooqRepository {
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = LocalDate.now();
 
-        // Membuat record pengeluaran baru
         PengeluaranRecord newPengeluaran = jooq.newRecord(Tables.PENGELUARAN);
         newPengeluaran.setIdPengeluaran(idPengeluaran);
         newPengeluaran.setJenisPengeluaran(request.getJenisPengeluaran());
@@ -90,18 +83,15 @@ public class ExpenseRepository extends JooqRepository {
         newPengeluaran.setTglPengeluaran(now);
         newPengeluaran.store();
 
-        // Update laporan harian setelah pengeluaran baru tercatat
         dailyIncomeService.createLaporan(today);
 
-        // Format nominal dengan pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
-        String formattedNominal = formatter.format(request.getNominal());  // Format nominal dengan pemisah ribuan
+        String formattedNominal = formatter.format(request.getNominal());
 
-        // Mengembalikan response dengan nominal yang sudah diformat
         return new ExpenseResponse(
                 newPengeluaran.getIdPengeluaran(),
                 newPengeluaran.getJenisPengeluaran(),
-                formattedNominal,  // Menggunakan formatted nominal
+                formattedNominal,
                 newPengeluaran.getCatatan(),
                 newPengeluaran.getTglPengeluaran()
         );

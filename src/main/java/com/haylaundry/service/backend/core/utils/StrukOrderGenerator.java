@@ -33,7 +33,7 @@ public class StrukOrderGenerator {
             String jenisLayanan
     ) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Rectangle pageSize = new Rectangle(226, 567); // 80mm x 200mm in pt
+        Rectangle pageSize = new Rectangle(226, 567); // 80mm x 200mm
         Document document = new Document(pageSize, 10, 10, 10, 10);
 
         try {

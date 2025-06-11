@@ -13,13 +13,10 @@ public class FinanceService {
     @Inject
     private FinanceRepository financeRepository;
 
-    // Method to get laporan keuangan bulanan by month (bulan dan tahun)
     public FinanceResponse getLaporanKeuanganByMonth(String date) {
-        // Memanggil repository untuk mengambil laporan keuangan berdasarkan bulan dan tahun
         return financeRepository.getLaporanByMonth(date);
     }
 
-    // Method to get financial report by date range
     public FinanceDateResponse getReportByDateRange(String startDate, String endDate) {
         return financeRepository.getLaporanByDateRange(startDate, endDate);
     }

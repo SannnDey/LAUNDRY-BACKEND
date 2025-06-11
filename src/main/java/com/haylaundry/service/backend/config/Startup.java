@@ -13,8 +13,7 @@ public class Startup {
     private ApiKeyService apiKeyService;
 
     public void init() {
-        // Memuat API Key dari ApiKeyConfig atau sumber lain
-        Set<String> initialApiKeys = Set.of("your-api-key-valid");  // Misalnya, dari konfigurasi
+        Set<String> initialApiKeys = Set.of("your-api-key-valid");
         apiKeyService.loadInitialApiKeys(initialApiKeys);
     }
 }

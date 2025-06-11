@@ -27,13 +27,11 @@ public class UserAuthService {
         this.userAuthRepository = userAuthRepository;
     }
 
-    // Mengambil semua pengguna
     public List<UserAuthResponse> getAllUsers() {
         logger.info("Mengambil data semua pengguna dari repository");
         return userAuthRepository.getAll();
     }
 
-    // Registrasi pengguna baru dengan hashing password
     public UserAuthResponse create(UserAuthRequest body) {
         logger.info("Mendaftarkan pengguna baru: {}", body.getUsername());
 
@@ -48,7 +46,6 @@ public class UserAuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Gagal membuat user"));
     }
 
-    // Login pengguna dan verifikasi password
     public UserAuthResponse login(String username, String password) {
         logger.info("Proses login untuk pengguna: {}", username);
 
@@ -58,7 +55,6 @@ public class UserAuthService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Username atau password salah"));
 
-        // Verify the password with the stored hash
         if (!passwordService.verifyPassword(password, user.getPassword())) {
             throw new IllegalArgumentException("Username atau password salah");
         }
@@ -66,7 +62,6 @@ public class UserAuthService {
         return user;
     }
 
-    // Menghasilkan token JWT
     public String generateJwtToken(UserAuthResponse user) {
         logger.info("Menghasilkan JWT untuk pengguna: {}", user.getUsername());
         return Jwt.issuer("user-service")
@@ -77,7 +72,6 @@ public class UserAuthService {
                 .sign();
     }
 
-    // Update data pengguna
     public UserAuthResponse update(String userId, UserAuthRequest body) {
         logger.info("Memperbarui data pengguna dengan ID: {}", userId);
         int updatedRows = userAuthRepository.update(userId, body);
@@ -90,7 +84,6 @@ public class UserAuthService {
                 .orElseThrow(() -> new IllegalArgumentException("User tidak ditemukan setelah update"));
     }
 
-    // Hapus pengguna
     public void delete(String userId) {
         logger.info("Menghapus pengguna dengan ID: {}", userId);
         int deletedRows = userAuthRepository.delete(userId);

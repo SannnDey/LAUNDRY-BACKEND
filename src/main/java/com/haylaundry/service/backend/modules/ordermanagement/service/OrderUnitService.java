@@ -15,7 +15,6 @@ public class OrderUnitService {
     @Inject
     private OrderUnitRepository orderUnitRepository;
 
-    // Mendapatkan semua detail order unit
     public List<DetailOrderUnitResponse> getAllOrderUnits() {
         return orderUnitRepository.getAllOrderUnit();
     }
@@ -29,9 +28,7 @@ public class OrderUnitService {
     }
 
 
-    // Membuat order unit baru
     public DetailOrderUnitResponse createOrderUnit(DetailOrderUnitRequest request) {
-        // Bisa tambahkan validasi lain seperti validasi customer, dsb, atau langsung lempar ke repository
         return orderUnitRepository.createOrderUnit(request);
     }
 
@@ -48,7 +45,6 @@ public class OrderUnitService {
     }
 
 
-    // Soft delete untuk Order Unit berdasarkan ID Detail
     public boolean softDeleteOrderUnitById(String idDetail) {
         return orderUnitRepository.softDeleteOrderUnitById(idDetail);
     }

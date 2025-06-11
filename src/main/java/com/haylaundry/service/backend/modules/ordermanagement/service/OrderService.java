@@ -16,12 +16,10 @@ public class OrderService {
     @Inject
     private OrderRepository orderRepository;
 
-    // ✅ Ambil semua data pesanan
     public List<OrderResponse> getAllOrders() {
         return orderRepository.getAll();
     }
 
-    // ✅ Ambil data pesanan berdasarkan ID
     public OrderResponse getOrderById(String idPesanan) {
         return orderRepository.getById(idPesanan);
     }
@@ -31,13 +29,10 @@ public class OrderService {
     }
 
 
-
-    // ✅ Buat pesanan baru
     public OrderResponse createOrder(OrderRequest request) {
         return orderRepository.create(request);
     }
 
-    // ✅ Update status pesanan
     public OrderStatusResponse updateOrderStatus(String idPesanan, String statusOrder) {
         return orderRepository.updateStatus(idPesanan, statusOrder);
     }
@@ -46,13 +41,11 @@ public class OrderService {
         return orderRepository.updateBayarStatus(idPesanan, statusBayar);
     }
 
-    // ✅ Hapus pesanan (hard delete)
     public void deleteOrder(String idPesanan) {
         orderRepository.deleteById(idPesanan);
     }
 
 
-    // ✅ Soft delete pesanan
     public boolean softDeleteOrder(String idPesanan) {
         return orderRepository.softDeleteById(idPesanan);
     }

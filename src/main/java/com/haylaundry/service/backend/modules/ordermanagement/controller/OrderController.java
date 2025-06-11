@@ -21,8 +21,6 @@ public class OrderController {
     @Inject
     private OrderService orderService;
 
-
-    // ✅ Endpoint untuk mengambil semua pesanan
     @GET
     public Response getAllOrders() {
         List<OrderResponse> orders = orderService.getAllOrders();
@@ -56,7 +54,6 @@ public class OrderController {
     }
 
 
-    // ✅ Endpoint untuk membuat pesanan baru
     @POST
     public Response createOrder(OrderRequest orderRequest) {
         OrderResponse orderResponse = orderService.createOrder(orderRequest);
@@ -64,7 +61,6 @@ public class OrderController {
     }
 
 
-    // ✅ Endpoint untuk memperbarui status pesanan
     @PUT
     @Path("/status")
     public Response updateOrderStatus(@QueryParam("idPesanan") String idPesanan,
@@ -97,7 +93,6 @@ public class OrderController {
         }
     }
 
-    // ✅ Endpoint untuk menghapus pesanan berdasarkan ID
     @DELETE
     @Path("/hapus")
     public Response deleteOrder(@QueryParam("idPesanan") String idPesanan) {
@@ -116,7 +111,6 @@ public class OrderController {
     }
 
 
-    // ✅ Endpoint untuk soft delete pesanan berdasarkan ID
     @PUT
     @Path("/soft-delete")
     public Response softDeleteOrder(@QueryParam("idPesanan") String idPesanan) {
@@ -127,7 +121,7 @@ public class OrderController {
         try {
             boolean isDeleted = orderService.softDeleteOrder(idPesanan);
             if (isDeleted) {
-                return Response.ok("Pesanan dengan ID " + idPesanan + " berhasil dihapus (soft delete).").build();
+                return Response.ok("Pesanan dengan ID " + idPesanan + " berhasil dihapus").build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).entity("Pesanan tidak ditemukan").build();
             }

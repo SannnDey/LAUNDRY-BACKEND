@@ -14,15 +14,12 @@ public class LaporanScheduler {
     @Inject
     private DailyIncomeService dailyIncomeService;
 
-    // Penjadwalan untuk menghasilkan laporan setiap pukul 00:00
-    @Scheduled(cron = "0 0 0 * * ?") // Setiap pukul 00:00 (tengah malam)
+    @Scheduled(cron = "0 0 0 * * ?")
     public void generateDailyReport() {
-        // Ambil tanggal sekarang
-        LocalDate today = LocalDate.now();  // Menggunakan LocalDate untuk tanggal saat ini
+        LocalDate today = LocalDate.now();
 
         LOG.info("Generating daily report for: " + today);
 
-        // Panggil DailyIncomeService untuk membuat laporan
         dailyIncomeService.createLaporan(today);
     }
 }

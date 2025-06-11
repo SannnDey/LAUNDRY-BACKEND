@@ -15,7 +15,6 @@ public class CustomerController {
     @Inject
     private CustomerService customerService;
 
-    // GET all customers
     @GET
     public Response getAllCustomers(@QueryParam("noTelp") String noTelp) {
         if (noTelp != null && !noTelp.isEmpty()) {
@@ -31,7 +30,6 @@ public class CustomerController {
         }
     }
 
-    // POST create or get customer
     @POST
     public Response createOrGetCustomer(CustomerRequestBody customerRequestBody) {
         CustomerResponseBody customer = customerService.createOrGet(customerRequestBody);

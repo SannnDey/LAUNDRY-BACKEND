@@ -62,7 +62,6 @@ public class OrderUnitController {
 
     }
 
-    // Versi menggunakan query param
     @PUT
     @Path("/update-status")
     public Response updateStatusBayar(
@@ -111,7 +110,6 @@ public class OrderUnitController {
     }
 
 
-    // ✅ Endpoint untuk soft delete Order Unit berdasarkan ID Detail
     @PUT
     @Path("/soft-delete")
     public Response softDeleteOrderUnit(@QueryParam("idDetail") String idDetail) {
@@ -122,7 +120,7 @@ public class OrderUnitController {
 
         boolean isDeleted = orderUnitService.softDeleteOrderUnitById(idDetail);
         if (isDeleted) {
-            return Response.ok("Order unit dengan ID " + idDetail + " berhasil dihapus (soft delete).").build();
+            return Response.ok("Order unit dengan ID " + idDetail + " berhasil dihapus").build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("Order unit tidak ditemukan").build();
         }

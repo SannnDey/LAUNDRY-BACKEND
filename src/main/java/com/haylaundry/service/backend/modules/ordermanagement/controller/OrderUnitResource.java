@@ -35,13 +35,11 @@ public class OrderUnitResource {
                 ? orderUnit.getTglSelesai().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
                 : "-";
 
-        // Mengelompokkan DetailOrderUnitResponse berdasarkan kategori
         Map<String, List<StrukOrderUnitGenerator.Item>> kategoriItemMap = orderUnit.getItems().stream()
                 .collect(Collectors.groupingBy(
                         OrderUnitResponse::getKategoriBarang,
                         Collectors.mapping(
                                 item -> new StrukOrderUnitGenerator.Item(
-                                        // Nama item diambil dari kategori + ukuran + jenis layanan, sesuaikan kebutuhan
                                         item.getKategoriBarang() + " " + item.getUkuran() + " " + item.getJenisLayanan(),
                                         item.getQty(),
                                         String.valueOf(item.getHarga())
@@ -50,11 +48,9 @@ public class OrderUnitResource {
                         )
                 ));
 
-        // Format totalHarga dengan pemisah ribuan
         DecimalFormat formatter = new DecimalFormat("#,###");
-        String formattedTotalHarga = String.valueOf(orderUnit.getTotalHarga());  // Format total harga dengan pemisah ribuan
+        String formattedTotalHarga = String.valueOf(orderUnit.getTotalHarga());
 
-        // Generate PDF dengan totalHarga yang sudah diformat
         byte[] pdf = StrukOrderUnitGenerator.generateStrukPesananSatuan(
                 orderUnit.getNoFaktur(),
                 orderUnit.getNamaCustomer(),
@@ -63,7 +59,7 @@ public class OrderUnitResource {
                 orderUnit.getStatusBayar().toUpperCase(),
                 orderUnit.getStatusOrder().toUpperCase(),
                 kategoriItemMap,
-                formattedTotalHarga  // Menggunakan total harga yang sudah diformat
+                formattedTotalHarga
         );
 
         return Response.ok(pdf)
