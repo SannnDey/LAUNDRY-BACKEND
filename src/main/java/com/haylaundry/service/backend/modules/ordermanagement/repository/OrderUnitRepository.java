@@ -9,7 +9,7 @@ import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 import java.text.DecimalFormat;
 import com.haylaundry.service.backend.jooq.gen.tables.records.DetailPesananSatuanRecord;
-import com.haylaundry.service.backend.jooq.gen.tables.records.PesananSatuanRecord;
+import com.haylaundry.service.backend.jooq.gen.tables.records.ItemPesananSatuanRecord;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.OrderUnitRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.DetailOrderUnitRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitResponse;
@@ -43,8 +43,8 @@ public class OrderUnitRepository extends JooqRepository {
 
         List<Record> records = jooq.select()
                 .from(Tables.DETAIL_PESANAN_SATUAN)
-                .join(Tables.PESANAN_SATUAN)
-                .on(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(Tables.PESANAN_SATUAN.ID_DETAIL))
+                .join(Tables.ITEM_PESANAN_SATUAN)
+                .on(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(Tables.ITEM_PESANAN_SATUAN.ID_DETAIL))
                 .leftJoin(Tables.CUSTOMER)
                 .on(Tables.DETAIL_PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
                 // Menambahkan filter untuk memeriksa DELETED_AT
@@ -89,18 +89,18 @@ public class OrderUnitRepository extends JooqRepository {
                     List<OrderUnitResponse> detailItems = groupRecords.stream()
                             .map(record -> {
                                 OrderUnitResponse item = new OrderUnitResponse();
-                                item.setIdPesananSatuan(record.get(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN));
-                                item.setIdDetail(record.get(Tables.PESANAN_SATUAN.ID_DETAIL));
-                                item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
-                                item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace("_", " "));
-                                item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
+                                item.setIdPesananSatuan(record.get(Tables.ITEM_PESANAN_SATUAN.ID_ITEM_SATUAN));
+                                item.setIdDetail(record.get(Tables.ITEM_PESANAN_SATUAN.ID_DETAIL));
+                                item.setKategoriBarang(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
+                                item.setUkuran(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.UKURAN)).replace("_", " "));
+                                item.setJenisLayanan(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
 
                                 // Format harga menggunakan DecimalFormat
-                                double harga = record.get(Tables.PESANAN_SATUAN.HARGA);
+                                double harga = record.get(Tables.ITEM_PESANAN_SATUAN.HARGA);
                                 String formattedHarga = formatter.format(harga);  // Format harga ke string dengan pemisah ribuan
 
                                 item.setHarga(formattedHarga);  // Set formatted harga as String
-                                item.setQty(record.get(Tables.PESANAN_SATUAN.QTY));
+                                item.setQty(record.get(Tables.ITEM_PESANAN_SATUAN.QTY));
                                 return item;
                             })
                             .collect(Collectors.toList());
@@ -119,8 +119,8 @@ public class OrderUnitRepository extends JooqRepository {
         // Ambil data dari database
         List<Record> records = jooq.select()
                 .from(Tables.DETAIL_PESANAN_SATUAN)
-                .join(Tables.PESANAN_SATUAN)
-                .on(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(Tables.PESANAN_SATUAN.ID_DETAIL))
+                .join(Tables.ITEM_PESANAN_SATUAN)
+                .on(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(Tables.ITEM_PESANAN_SATUAN.ID_DETAIL))
                 .leftJoin(Tables.CUSTOMER)
                 .on(Tables.DETAIL_PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
                 .where(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
@@ -160,18 +160,18 @@ public class OrderUnitRepository extends JooqRepository {
         // Mengambil items dan format harga item
         List<OrderUnitResponse> items = records.stream().map(record -> {
             OrderUnitResponse item = new OrderUnitResponse();
-            item.setIdPesananSatuan(record.get(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN));
-            item.setIdDetail(record.get(Tables.PESANAN_SATUAN.ID_DETAIL));
-            item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
-            item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace("_", " "));
-            item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
+            item.setIdPesananSatuan(record.get(Tables.ITEM_PESANAN_SATUAN.ID_ITEM_SATUAN));
+            item.setIdDetail(record.get(Tables.ITEM_PESANAN_SATUAN.ID_DETAIL));
+            item.setKategoriBarang(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
+            item.setUkuran(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.UKURAN)).replace("_", " "));
+            item.setJenisLayanan(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
 
             // Format harga menggunakan DecimalFormat
-            double harga = record.get(Tables.PESANAN_SATUAN.HARGA);
+            double harga = record.get(Tables.ITEM_PESANAN_SATUAN.HARGA);
             String formattedHarga = formatter.format(harga);  // Format harga ke string dengan pemisah ribuan
 
             item.setHarga(formattedHarga);  // Set formatted harga as String
-            item.setQty(record.get(Tables.PESANAN_SATUAN.QTY));
+            item.setQty(record.get(Tables.ITEM_PESANAN_SATUAN.QTY));
             return item;
         }).collect(Collectors.toList());
 
@@ -188,8 +188,8 @@ public class OrderUnitRepository extends JooqRepository {
 
         List<Record> records = jooq.select()
                 .from(Tables.DETAIL_PESANAN_SATUAN)
-                .join(Tables.PESANAN_SATUAN)
-                .on(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(Tables.PESANAN_SATUAN.ID_DETAIL))
+                .join(Tables.ITEM_PESANAN_SATUAN)
+                .on(Tables.DETAIL_PESANAN_SATUAN.ID_DETAIL.eq(Tables.ITEM_PESANAN_SATUAN.ID_DETAIL))
                 .leftJoin(Tables.CUSTOMER)
                 .on(Tables.DETAIL_PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
                 .where(Tables.DETAIL_PESANAN_SATUAN.NO_FAKTUR.eq(noFaktur))
@@ -229,18 +229,18 @@ public class OrderUnitRepository extends JooqRepository {
         // Mengambil items dan format harga item
         List<OrderUnitResponse> items = records.stream().map(record -> {
             OrderUnitResponse item = new OrderUnitResponse();
-            item.setIdPesananSatuan(record.get(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN));
-            item.setIdDetail(record.get(Tables.PESANAN_SATUAN.ID_DETAIL));
-            item.setKategoriBarang(String.valueOf(record.get(Tables.PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
-            item.setUkuran(String.valueOf(record.get(Tables.PESANAN_SATUAN.UKURAN)).replace("_", " "));
-            item.setJenisLayanan(String.valueOf(record.get(Tables.PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
+            item.setIdPesananSatuan(record.get(Tables.ITEM_PESANAN_SATUAN.ID_ITEM_SATUAN));
+            item.setIdDetail(record.get(Tables.ITEM_PESANAN_SATUAN.ID_DETAIL));
+            item.setKategoriBarang(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.KATEGORI_BARANG)).replace("_", " "));
+            item.setUkuran(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.UKURAN)).replace("_", " "));
+            item.setJenisLayanan(String.valueOf(record.get(Tables.ITEM_PESANAN_SATUAN.JENIS_LAYANAN)).replace("_", " "));
 
             // Format harga menggunakan DecimalFormat
-            double harga = record.get(Tables.PESANAN_SATUAN.HARGA);
+            double harga = record.get(Tables.ITEM_PESANAN_SATUAN.HARGA);
             String formattedHarga = formatter.format(harga);  // Format harga ke string dengan pemisah ribuan
 
             item.setHarga(formattedHarga);  // Set formatted harga as String
-            item.setQty(record.get(Tables.PESANAN_SATUAN.QTY));
+            item.setQty(record.get(Tables.ITEM_PESANAN_SATUAN.QTY));
             return item;
         }).collect(Collectors.toList());
 
@@ -320,17 +320,17 @@ public class OrderUnitRepository extends JooqRepository {
 
             // Validasi enum kategori, ukuran, dan jenis layanan di setiap item
             var kategori = EnumValidator.validateEnum(
-                    PesananSatuanKategoriBarang.class,
+                    ItemPesananSatuanKategoriBarang.class,
                     item.getKategoriBarang(),
                     "Kategori Barang"
             );
             var ukuran = EnumValidator.validateEnum(
-                    PesananSatuanUkuran.class,
+                    ItemPesananSatuanUkuran.class,
                     item.getUkuran(),
                     "Ukuran"
             );
             var jenisLayanan = EnumValidator.validateEnum(
-                    PesananSatuanJenisLayanan.class,
+                    ItemPesananSatuanJenisLayanan.class,
                     item.getJenisLayanan(),
                     "Jenis Layanan"
             );
@@ -346,8 +346,8 @@ public class OrderUnitRepository extends JooqRepository {
             String formattedHargaFinal = formatter.format(hargaFinal);
 
             // Simpan PesananSatuan record untuk tiap item (child)
-            PesananSatuanRecord orderUnitRecord = jooq.newRecord(Tables.PESANAN_SATUAN);
-            orderUnitRecord.setIdPesananSatuan(UuidCreator.getTimeOrderedEpoch().toString());
+            ItemPesananSatuanRecord orderUnitRecord = jooq.newRecord(Tables.ITEM_PESANAN_SATUAN);
+            orderUnitRecord.setIdItemSatuan(UuidCreator.getTimeOrderedEpoch().toString());
             orderUnitRecord.setIdDetail(detailId); // FK ke detail pesanan yang sudah ada
             orderUnitRecord.setKategoriBarang(kategori);
             orderUnitRecord.setUkuran(ukuran);
@@ -360,7 +360,7 @@ public class OrderUnitRepository extends JooqRepository {
 
             // Tambahkan ke response list
             orderUnitResponses.add(new OrderUnitResponse(
-                    orderUnitRecord.getIdPesananSatuan(),
+                    orderUnitRecord.getIdItemSatuan(),
                     detailId,
                     kategori.getLiteral(),
                     ukuran.getLiteral(),
@@ -476,8 +476,8 @@ public class OrderUnitRepository extends JooqRepository {
 
     public boolean deleteOrderUnitById(String idDetail) {
         // Hapus dulu item anak (pesanan_satuan)
-        int deletedItems = jooq.deleteFrom(Tables.PESANAN_SATUAN)
-                .where(Tables.PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+        int deletedItems = jooq.deleteFrom(Tables.ITEM_PESANAN_SATUAN)
+                .where(Tables.ITEM_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
                 .execute();
 
         // Hapus parent (detail_pesanan_satuan)
@@ -492,9 +492,9 @@ public class OrderUnitRepository extends JooqRepository {
     // Soft delete untuk order unit
     public boolean softDeleteOrderUnitById(String idDetail) {
         // Soft delete pada item anak (pesanan_satuan)
-        int updatedItems = jooq.update(Tables.PESANAN_SATUAN)
-                .set(Tables.PESANAN_SATUAN.DELETED_AT, LocalDateTime.now())  // Mengatur waktu soft delete
-                .where(Tables.PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
+        int updatedItems = jooq.update(Tables.ITEM_PESANAN_SATUAN)
+                .set(Tables.ITEM_PESANAN_SATUAN.DELETED_AT, LocalDateTime.now())  // Mengatur waktu soft delete
+                .where(Tables.ITEM_PESANAN_SATUAN.ID_DETAIL.eq(idDetail))
                 .execute();
 
         // Soft delete pada parent (detail_pesanan_satuan)

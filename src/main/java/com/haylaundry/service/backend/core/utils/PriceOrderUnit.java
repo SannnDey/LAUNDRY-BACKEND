@@ -1,8 +1,8 @@
 package com.haylaundry.service.backend.core.utils;
 
-import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanKategoriBarang;
-import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanUkuran;
-import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanJenisLayanan;
+import com.haylaundry.service.backend.jooq.gen.enums.ItemPesananSatuanKategoriBarang;
+import com.haylaundry.service.backend.jooq.gen.enums.ItemPesananSatuanUkuran;
+import com.haylaundry.service.backend.jooq.gen.enums.ItemPesananSatuanJenisLayanan;
 
 public class PriceOrderUnit {
 
@@ -17,14 +17,14 @@ public class PriceOrderUnit {
             throw new IllegalArgumentException("Jenis layanan tidak boleh kosong atau null");
         }
 
-        PesananSatuanKategoriBarang kategoriEnum = tryLookupKategori(kategoriBarang);
-        PesananSatuanUkuran ukuranEnum = tryLookupUkuran(ukuran);
-        PesananSatuanJenisLayanan layananEnum = tryLookupJenisLayanan(jenisLayanan);
+        ItemPesananSatuanKategoriBarang kategoriEnum = tryLookupKategori(kategoriBarang);
+        ItemPesananSatuanUkuran ukuranEnum = tryLookupUkuran(ukuran);
+        ItemPesananSatuanJenisLayanan layananEnum = tryLookupJenisLayanan(jenisLayanan);
 
         return hitungHarga(kategoriEnum, ukuranEnum, layananEnum);
     }
 
-    public static double hitungHarga(PesananSatuanKategoriBarang kategoriBarang, PesananSatuanUkuran ukuran, PesananSatuanJenisLayanan jenisLayanan) {
+    public static double hitungHarga(ItemPesananSatuanKategoriBarang kategoriBarang, ItemPesananSatuanUkuran ukuran, ItemPesananSatuanJenisLayanan jenisLayanan) {
         switch (kategoriBarang) {
             case Bed_Cover:
                 return hitungHargaBedCover(ukuran, jenisLayanan);
@@ -39,8 +39,8 @@ public class PriceOrderUnit {
         }
     }
 
-    private static PesananSatuanKategoriBarang tryLookupKategori(String kategori) {
-        for (PesananSatuanKategoriBarang v : PesananSatuanKategoriBarang.values()) {
+    private static ItemPesananSatuanKategoriBarang tryLookupKategori(String kategori) {
+        for (ItemPesananSatuanKategoriBarang v : ItemPesananSatuanKategoriBarang.values()) {
             if (v.getLiteral().equalsIgnoreCase(kategori.trim())) {
                 return v;
             }
@@ -48,8 +48,8 @@ public class PriceOrderUnit {
         throw new IllegalArgumentException("Kategori barang tidak dikenali: " + kategori);
     }
 
-    private static PesananSatuanUkuran tryLookupUkuran(String ukuran) {
-        for (PesananSatuanUkuran v : PesananSatuanUkuran.values()) {
+    private static ItemPesananSatuanUkuran tryLookupUkuran(String ukuran) {
+        for (ItemPesananSatuanUkuran v : ItemPesananSatuanUkuran.values()) {
             if (v.getLiteral().equalsIgnoreCase(ukuran.trim())) {
                 return v;
             }
@@ -57,8 +57,8 @@ public class PriceOrderUnit {
         throw new IllegalArgumentException("Ukuran tidak dikenali: " + ukuran);
     }
 
-    private static PesananSatuanJenisLayanan tryLookupJenisLayanan(String layanan) {
-        for (PesananSatuanJenisLayanan v : PesananSatuanJenisLayanan.values()) {
+    private static ItemPesananSatuanJenisLayanan tryLookupJenisLayanan(String layanan) {
+        for (ItemPesananSatuanJenisLayanan v : ItemPesananSatuanJenisLayanan.values()) {
             if (v.getLiteral().equalsIgnoreCase(layanan.trim())) {
                 return v;
             }
@@ -66,25 +66,25 @@ public class PriceOrderUnit {
         throw new IllegalArgumentException("Jenis layanan tidak dikenali: " + layanan);
     }
 
-    private static double hitungHargaBedCover(PesananSatuanUkuran ukuran, PesananSatuanJenisLayanan jenisLayanan) {
-        if (jenisLayanan == PesananSatuanJenisLayanan.Standar_3_Hari) {
-            if (ukuran == PesananSatuanUkuran.Kecil || ukuran == PesananSatuanUkuran.Sedang) {
+    private static double hitungHargaBedCover(ItemPesananSatuanUkuran ukuran, ItemPesananSatuanJenisLayanan jenisLayanan) {
+        if (jenisLayanan == ItemPesananSatuanJenisLayanan.Standar_3_Hari) {
+            if (ukuran == ItemPesananSatuanUkuran.Kecil || ukuran == ItemPesananSatuanUkuran.Sedang) {
                 return 15000;
-            } else if (ukuran == PesananSatuanUkuran.Besar) {
+            } else if (ukuran == ItemPesananSatuanUkuran.Besar) {
                 return 20000;
             }
-        } else if (jenisLayanan == PesananSatuanJenisLayanan.Express_1_Hari) {
-            if (ukuran == PesananSatuanUkuran.Kecil || ukuran == PesananSatuanUkuran.Sedang) {
+        } else if (jenisLayanan == ItemPesananSatuanJenisLayanan.Express_1_Hari) {
+            if (ukuran == ItemPesananSatuanUkuran.Kecil || ukuran == ItemPesananSatuanUkuran.Sedang) {
                 return 20000;
-            } else if (ukuran == PesananSatuanUkuran.Besar) {
+            } else if (ukuran == ItemPesananSatuanUkuran.Besar) {
                 return 30000;
             }
         }
         throw new IllegalArgumentException("Ukuran atau jenis layanan tidak valid untuk Bed Cover");
     }
 
-    private static double hitungHargaBoneka(PesananSatuanUkuran ukuran, PesananSatuanJenisLayanan jenisLayanan) {
-        if (jenisLayanan != PesananSatuanJenisLayanan.Standar_3_Hari) {
+    private static double hitungHargaBoneka(ItemPesananSatuanUkuran ukuran, ItemPesananSatuanJenisLayanan jenisLayanan) {
+        if (jenisLayanan != ItemPesananSatuanJenisLayanan.Standar_3_Hari) {
             throw new IllegalArgumentException("Boneka hanya tersedia untuk layanan standar");
         }
         switch (ukuran) {
@@ -99,8 +99,8 @@ public class PriceOrderUnit {
         }
     }
 
-    private static double hitungHargaBantalGuling(PesananSatuanUkuran ukuran, PesananSatuanJenisLayanan jenisLayanan) {
-        if (jenisLayanan != PesananSatuanJenisLayanan.Standar_3_Hari) {
+    private static double hitungHargaBantalGuling(ItemPesananSatuanUkuran ukuran, ItemPesananSatuanJenisLayanan jenisLayanan) {
+        if (jenisLayanan != ItemPesananSatuanJenisLayanan.Standar_3_Hari) {
             throw new IllegalArgumentException("Bantal/Guling hanya tersedia untuk layanan standar");
         }
         switch (ukuran) {
@@ -114,8 +114,8 @@ public class PriceOrderUnit {
     }
 
     // Tambahkan metode untuk menghitung harga Sepatu
-    private static double hitungHargaSepatu(PesananSatuanUkuran ukuran, PesananSatuanJenisLayanan jenisLayanan) {
-        if (jenisLayanan == PesananSatuanJenisLayanan.Standar_4_Hari) {
+    private static double hitungHargaSepatu(ItemPesananSatuanUkuran ukuran, ItemPesananSatuanJenisLayanan jenisLayanan) {
+        if (jenisLayanan == ItemPesananSatuanJenisLayanan.Standar_4_Hari) {
             switch (ukuran) {
                 case Kids_Shoes: // Untuk Sepatu Kecil (Kids Shoes)
                     return 20000;

@@ -54,19 +54,20 @@ CREATE TABLE detail_pesanan_satuan (
 );
 
 
-CREATE TABLE pesanan_satuan (
-                                id_pesanan_satuan VARCHAR(36) PRIMARY KEY,
-                                id_detail VARCHAR(36) NOT NULL,
-                                kategori_barang ENUM('Bed Cover', 'Boneka', 'Bantal Guling', 'Sepatu') NOT NULL,
-                                ukuran ENUM('Kecil', 'Sedang', 'Besar', 'Kids Shoes', 'Leather Shoes', 'Sneakers Shoes') NOT NULL,
-                                jenis_layanan ENUM('Standar 3 Hari', 'Express 1 Hari', 'Standar 4 Hari') NOT NULL,
-                                harga DOUBLE NOT NULL,
-                                qty INT NOT NULL,
+CREATE TABLE item_pesanan_satuan (
+                                     id_item_satuan VARCHAR(36) PRIMARY KEY,
+                                     id_detail VARCHAR(36) NOT NULL,
+                                     kategori_barang ENUM('Bed Cover', 'Boneka', 'Bantal Guling', 'Sepatu') NOT NULL,
+                                     ukuran ENUM('Kecil', 'Sedang', 'Besar', 'Kids Shoes', 'Leather Shoes', 'Sneakers Shoes') NOT NULL,
+                                     jenis_layanan ENUM('Standar 3 Hari', 'Express 1 Hari', 'Standar 4 Hari') NOT NULL,
+                                     harga DOUBLE NOT NULL,
+                                     qty INT NOT NULL,
+                                     deleted_at TIMESTAMP NULL,
 
-                                FOREIGN KEY (id_detail)
-                                    REFERENCES detail_pesanan_satuan(id_detail)
-                                    ON UPDATE CASCADE
-                                    ON DELETE CASCADE
+                                     FOREIGN KEY (id_detail)
+                                         REFERENCES detail_pesanan_satuan(id_detail)
+                                         ON UPDATE CASCADE
+                                         ON DELETE CASCADE
 );
 
 CREATE TABLE pengeluaran (
