@@ -1,10 +1,13 @@
 package com.haylaundry.service.backend.modules.ordermanagement.controller;
 
+import com.haylaundry.service.backend.core.utils.PdfToImageConverter;
 import com.haylaundry.service.backend.core.utils.StrukOrderGenerator;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusOrder;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
 import com.haylaundry.service.backend.modules.ordermanagement.repository.OrderRepository;
+
+import java.io.IOException;
 import java.text.DecimalFormat;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -22,8 +25,8 @@ public class OrderResource {
 
     @GET
     @Path("/{idPesanan}")
-    @Produces("application/pdf")
-    public Response downloadStruk(@PathParam("idPesanan") String idPesanan) {
+    @Produces("image/png")
+    public Response downloadStruk(@PathParam("idPesanan") String idPesanan) throws IOException {
         var order = orderRepository.getAll().stream()
                 .filter(o -> o.getIdPesanan().equals(idPesanan))
                 .findFirst()
@@ -49,9 +52,15 @@ public class OrderResource {
                 PesananTipeCucian.valueOf(order.getTipeCucian()).getLiteral()
         );
 
-        return Response.ok(pdf)
-                .header("Content-Disposition", "inline; filename=\"struk-" + order.getNoFaktur() + ".pdf\"")
+        // 2. Convert PDF to PNG
+        byte[] imageBytes = PdfToImageConverter.convertPdfToImage(pdf);
+
+
+        return Response.ok(imageBytes)
+                .type("image/png")
+                .header("Content-Disposition", "inline; filename=\"struk-" + order.getNoFaktur() + ".png\"")
                 .build();
+
     }
 
 

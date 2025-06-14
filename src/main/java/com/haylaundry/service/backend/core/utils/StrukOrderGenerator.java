@@ -34,7 +34,7 @@ public class StrukOrderGenerator {
     ) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Rectangle pageSize = new Rectangle(226, 567); // 80mm x 200mm
-        Document document = new Document(pageSize, 10, 10, 10, 10);
+        Document document = new Document(pageSize, 3, 3, 10, 10);
 
         try {
             PdfWriter.getInstance(document, outputStream);
@@ -43,9 +43,10 @@ public class StrukOrderGenerator {
             BaseColor darkBlue = new BaseColor(0, 51, 102);
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA, 14, Font.BOLD, BaseColor.BLACK);
             Font headerFont = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
-            Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
+            Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 11, Font.NORMAL, BaseColor.BLACK);
             Font normalFont1 = FontFactory.getFont(FontFactory.HELVETICA, 8, Font.BOLD, BaseColor.BLACK);
             Font normalFont2 = FontFactory.getFont(FontFactory.HELVETICA, 8, Font.BOLD, BaseColor.BLACK);
+            Font normalFont3 = FontFactory.getFont(FontFactory.HELVETICA, 11, Font.BOLD, BaseColor.BLACK);
             Font footerFont = FontFactory.getFont(FontFactory.HELVETICA, 8, Font.NORMAL, darkBlue);
             Font footerBoldFont = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.BOLD, darkBlue);
 
@@ -107,12 +108,12 @@ public class StrukOrderGenerator {
             totalTable.setWidthPercentage(100);
             totalTable.setWidths(new float[]{7, 3});
 
-            PdfPCell totalLabelCell = new PdfPCell(new Phrase("TOTAL", headerFont));
+            PdfPCell totalLabelCell = new PdfPCell(new Phrase("TOTAL", normalFont2));
             totalLabelCell.setBorder(Rectangle.NO_BORDER);
             totalLabelCell.setHorizontalAlignment(Element.ALIGN_LEFT);
             totalLabelCell.setPaddingBottom(5);
 
-            PdfPCell totalValueCell = new PdfPCell(new Phrase("Rp. " + harga, headerFont));
+            PdfPCell totalValueCell = new PdfPCell(new Phrase("Rp " + harga, normalFont3));
             totalValueCell.setBorder(Rectangle.NO_BORDER);
             totalValueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             totalValueCell.setPaddingBottom(5);
@@ -212,7 +213,7 @@ public class StrukOrderGenerator {
 
     private static void addSeparatorLine(Document document) throws DocumentException {
         LineSeparator line = new LineSeparator();
-        line.setLineColor(BaseColor.LIGHT_GRAY);
+        line.setLineColor(BaseColor.BLACK);
         line.setPercentage(100);
         document.add(new Chunk(line));
         document.add(Chunk.NEWLINE);

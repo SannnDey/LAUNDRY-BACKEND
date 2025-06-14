@@ -25,7 +25,7 @@ public class StrukOrderUnitGenerator {
     ) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Rectangle pageSize = new Rectangle(226, 567); // 80mm x 200mm
-        Document document = new Document(pageSize, 10, 10, 10, 10);
+        Document document = new Document(pageSize, 7, 7, 10, 10);
 
         try {
             PdfWriter.getInstance(document, outputStream);
@@ -245,7 +245,7 @@ public class StrukOrderUnitGenerator {
 
     private static void addSeparatorLine(Document document) throws DocumentException {
         com.itextpdf.text.pdf.draw.LineSeparator line = new LineSeparator();
-        line.setLineColor(BaseColor.LIGHT_GRAY);
+        line.setLineColor(BaseColor.BLACK);
         line.setPercentage(100);
         document.add(new Chunk(line));
         document.add(Chunk.NEWLINE);

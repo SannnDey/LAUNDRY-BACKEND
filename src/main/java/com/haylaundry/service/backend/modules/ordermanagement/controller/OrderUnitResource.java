@@ -1,8 +1,11 @@
 package com.haylaundry.service.backend.modules.ordermanagement.controller;
 
+import com.haylaundry.service.backend.core.utils.PdfToImageConverter;
 import com.haylaundry.service.backend.core.utils.StrukOrderUnitGenerator;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.OrderUnitResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.repository.OrderUnitRepository;
+
+import java.io.IOException;
 import java.text.DecimalFormat;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -21,8 +24,8 @@ public class OrderUnitResource {
 
     @GET
     @Path("/{idPesanan}")
-    @Produces("application/pdf")
-    public Response downloadStrukOrderUnit(@PathParam("idPesanan") String idPesanan) {
+    @Produces("image/png")
+    public Response downloadStrukOrderUnit(@PathParam("idPesanan") String idPesanan) throws IOException {
         // Ambil order unit dari repository berdasarkan idPesanan
         var orderUnit = orderUnitRepository.getAllOrderUnit().stream()
                 .filter(o -> o.getIdDetail().equals(idPesanan))
@@ -62,9 +65,15 @@ public class OrderUnitResource {
                 formattedTotalHarga
         );
 
-        return Response.ok(pdf)
-                .header("Content-Disposition", "inline; filename=\"struk-" + orderUnit.getNoFaktur() + ".pdf\"")
+        // 2. Convert PDF to PNG
+        byte[] imageBytes = PdfToImageConverter.convertPdfToImage(pdf);
+
+        return Response.ok(imageBytes)
+                .type("image/png")
+                .header("Content-Disposition", "inline; filename=\"struk-" + orderUnit.getNoFaktur() + ".png\"")
                 .build();
     }
+
+
 
 }
