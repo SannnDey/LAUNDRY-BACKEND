@@ -25,7 +25,7 @@ public class StrukOrderUnitGenerator {
     ) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Rectangle pageSize = new Rectangle(226, 567); // 80mm x 200mm
-        Document document = new Document(pageSize, 7, 7, 10, 10);
+        Document document = new Document(pageSize, 3, 3, 10, 10);
 
         try {
             PdfWriter.getInstance(document, outputStream);
@@ -35,8 +35,9 @@ public class StrukOrderUnitGenerator {
             BaseColor darkBlue = new BaseColor(0, 51, 102);
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA, 13, Font.BOLD, BaseColor.BLACK);
             Font headerFont = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
-            Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+            Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 11, Font.NORMAL, BaseColor.BLACK);
             Font normalBoldFont = FontFactory.getFont(FontFactory.HELVETICA, 7, Font.BOLD, BaseColor.BLACK);
+            Font normalBoldFont1 = FontFactory.getFont(FontFactory.HELVETICA, 11, Font.BOLD, BaseColor.BLACK);
             Font footerFont = FontFactory.getFont(FontFactory.HELVETICA, 7, Font.NORMAL, darkBlue);
             Font footerBoldFont = FontFactory.getFont(FontFactory.HELVETICA, 8, Font.BOLD, darkBlue);
 
@@ -121,12 +122,12 @@ public class StrukOrderUnitGenerator {
             totalTable.setWidths(new float[]{7, 3});
             totalTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
 
-            PdfPCell totalLabelCell = new PdfPCell(new Phrase("TOTAL", headerFont));
+            PdfPCell totalLabelCell = new PdfPCell(new Phrase("TOTAL", normalBoldFont1));
             totalLabelCell.setBorder(Rectangle.NO_BORDER);
             totalLabelCell.setHorizontalAlignment(Element.ALIGN_LEFT);
             totalLabelCell.setPaddingBottom(5);
 
-            PdfPCell totalValueCell = new PdfPCell(new Phrase("Rp. " + totalHarga, headerFont));
+            PdfPCell totalValueCell = new PdfPCell(new Phrase("Rp. " + totalHarga, normalBoldFont1));
             totalValueCell.setBorder(Rectangle.NO_BORDER);
             totalValueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             totalValueCell.setPaddingBottom(5);
@@ -136,6 +137,7 @@ public class StrukOrderUnitGenerator {
             document.add(totalTable);
 
             addSeparatorLine(document);
+            document.add(Chunk.NEWLINE);
 
             Paragraph statusOrderPar = new Paragraph("STATUS ORDER : " + statusOrder.toUpperCase(), normalBoldFont);
             statusOrderPar.setAlignment(Element.ALIGN_CENTER);
@@ -145,6 +147,7 @@ public class StrukOrderUnitGenerator {
             statusBayarPar.setAlignment(Element.ALIGN_CENTER);
             document.add(statusBayarPar);
 
+            document.add(Chunk.NEWLINE);
             addSeparatorLine(document);
 
             // Footer

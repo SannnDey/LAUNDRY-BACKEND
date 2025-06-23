@@ -1,4 +1,13 @@
--- Tabel CUSTOMER
+CREATE TABLE user (
+                          id_customer VARCHAR(36) PRIMARY KEY,
+                          username VARCHAR(50) NOT NULL,
+                          password VARCHAR(100),
+                          role VARCHAR(50),
+                          created_at TIMESTAMP,
+                          updated_at TIMESTAMP,
+                          deleted_at TIMESTAMP
+);
+
 CREATE TABLE customer (
                           id_customer VARCHAR(50) PRIMARY KEY,
                           nama VARCHAR(100) NOT NULL,

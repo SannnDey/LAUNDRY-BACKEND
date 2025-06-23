@@ -108,7 +108,7 @@ public class StrukOrderGenerator {
             totalTable.setWidthPercentage(100);
             totalTable.setWidths(new float[]{7, 3});
 
-            PdfPCell totalLabelCell = new PdfPCell(new Phrase("TOTAL", normalFont2));
+            PdfPCell totalLabelCell = new PdfPCell(new Phrase("TOTAL", normalFont3));
             totalLabelCell.setBorder(Rectangle.NO_BORDER);
             totalLabelCell.setHorizontalAlignment(Element.ALIGN_LEFT);
             totalLabelCell.setPaddingBottom(5);
