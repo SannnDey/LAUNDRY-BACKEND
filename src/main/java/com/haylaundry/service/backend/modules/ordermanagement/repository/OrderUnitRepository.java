@@ -23,6 +23,8 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -254,7 +256,8 @@ public class OrderUnitRepository extends JooqRepository {
 
 
     public DetailOrderUnitResponse createOrderUnit(DetailOrderUnitRequest request) {
-        LocalDateTime now = LocalDateTime.now();
+        ZoneId witaZone = ZoneId.of("Asia/Makassar");
+        LocalDateTime now = ZonedDateTime.now(witaZone).toLocalDateTime();
 
         // Validasi customer ada
         var customer = jooq.selectFrom(Tables.CUSTOMER)
@@ -295,7 +298,7 @@ public class OrderUnitRepository extends JooqRepository {
         detailRecord.setStatusBayar(statusBayar);
         detailRecord.setStatusOrder(statusOrder);
         detailRecord.setTotalHarga(0.0); // sementara 0, akan diupdate nanti
-        detailRecord.setTglMasuk(request.getTglMasuk() != null ? request.getTglMasuk() : now);
+        detailRecord.setTglMasuk(now);
         detailRecord.setTglSelesai(request.getTglSelesai());
         detailRecord.setCatatan(request.getCatatan());
         detailRecord.setDeletedAt(request.getDeletedAt());
@@ -403,6 +406,7 @@ public class OrderUnitRepository extends JooqRepository {
                 orderUnitResponses
         );
     }
+
 
 
     // Fungsi untuk memperbarui status bayar pesanan satuan

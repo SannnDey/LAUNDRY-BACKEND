@@ -14,6 +14,8 @@ import org.jooq.DSLContext;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -70,9 +72,12 @@ public class ExpenseRepository extends JooqRepository {
     }
 
 
+
+
     public ExpenseResponse createExpense(ExpenseRequest request) {
         String idPengeluaran = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDateTime now = LocalDateTime.now();
+        ZoneId witaZone = ZoneId.of("Asia/Makassar");
+        LocalDateTime now = ZonedDateTime.now(witaZone).toLocalDateTime();
         LocalDate today = LocalDate.now();
 
         PengeluaranRecord newPengeluaran = jooq.newRecord(Tables.PENGELUARAN);

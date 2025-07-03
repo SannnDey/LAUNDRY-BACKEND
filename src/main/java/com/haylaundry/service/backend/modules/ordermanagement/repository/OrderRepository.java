@@ -1,12 +1,16 @@
 package com.haylaundry.service.backend.modules.ordermanagement.repository;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.haylaundry.service.backend.core.enums.TipeCucian;
 import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 import java.text.DecimalFormat;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PesananRecord;
+import com.haylaundry.service.backend.jooq.gen.tables.records.HargaKiloanRecord;
+import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.HargaKiloanRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.OrderRequest;
+import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.HargaKiloanResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;
@@ -18,6 +22,8 @@ import jakarta.inject.Inject;
 import org.jooq.DSLContext;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -196,11 +202,20 @@ public class OrderRepository extends JooqRepository {
     }
 
 
+    private LocalDateTime convertToWITA(LocalDateTime localDateTimeFromDb) {
+        if (localDateTimeFromDb == null) return null;
+        // Anggap waktu di DB disimpan dalam timezone server (default JVM)
+        ZonedDateTime serverZoned = localDateTimeFromDb.atZone(ZoneId.systemDefault());
+        ZonedDateTime witaZoned = serverZoned.withZoneSameInstant(ZoneId.of("Asia/Makassar"));
+        return witaZoned.toLocalDateTime();
+    }
 
 
     public OrderResponse create(OrderRequest request) {
         String orderId = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDateTime now = LocalDateTime.now();
+        ZoneId witaZone = ZoneId.of("Asia/Makassar");
+        LocalDateTime now = ZonedDateTime.now(witaZone).toLocalDateTime();
+
 
         var customer = jooq.selectFrom(Tables.CUSTOMER)
                 .where(Tables.CUSTOMER.ID_CUSTOMER.eq(request.getIdCustomer()))
@@ -212,7 +227,10 @@ public class OrderRepository extends JooqRepository {
 
         PesananTipeCucian tipeCucian = PesananTipeCucian.lookupLiteral(request.getTipeCucian());
         PesananJenisCucian jenisCucian = PesananJenisCucian.lookupLiteral(request.getJenisCucian());
-        double hargaTotal = PriceOrder.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty());
+        double hargaTotal = request.getHarga() != null && request.getHarga() > 0
+                ? request.getHarga()
+                : PriceOrder.hitungHargaTotal(tipeCucian, jenisCucian, request.getQty());
+
 
         PesananRecord newOrder = jooq.newRecord(Tables.PESANAN);
         newOrder.setIdPesanan(orderId);
@@ -257,14 +275,13 @@ public class OrderRepository extends JooqRepository {
                 String.valueOf(newOrder.getTipePembayaran()),
                 String.valueOf(newOrder.getStatusBayar()),
                 String.valueOf(newOrder.getStatusOrder()),
-                newOrder.getTglMasuk(),
-                newOrder.getTglSelesai(),
+                convertToWITA(newOrder.getTglMasuk()),
+                convertToWITA(newOrder.getTglSelesai()),
                 newOrder.getCatatan(),
-                newOrder.getDeletedAt()
+                convertToWITA(newOrder.getDeletedAt())
         );
     }
-
-
+    
     public OrderStatusResponse updateStatus(String idPesanan, String statusOrder) {
         PesananRecord orderToUpdate = jooq.selectFrom(Tables.PESANAN)
                 .where(Tables.PESANAN.ID_PESANAN.eq(idPesanan))
