@@ -27,7 +27,6 @@ public class StrukOrderGenerator {
             String qty,
             String harga,
             String tanggalMasuk,
-            String tanggalSelesai,
             String statusBayar,
             String statusOrder,
             String jenisLayanan
@@ -82,9 +81,6 @@ public class StrukOrderGenerator {
 
             infoTable.addCell(createAlignedCell("TANGGAL MASUK", normalFont2, Element.ALIGN_LEFT));
             infoTable.addCell(createAlignedCell(tanggalMasuk, normalFont, Element.ALIGN_RIGHT));
-
-            infoTable.addCell(createAlignedCell("TANGGAL SELESAI", normalFont2, Element.ALIGN_LEFT));
-            infoTable.addCell(createAlignedCell(tanggalSelesai != null ? tanggalSelesai : "-", normalFont, Element.ALIGN_RIGHT));
 
             infoTable.addCell(createAlignedCell("NAMA PELANGGAN", normalFont2, Element.ALIGN_LEFT));
             infoTable.addCell(createAlignedCell(namaCustomer, normalFont, Element.ALIGN_RIGHT));

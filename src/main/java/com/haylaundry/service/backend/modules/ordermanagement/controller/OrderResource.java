@@ -46,7 +46,6 @@ public class OrderResource {
                 order.getQty() + " KG",
                 formattedHarga,
                 tanggalMasuk,
-                tanggalSelesai,
                 PesananStatusBayar.valueOf(order.getStatusBayar()).getLiteral(),
                 PesananStatusOrder.valueOf(order.getStatusOrder()).getLiteral(),
                 PesananTipeCucian.valueOf(order.getTipeCucian()).getLiteral()

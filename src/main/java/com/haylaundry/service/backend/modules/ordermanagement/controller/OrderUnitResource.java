@@ -58,7 +58,6 @@ public class OrderUnitResource {
                 orderUnit.getNoFaktur(),
                 orderUnit.getNamaCustomer(),
                 tanggalMasuk,
-                tanggalSelesai,
                 orderUnit.getStatusBayar().toUpperCase(),
                 orderUnit.getStatusOrder().toUpperCase(),
                 kategoriItemMap,

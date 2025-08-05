@@ -3,8 +3,8 @@ package com.haylaundry.service.backend.modules.report.repository;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
-import com.haylaundry.service.backend.jooq.gen.enums.DetailPesananSatuanStatusBayar;
-import com.haylaundry.service.backend.jooq.gen.enums.DetailPesananSatuanStatusOrder;
+import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanStatusBayar;
+import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanStatusOrder;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusOrder;
 import com.haylaundry.service.backend.jooq.gen.tables.records.*;
@@ -194,9 +194,9 @@ public class DailyIncomeRepository extends JooqRepository {
                         tglReport.atTime(23, 59, 59)))
                 .fetch();
 
-        List<DetailPesananSatuanRecord> detailPesananSatuanRecords = jooq.selectFrom(Tables.DETAIL_PESANAN_SATUAN)
-                .where(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR.eq(DetailPesananSatuanStatusBayar.Lunas))
-                .and(Tables.DETAIL_PESANAN_SATUAN.TGL_MASUK.between(
+        List<PesananSatuanRecord> PesananSatuanRecords = jooq.selectFrom(Tables.PESANAN_SATUAN)
+                .where(Tables.PESANAN_SATUAN.STATUS_BAYAR.eq(PesananSatuanStatusBayar.Lunas))
+                .and(Tables.PESANAN_SATUAN.TGL_MASUK.between(
                         tglReport.atStartOfDay(),
                         tglReport.atTime(23, 59, 59)))
                 .fetch();
@@ -205,11 +205,11 @@ public class DailyIncomeRepository extends JooqRepository {
                 .mapToDouble(record -> record.get(Tables.PESANAN.HARGA, Double.class))
                 .sum();
 
-        double totalPemasukanDetailPesananSatuan = detailPesananSatuanRecords.stream()
-                .mapToDouble(record -> record.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA, Double.class))
+        double totalPemasukanPesananSatuan = PesananSatuanRecords.stream()
+                .mapToDouble(record -> record.get(Tables.PESANAN_SATUAN.TOTAL_HARGA, Double.class))
                 .sum();
 
-        return totalPemasukanPesanan + totalPemasukanDetailPesananSatuan;
+        return totalPemasukanPesanan + totalPemasukanPesananSatuan;
     }
 
     private double hitungTotalPiutang(LocalDate tglReport) {
@@ -220,9 +220,9 @@ public class DailyIncomeRepository extends JooqRepository {
                         tglReport.atTime(23, 59, 59)))
                 .fetch();
 
-        List<DetailPesananSatuanRecord> detailPesananSatuanRecords = jooq.selectFrom(Tables.DETAIL_PESANAN_SATUAN)
-                .where(Tables.DETAIL_PESANAN_SATUAN.STATUS_BAYAR.eq(DetailPesananSatuanStatusBayar.Belum_Lunas))
-                .and(Tables.DETAIL_PESANAN_SATUAN.TGL_MASUK.between(
+        List<PesananSatuanRecord> PesananSatuanRecords = jooq.selectFrom(Tables.PESANAN_SATUAN)
+                .where(Tables.PESANAN_SATUAN.STATUS_BAYAR.eq(PesananSatuanStatusBayar.Belum_Lunas))
+                .and(Tables.PESANAN_SATUAN.TGL_MASUK.between(
                         tglReport.atStartOfDay(),
                         tglReport.atTime(23, 59, 59)))
                 .fetch();
@@ -231,11 +231,11 @@ public class DailyIncomeRepository extends JooqRepository {
                 .mapToDouble(record -> record.get(Tables.PESANAN.HARGA, Double.class))
                 .sum();
 
-        double totalPiutangDetailPesananSatuan = detailPesananSatuanRecords.stream()
-                .mapToDouble(record -> record.get(Tables.DETAIL_PESANAN_SATUAN.TOTAL_HARGA, Double.class))
+        double totalPiutangPesananSatuan = PesananSatuanRecords.stream()
+                .mapToDouble(record -> record.get(Tables.PESANAN_SATUAN.TOTAL_HARGA, Double.class))
                 .sum();
 
-        return totalPiutangPesanan + totalPiutangDetailPesananSatuan;
+        return totalPiutangPesanan + totalPiutangPesananSatuan;
     }
 
     private double hitungTotalPengeluaran(LocalDate tglReport) {

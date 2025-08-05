@@ -1,16 +1,12 @@
 package com.haylaundry.service.backend.modules.ordermanagement.repository;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.haylaundry.service.backend.core.enums.TipeCucian;
 import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 import java.text.DecimalFormat;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PesananRecord;
-import com.haylaundry.service.backend.jooq.gen.tables.records.HargaKiloanRecord;
-import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.HargaKiloanRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.OrderRequest;
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.HargaKiloanResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusBayar;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.OrderStatusResponse;

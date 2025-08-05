@@ -17,7 +17,6 @@ public class StrukOrderUnitGenerator {
             String noFaktur,
             String namaCustomer,
             String tanggalMasuk,
-            String tanggalSelesai,
             String statusBayar,
             String statusOrder,
             Map<String, List<Item>> kategoriItemMap,
@@ -73,9 +72,6 @@ public class StrukOrderUnitGenerator {
 
             infoTable.addCell(createAlignedCell("TANGGAL MASUK", normalBoldFont, Element.ALIGN_LEFT));
             infoTable.addCell(createAlignedCell(tanggalMasuk, normalFont, Element.ALIGN_RIGHT));
-
-            infoTable.addCell(createAlignedCell("TANGGAL SELESAI", normalBoldFont, Element.ALIGN_LEFT));
-            infoTable.addCell(createAlignedCell(tanggalSelesai != null ? tanggalSelesai : "-", normalFont, Element.ALIGN_RIGHT));
 
             infoTable.addCell(createAlignedCell("NAMA PELANGGAN", normalBoldFont, Element.ALIGN_LEFT));
             infoTable.addCell(createAlignedCell(namaCustomer, normalFont, Element.ALIGN_RIGHT));

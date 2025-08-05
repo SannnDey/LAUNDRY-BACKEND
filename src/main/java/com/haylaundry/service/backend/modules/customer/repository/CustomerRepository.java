@@ -39,6 +39,11 @@ public class CustomerRepository extends JooqRepository {
 
     public Optional<CustomerResponseBody> findByNoTelp(String noTelp) {
         String formattedPhone = convertToInternationalPhone(noTelp);
+
+        if (formattedPhone.isEmpty()) {
+            return Optional.empty(); // abaikan pencarian kalau kosong
+        }
+
         return jooq.selectFrom(Tables.CUSTOMER)
                 .where(Tables.CUSTOMER.NO_TELP.eq(formattedPhone))
                 .fetchOptional()
@@ -51,6 +56,7 @@ public class CustomerRepository extends JooqRepository {
                         record.get(Tables.CUSTOMER.DELETED_AT)
                 ));
     }
+
 
 
     public CustomerResponseBody create(CustomerRequestBody request) {
@@ -80,6 +86,14 @@ public class CustomerRepository extends JooqRepository {
 
     public CustomerResponseBody createOrGet(CustomerRequestBody request) {
         String formattedPhone = convertToInternationalPhone(request.getNoTelp());
+
+        // Kalau nomor telepon kosong, langsung buat customer baru
+        if (formattedPhone.isEmpty()) {
+            request.setNoTelp(null); // atau "" sesuai skema database
+            return create(request);
+        }
+
+        // Kalau nomor telepon terisi, cek apakah sudah pernah dibuat
         return findByNoTelp(formattedPhone)
                 .orElseGet(() -> {
                     request.setNoTelp(formattedPhone);
@@ -87,15 +101,19 @@ public class CustomerRepository extends JooqRepository {
                 });
     }
 
+
     private String convertToInternationalPhone(String localPhone) {
         if (localPhone == null) return "";
         localPhone = localPhone.replaceAll("[^0-9]", "");
+
+        if (localPhone.isEmpty()) return "";
 
         if (localPhone.startsWith("0")) {
             return "62" + localPhone.substring(1);
         }
         return localPhone;
     }
+
 
 
 }
