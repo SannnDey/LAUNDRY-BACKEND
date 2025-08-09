@@ -1,7 +1,5 @@
 package com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit;
 
-import com.haylaundry.service.backend.jooq.gen.enums.PesananSatuanStatusBayar;
-
 public class OrderUnitStatusBayar {
     private String idDetail;
     private String noFaktur;

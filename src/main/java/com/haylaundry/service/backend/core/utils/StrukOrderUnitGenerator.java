@@ -1,6 +1,5 @@
 package com.haylaundry.service.backend.core.utils;
 
-import com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit.DetailOrderUnitResponse;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.draw.LineSeparator;
@@ -77,7 +76,7 @@ public class StrukOrderUnitGenerator {
             infoTable.addCell(createAlignedCell(namaCustomer, normalFont, Element.ALIGN_RIGHT));
 
             infoTable.addCell(createAlignedCell("KASIR", normalBoldFont, Element.ALIGN_LEFT));
-            infoTable.addCell(createAlignedCell("HAY LAUNDRY", normalFont, Element.ALIGN_RIGHT));
+            infoTable.addCell(createAlignedCell("Hay Laundry", normalFont, Element.ALIGN_RIGHT));
 
             document.add(infoTable);
 

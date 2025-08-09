@@ -18,9 +18,9 @@
 
         <!--  Custom var here      -->
         <db-name>laundry</db-name>
-        <db-user>laundry</db-user>
-        <db-pass>Haylaundry#2025!</db-pass>
-        <db-url>jdbc:mysql://103.191.63.4:3306/${db-name}</db-url>
+        <db-user>root</db-user>
+        <db-pass>root</db-pass>
+        <db-url>jdbc:mysql://localhost:3306/${db-name}</db-url>
         <config-group>com.haylaundry.service.backend</config-group>
     </properties>
 

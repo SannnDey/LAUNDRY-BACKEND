@@ -1,66 +1,49 @@
 package com.haylaundry.service.backend.core.utils;
 
+import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
+import com.haylaundry.service.backend.jooq.gen.enums.PriceOrderJenisCucian;
+import com.haylaundry.service.backend.jooq.gen.enums.PriceOrderTipeCucian;
+import com.haylaundry.service.backend.jooq.gen.tables.records.PriceOrderRecord;
+import com.haylaundry.service.backend.modules.ordermanagement.price.response.PriceOrderResponse;
+import com.haylaundry.service.backend.modules.ordermanagement.repository.PriceOrderRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.jooq.DSLContext;
 
+@ApplicationScoped
 public class PriceOrder {
-    public static double getHargaPerKg(PesananTipeCucian tipeCucian, PesananJenisCucian jenisCucian) {
-        switch (tipeCucian) {
-            case Super_Express_3_Jam_Komplit:
-                switch (jenisCucian) {
-                    case Komplit:
-                        return 15000.0;
-                    case Cuci_Lipat:
-                        return 10000.0;
-                    case Setrika:
-                        return 8000.0;
-                    default:
-                        throw new IllegalArgumentException("Jenis cucian tidak dikenali");
-                }
+    @Inject
+    private DSLContext jooq;
+    @Inject
+    PriceOrderRepository priceOrderRepository;
 
-            case Express_1_Hari:
-                switch (jenisCucian) {
-                    case Komplit:
-                        return 10000.0;
-                    case Cuci_Lipat:
-                        return 8000.0;
-                    case Setrika:
-                        return 7000.0;
-                    default:
-                        throw new IllegalArgumentException("Jenis cucian tidak dikenali");
-                }
+//    public double getHargaPerKg(PesananTipeCucian tipeCucian, PesananJenisCucian jenisCucian) {
+//        PriceOrderResponse harga = priceOrderRepository.getHargaByTipeAndJenis(
+//                tipeCucian.name(), jenisCucian.name()
+//        );
+//
+//        if (harga == null) {
+//            throw new IllegalArgumentException("Harga belum tersedia untuk tipe " + tipeCucian + " dan jenis " + jenisCucian);
+//        }
+//
+//        return harga.getHargaperKg();
+//    }
 
-            case Standar_2_Hari:
-                switch (jenisCucian) {
-                    case Komplit:
-                        return 8000.0;
-                    case Cuci_Lipat:
-                        return 6000.0;
-                    case Setrika:
-                        return 6000.0;
-                    default:
-                        throw new IllegalArgumentException("Jenis cucian tidak dikenali");
-                }
+    public double hitungHargaTotal(PriceOrderTipeCucian tipeCucian, PriceOrderJenisCucian jenisCucian, double berat) {
+        PriceOrderRecord record = jooq.selectFrom(Tables.PRICE_ORDER)
+                .where(Tables.PRICE_ORDER.TIPE_CUCIAN.eq(tipeCucian))
+                .and(Tables.PRICE_ORDER.JENIS_CUCIAN.eq(jenisCucian))
+                .fetchOne();
 
-            case Reguler_3_Hari:
-                switch (jenisCucian) {
-                    case Komplit:
-                        return 7000.0;
-                    case Cuci_Lipat:
-                        return 5000.0;
-                    case Setrika:
-                        return 5000.0;
-                    default:
-                        throw new IllegalArgumentException("Jenis cucian tidak dikenali");
-                }
-
-            default:
-                throw new IllegalArgumentException("Tipe cucian tidak dikenali");
+        if (record == null) {
+            throw new IllegalArgumentException("Harga belum tersedia untuk tipe " +
+                    tipeCucian.getLiteral() + " dan jenis " + jenisCucian.getLiteral());
         }
+
+        return record.getHargaPerKg() * berat;
     }
 
-    public static double hitungHargaTotal(PesananTipeCucian tipeCucian, PesananJenisCucian jenisCucian, double qty) {
-        double hargaPerKg = getHargaPerKg(tipeCucian, jenisCucian);
-        return hargaPerKg * qty;  // Mengalikan harga per kg dengan qty
-    }
+
 }

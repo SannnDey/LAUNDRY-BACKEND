@@ -1,23 +1,20 @@
-package com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit;
+package com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit;
 
-import java.util.List;
-
-public class OrderUnitRequest {
-    private String idDetail;
+public class ItemPesananSatuanResponse {
     private String kategoriBarang;
     private String ukuran;
     private String jenisLayanan;
-    private Double harga;
-    private Integer qty;
+    private int qty;
 
-
-
-    public String getIdDetail() {
-        return idDetail;
+    public ItemPesananSatuanResponse() {
     }
 
-    public void setIdDetail(String idDetail) {
-        this.idDetail = idDetail;
+    public ItemPesananSatuanResponse(String kategoriBarang, String ukuran, String jenisLayanan,
+                                     int qty) {
+        this.kategoriBarang = kategoriBarang;
+        this.ukuran = ukuran;
+        this.jenisLayanan = jenisLayanan;
+        this.qty = qty;
     }
 
     public String getKategoriBarang() {
@@ -44,19 +41,12 @@ public class OrderUnitRequest {
         this.jenisLayanan = jenisLayanan;
     }
 
-    public Double getHarga() {
-        return harga;
-    }
-
-    public void setHarga(Double harga) {
-        this.harga = harga;
-    }
-
-    public Integer getQty() {
+    public int getQty() {
         return qty;
     }
 
-    public void setQty(Integer qty) {
+    public void setQty(int qty) {
         this.qty = qty;
     }
+
 }

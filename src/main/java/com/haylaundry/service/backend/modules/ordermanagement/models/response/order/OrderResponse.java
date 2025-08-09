@@ -18,8 +18,8 @@ public class OrderResponse {
         private String tipePembayaran;
         private String statusBayar;
         private String statusOrder;
-        private LocalDateTime tglMasuk;
-        private LocalDateTime tglSelesai;
+        private String tglMasuk;
+        private String tglSelesai;
         private String catatan;
         private LocalDateTime deletedAt;
 
@@ -31,7 +31,7 @@ public class OrderResponse {
         public OrderResponse(String idPesanan, String idCustomer,String noFaktur, String customerName, String customerPhone, String tipeCucian,
                              String jenisCucian, Double qty, String harga,
                              String tipePembayaran, String statusBayar, String statusOrder,
-                             LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan, LocalDateTime deletedAt) {
+                             String tglMasuk, String tglSelesai, String catatan, LocalDateTime deletedAt) {
             this.idPesanan = idPesanan;
             this.idCustomer = idCustomer;
             this.noFaktur = noFaktur;
@@ -149,19 +149,19 @@ public class OrderResponse {
             this.statusOrder = statusOrder;
         }
 
-        public LocalDateTime getTglMasuk() {
+        public String getTglMasuk() {
             return tglMasuk;
         }
 
-        public void setTglMasuk(LocalDateTime tglMasuk) {
+        public void setTglMasuk(String tglMasuk) {
             this.tglMasuk = tglMasuk;
         }
 
-        public LocalDateTime getTglSelesai() {
+        public String getTglSelesai() {
             return tglSelesai;
         }
 
-        public void setTglSelesai(LocalDateTime tglSelesai) {
+        public void setTglSelesai(String tglSelesai) {
             this.tglSelesai = tglSelesai;
         }
 

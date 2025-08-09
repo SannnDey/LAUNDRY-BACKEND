@@ -1,5 +1,6 @@
 package com.haylaundry.service.backend.modules.ordermanagement.controller;
 
+import com.haylaundry.service.backend.core.utils.EnumMapper;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.HargaRequestBody;
@@ -20,6 +21,8 @@ import java.util.List;
 public class OrderController {
     @Inject
     private OrderService orderService;
+    @Inject
+    private PriceOrder priceOrder;
 
     @GET
     public Response getAllOrders() {
@@ -79,19 +82,20 @@ public class OrderController {
     }
 
     // Endpoint untuk menghitung harga
-    @POST
-    @Path("/hitung-harga")
-    public Response hitungHarga(HargaRequestBody request) {
-        try {
-            PesananTipeCucian tipe = PesananTipeCucian.lookupLiteral(request.getTipeCucian());
-            PesananJenisCucian jenis = PesananJenisCucian.lookupLiteral(request.getJenisCucian());
-
-            double total = PriceOrder.hitungHargaTotal(tipe, jenis, request.getQty());
-            return Response.ok(new HargaResponseBody(total)).build();
-        } catch (IllegalArgumentException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-        }
-    }
+//    @POST
+//    @Path("/hitung-harga")
+//    public Response hitungHarga(HargaRequestBody request) {
+//        try {
+//            PesananTipeCucian tipeEnum = EnumMapper.toTipeCucianEnum(request.getTipeCucian());
+//            PesananJenisCucian jenisEnum = EnumMapper.toJenisCucianEnum(request.getJenisCucian());
+//
+//            double totalHarga = priceOrder.hitungHargaTotal(tipeEnum, jenisEnum, request.getQty());
+//
+//            return Response.ok(new HargaResponseBody(totalHarga)).build();
+//        } catch (IllegalArgumentException e) {
+//            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+//        }
+//    }
 
     @DELETE
     @Path("/hapus")

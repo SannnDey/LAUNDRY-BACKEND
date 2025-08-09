@@ -1,10 +1,9 @@
 package com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-public class DetailOrderUnitResponse {
-    private String idDetail;
+public class PesananSatuanResponse {
+    private String idPesananSatuan;
     private String idCustomer;
     private String noFaktur;
     private String namaCustomer;
@@ -13,21 +12,19 @@ public class DetailOrderUnitResponse {
     private String statusBayar;
     private String statusOrder;
     private String totalHarga;
-    private LocalDateTime tglMasuk;
-    private LocalDateTime tglSelesai;
+    private String tglMasuk;
+    private String tglSelesai;
     private String catatan;
-    private LocalDateTime deletedAt;
+    private List<ItemPesananSatuanResponse> items;
 
-    // ✅ Tambahan: list item pesanan
-    private List<OrderUnitResponse> items;
-
-    public DetailOrderUnitResponse() {
+    public PesananSatuanResponse() {
     }
 
-    public DetailOrderUnitResponse(String idDetail, String idCustomer, String noFaktur, String namaCustomer, String customerPhone, String tipePembayaran,
-                                   String statusBayar, String statusOrder, String totalHarga, LocalDateTime tglMasuk, LocalDateTime tglSelesai, String catatan,
-                                   LocalDateTime deletedAt, List<OrderUnitResponse> items) {
-        this.idDetail = idDetail;
+    public PesananSatuanResponse(String idPesananSatuan, String idCustomer, String noFaktur, String namaCustomer, String customerPhone, String tipePembayaran,
+                                 String statusBayar, String statusOrder, String totalHarga,
+                                 String tglMasuk, String tglSelesai, String catatan,
+                                 List<ItemPesananSatuanResponse> items) {
+        this.idPesananSatuan = idPesananSatuan;
         this.idCustomer = idCustomer;
         this.noFaktur = noFaktur;
         this.namaCustomer = namaCustomer;
@@ -39,16 +36,15 @@ public class DetailOrderUnitResponse {
         this.tglMasuk = tglMasuk;
         this.tglSelesai = tglSelesai;
         this.catatan = catatan;
-        this.deletedAt = deletedAt;
         this.items = items;
     }
 
-    public String getIdDetail() {
-        return idDetail;
+    public String getIdPesananSatuan() {
+        return idPesananSatuan;
     }
 
-    public void setIdDetail(String idDetail) {
-        this.idDetail = idDetail;
+    public void setIdPesananSatuan(String idPesananSatuan) {
+        this.idPesananSatuan = idPesananSatuan;
     }
 
     public String getIdCustomer() {
@@ -83,6 +79,7 @@ public class DetailOrderUnitResponse {
         this.customerPhone = customerPhone;
     }
 
+
     public String getTipePembayaran() {
         return tipePembayaran;
     }
@@ -115,19 +112,19 @@ public class DetailOrderUnitResponse {
         this.totalHarga = totalHarga;
     }
 
-    public LocalDateTime getTglMasuk() {
+    public String getTglMasuk() {
         return tglMasuk;
     }
 
-    public void setTglMasuk(LocalDateTime tglMasuk) {
+    public void setTglMasuk(String tglMasuk) {
         this.tglMasuk = tglMasuk;
     }
 
-    public LocalDateTime getTglSelesai() {
+    public String getTglSelesai() {
         return tglSelesai;
     }
 
-    public void setTglSelesai(LocalDateTime tglSelesai) {
+    public void setTglSelesai(String tglSelesai) {
         this.tglSelesai = tglSelesai;
     }
 
@@ -139,19 +136,11 @@ public class DetailOrderUnitResponse {
         this.catatan = catatan;
     }
 
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
-    public List<OrderUnitResponse> getItems() {
+    public List<ItemPesananSatuanResponse> getItems() {
         return items;
     }
 
-    public void setItems(List<OrderUnitResponse> items) {
+    public void setItems(List<ItemPesananSatuanResponse> items) {
         this.items = items;
     }
 }

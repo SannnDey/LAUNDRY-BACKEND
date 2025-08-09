@@ -86,7 +86,7 @@ public class StrukOrderGenerator {
             infoTable.addCell(createAlignedCell(namaCustomer, normalFont, Element.ALIGN_RIGHT));
 
             infoTable.addCell(createAlignedCell("KASIR", normalFont2, Element.ALIGN_LEFT));
-            infoTable.addCell(createAlignedCell("HAY LAUNDRY", normalFont, Element.ALIGN_RIGHT));
+            infoTable.addCell(createAlignedCell("Hay Laundry", normalFont, Element.ALIGN_RIGHT));
 
             infoTable.addCell(createAlignedCell("LAYANAN", normalFont2, Element.ALIGN_LEFT));
             infoTable.addCell(createAlignedCell(jenisLayanan, normalFont, Element.ALIGN_RIGHT));

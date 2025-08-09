@@ -14,6 +14,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Path("/api/struk")
@@ -32,10 +33,23 @@ public class OrderResource {
                 .findFirst()
                 .orElseThrow(() -> new WebApplicationException("Pesanan tidak ditemukan", 404));
 
-        String tanggalMasuk = order.getTglMasuk().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
-        String tanggalSelesai = order.getTglSelesai() != null
-                ? order.getTglSelesai().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
-                : null;
+        // Formatter sesuai format data dari database / model
+        DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+// Formatter untuk format tampilan
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+// Parse string ke LocalDateTime
+        LocalDateTime tglMasuk = LocalDateTime.parse(order.getTglMasuk(), parser);
+        String tanggalMasuk = tglMasuk.format(displayFormatter);
+
+// Parse dan format untuk tglSelesai (cek null)
+        String tanggalSelesai = null;
+        if (order.getTglSelesai() != null && !order.getTglSelesai().isEmpty()) {
+            LocalDateTime tglSelesaiParsed = LocalDateTime.parse(order.getTglSelesai(), parser);
+            tanggalSelesai = tglSelesaiParsed.format(displayFormatter);
+        }
+
 
         DecimalFormat formatter = new DecimalFormat("#,###");
         String formattedHarga = String.valueOf(order.getHarga());
