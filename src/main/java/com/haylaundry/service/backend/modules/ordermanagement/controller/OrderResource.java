@@ -4,7 +4,6 @@ import com.haylaundry.service.backend.core.utils.PdfToImageConverter;
 import com.haylaundry.service.backend.core.utils.StrukOrderGenerator;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar;
 import com.haylaundry.service.backend.jooq.gen.enums.PesananStatusOrder;
-import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
 import com.haylaundry.service.backend.modules.ordermanagement.repository.OrderRepository;
 
 import java.io.IOException;
@@ -35,24 +34,22 @@ public class OrderResource {
 
         // Formatter sesuai format data dari database / model
         DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-
-// Formatter untuk format tampilan
         DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
-// Parse string ke LocalDateTime
+        // Parse string ke LocalDateTime
         LocalDateTime tglMasuk = LocalDateTime.parse(order.getTglMasuk(), parser);
         String tanggalMasuk = tglMasuk.format(displayFormatter);
 
-// Parse dan format untuk tglSelesai (cek null)
+        // Parse dan format untuk tglSelesai (cek null)
         String tanggalSelesai = null;
         if (order.getTglSelesai() != null && !order.getTglSelesai().isEmpty()) {
             LocalDateTime tglSelesaiParsed = LocalDateTime.parse(order.getTglSelesai(), parser);
             tanggalSelesai = tglSelesaiParsed.format(displayFormatter);
         }
 
-
+        // Format harga
         DecimalFormat formatter = new DecimalFormat("#,###");
-        String formattedHarga = String.valueOf(order.getHarga());
+        String formattedHarga = formatter.format(order.getHarga());
 
         byte[] pdf = StrukOrderGenerator.generateStruk(
                 order.getNoFaktur(),
@@ -62,19 +59,18 @@ public class OrderResource {
                 tanggalMasuk,
                 PesananStatusBayar.valueOf(order.getStatusBayar()).getLiteral(),
                 PesananStatusOrder.valueOf(order.getStatusOrder()).getLiteral(),
-                PesananTipeCucian.valueOf(order.getTipeCucian()).getLiteral()
+                order.getTipeCucian() // langsung String, tanpa enum
         );
 
-        // 2. Convert PDF to PNG
+        // Convert PDF to PNG
         byte[] imageBytes = PdfToImageConverter.convertPdfToImage(pdf);
-
 
         return Response.ok(imageBytes)
                 .type("image/png")
                 .header("Content-Disposition", "inline; filename=\"struk-" + order.getNoFaktur() + ".png\"")
                 .build();
-
     }
+
 
 
 }

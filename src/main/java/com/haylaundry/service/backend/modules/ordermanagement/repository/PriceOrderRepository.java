@@ -3,8 +3,6 @@ package com.haylaundry.service.backend.modules.ordermanagement.repository;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.haylaundry.service.backend.core.orm.JooqRepository;
 import com.haylaundry.service.backend.jooq.gen.Tables;
-import com.haylaundry.service.backend.jooq.gen.enums.PriceOrderJenisCucian;
-import com.haylaundry.service.backend.jooq.gen.enums.PriceOrderTipeCucian;
 import com.haylaundry.service.backend.jooq.gen.tables.PriceOrderSatuan;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PriceOrderRecord;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.orderunit.PriceOrderSatuanRequest;
@@ -39,20 +37,17 @@ public class PriceOrderRepository extends JooqRepository {
 
 
     public void upsertHarga(String tipeCucian, String jenisCucian, Double hargaPerKg) {
-        PriceOrderTipeCucian tipeEnum = PriceOrderTipeCucian.lookupLiteral(tipeCucian);
-        PriceOrderJenisCucian jenisEnum = PriceOrderJenisCucian.lookupLiteral(jenisCucian);
-
-        if (tipeEnum == null) {
-            throw new IllegalArgumentException("Tipe cucian tidak valid: " + tipeCucian);
+        if (tipeCucian == null || tipeCucian.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tipe cucian tidak boleh kosong");
         }
-        if (jenisEnum == null) {
-            throw new IllegalArgumentException("Jenis cucian tidak valid: " + jenisCucian);
+        if (jenisCucian == null || jenisCucian.trim().isEmpty()) {
+            throw new IllegalArgumentException("Jenis cucian tidak boleh kosong");
         }
 
         jooq.insertInto(Tables.PRICE_ORDER)
                 .set(Tables.PRICE_ORDER.ID_PRICE, UuidCreator.getTimeOrderedEpoch().toString())
-                .set(Tables.PRICE_ORDER.TIPE_CUCIAN, tipeEnum)
-                .set(Tables.PRICE_ORDER.JENIS_CUCIAN, jenisEnum)
+                .set(Tables.PRICE_ORDER.TIPE_CUCIAN, tipeCucian)
+                .set(Tables.PRICE_ORDER.JENIS_CUCIAN, jenisCucian)
                 .set(Tables.PRICE_ORDER.HARGA_PER_KG, hargaPerKg)
                 .set(Tables.PRICE_ORDER.UPDATED_AT, LocalDateTime.now())
                 .onConflict(Tables.PRICE_ORDER.TIPE_CUCIAN, Tables.PRICE_ORDER.JENIS_CUCIAN)
@@ -61,6 +56,7 @@ public class PriceOrderRepository extends JooqRepository {
                 .set(Tables.PRICE_ORDER.UPDATED_AT, LocalDateTime.now())
                 .execute();
     }
+
 
 
 
@@ -77,11 +73,11 @@ public class PriceOrderRepository extends JooqRepository {
 
 
 
-    // ✅ Get harga berdasarkan tipe dan jenis cucian
+    // ✅ Get harga berdasarkan tipe dan jenis cucian (String, tanpa enum)
     public PriceOrderResponse getHargaByTipeAndJenis(String tipeCucian, String jenisCucian) {
         PriceOrderRecord record = jooq.selectFrom(Tables.PRICE_ORDER)
-                .where(Tables.PRICE_ORDER.TIPE_CUCIAN.eq(PriceOrderTipeCucian.lookupLiteral(tipeCucian)))
-                .and(Tables.PRICE_ORDER.JENIS_CUCIAN.eq(PriceOrderJenisCucian.lookupLiteral(jenisCucian)))
+                .where(Tables.PRICE_ORDER.TIPE_CUCIAN.eq(tipeCucian))
+                .and(Tables.PRICE_ORDER.JENIS_CUCIAN.eq(jenisCucian))
                 .fetchOne();
 
         if (record == null) {
@@ -90,11 +86,12 @@ public class PriceOrderRepository extends JooqRepository {
 
         return new PriceOrderResponse(
                 record.getIdPrice(),
-                record.getTipeCucian().getLiteral(),
-                record.getJenisCucian().getLiteral(),
+                record.getTipeCucian(), // langsung String
+                record.getJenisCucian(), // langsung String
                 formatHarga(record.getHargaPerKg())
         );
     }
+
 
     public void updateHargaById(String idPrice, Double hargaPerKg) {
         int updated = jooq.update(Tables.PRICE_ORDER)

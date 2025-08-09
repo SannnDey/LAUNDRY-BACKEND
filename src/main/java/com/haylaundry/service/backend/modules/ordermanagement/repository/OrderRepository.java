@@ -2,7 +2,6 @@ package com.haylaundry.service.backend.modules.ordermanagement.repository;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.haylaundry.service.backend.core.orm.JooqRepository;
-import com.haylaundry.service.backend.core.utils.EnumMapper;
 import com.haylaundry.service.backend.jooq.gen.Tables;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 import java.text.DecimalFormat;
@@ -272,25 +271,24 @@ public class OrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Customer dengan ID " + request.getIdCustomer() + " tidak ditemukan.");
         }
 
-        PesananTipeCucian tipeEnum = EnumMapper.toTipeCucianEnum(request.getTipeCucian());
-        PesananJenisCucian jenisEnum = EnumMapper.toJenisCucianEnum(request.getJenisCucian());
+        // Ambil langsung string dari request
+        String tipeCucianStr = request.getTipeCucian();
+        String jenisCucianStr = request.getJenisCucian();
 
-        PriceOrderTipeCucian priceTipeEnum = EnumMapper.toPriceOrderTipeCucian(tipeEnum);
-        PriceOrderJenisCucian priceJenisEnum = EnumMapper.toPriceOrderJenisCucian(jenisEnum);
-
-        double totalHarga = priceOrder.hitungHargaTotal(priceTipeEnum, priceJenisEnum, request.getQty());
+        // Hitung harga (pastikan method ini bisa menerima string)
+        double totalHarga = priceOrder.hitungHargaTotal(tipeCucianStr, jenisCucianStr, request.getQty());
 
         PesananRecord newOrder = jooq.newRecord(Tables.PESANAN);
         newOrder.setIdPesanan(orderId);
         newOrder.setIdCustomer(request.getIdCustomer());
         newOrder.setNoFaktur(InvoiceGenerator.generateNoFaktur());
-        newOrder.setTipeCucian(tipeEnum);
-        newOrder.setJenisCucian(jenisEnum);
+        newOrder.setTipeCucian(tipeCucianStr); // langsung String
+        newOrder.setJenisCucian(jenisCucianStr); // langsung String
         newOrder.setQty(request.getQty());
         newOrder.setHarga(totalHarga);
-        newOrder.setTipePembayaran(PesananTipePembayaran.lookupLiteral(request.getTipePembayaran()));
-        newOrder.setStatusBayar(PesananStatusBayar.lookupLiteral(request.getStatusBayar()));
-        newOrder.setStatusOrder(PesananStatusOrder.lookupLiteral(request.getStatusOrder()));
+        newOrder.setTipePembayaran(PesananTipePembayaran.lookupLiteral(request.getTipePembayaran())); // enum
+        newOrder.setStatusBayar(PesananStatusBayar.lookupLiteral(request.getStatusBayar()));           // enum
+        newOrder.setStatusOrder(PesananStatusOrder.lookupLiteral(request.getStatusOrder()));          // enum
         newOrder.setTglMasuk(now);
         newOrder.setTglSelesai(null);
         newOrder.setCatatan(request.getCatatan());
@@ -305,14 +303,14 @@ public class OrderRepository extends JooqRepository {
         String namaCustomer = customer.getNama();
         String noTelpCustomer = customer.getNoTelp();
 
-        // Format harga dengan titik sebagai ribuan, koma sebagai desimal
+        // Format harga
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator('.');
         symbols.setDecimalSeparator(',');
         DecimalFormat formatter = new DecimalFormat("#,###", symbols);
         String formattedHarga = formatter.format(newOrder.getHarga());
 
-        // Format tanggal ke dd-MM-yyyy HH:mm
+        // Format tanggal
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
         String formattedTglMasuk = convertToWITA(newOrder.getTglMasuk()) != null
@@ -323,26 +321,26 @@ public class OrderRepository extends JooqRepository {
                 ? convertToWITA(newOrder.getTglSelesai()).format(dateFormatter)
                 : null;
 
-
         return new OrderResponse(
                 newOrder.getIdPesanan(),
                 newOrder.getIdCustomer(),
                 newOrder.getNoFaktur(),
                 namaCustomer,
                 noTelpCustomer,
-                String.valueOf(newOrder.getTipeCucian()),
-                String.valueOf(newOrder.getJenisCucian()),
+                newOrder.getTipeCucian(), // String
+                newOrder.getJenisCucian(), // String
                 newOrder.getQty(),
                 formattedHarga,
-                String.valueOf(newOrder.getTipePembayaran()),
-                String.valueOf(newOrder.getStatusBayar()),
-                String.valueOf(newOrder.getStatusOrder()),
+                String.valueOf(newOrder.getTipePembayaran()), // enum
+                String.valueOf(newOrder.getStatusBayar()),    // enum
+                String.valueOf(newOrder.getStatusOrder()),    // enum
                 formattedTglMasuk,
                 formattedTglSelesai,
                 newOrder.getCatatan(),
                 convertToWITA(newOrder.getDeletedAt())
         );
     }
+
 
 
 

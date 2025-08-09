@@ -1,10 +1,6 @@
 package com.haylaundry.service.backend.core.utils;
 
 import com.haylaundry.service.backend.jooq.gen.Tables;
-import com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian;
-import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
-import com.haylaundry.service.backend.jooq.gen.enums.PriceOrderJenisCucian;
-import com.haylaundry.service.backend.jooq.gen.enums.PriceOrderTipeCucian;
 import com.haylaundry.service.backend.jooq.gen.tables.records.PriceOrderRecord;
 import com.haylaundry.service.backend.modules.ordermanagement.price.response.PriceOrderResponse;
 import com.haylaundry.service.backend.modules.ordermanagement.repository.PriceOrderRepository;
@@ -31,7 +27,7 @@ public class PriceOrder {
 //        return harga.getHargaperKg();
 //    }
 
-    public double hitungHargaTotal(PriceOrderTipeCucian tipeCucian, PriceOrderJenisCucian jenisCucian, double berat) {
+    public double hitungHargaTotal(String tipeCucian, String jenisCucian, double berat) {
         PriceOrderRecord record = jooq.selectFrom(Tables.PRICE_ORDER)
                 .where(Tables.PRICE_ORDER.TIPE_CUCIAN.eq(tipeCucian))
                 .and(Tables.PRICE_ORDER.JENIS_CUCIAN.eq(jenisCucian))
@@ -39,11 +35,12 @@ public class PriceOrder {
 
         if (record == null) {
             throw new IllegalArgumentException("Harga belum tersedia untuk tipe " +
-                    tipeCucian.getLiteral() + " dan jenis " + jenisCucian.getLiteral());
+                    tipeCucian + " dan jenis " + jenisCucian);
         }
 
         return record.getHargaPerKg() * berat;
     }
+
 
 
 }

@@ -6,13 +6,13 @@ import com.haylaundry.service.backend.jooq.gen.enums.*;
 public class OrderStatusResponse {
     private String idPesanan;
     private String noFaktur;
-    private PesananTipeCucian tipeCucian;
-    private PesananJenisCucian jenisCucian;
+    private String tipeCucian;
+    private String jenisCucian;
     private PesananStatusBayar statusBayar;
     private String statusOrder;
     private LocalDateTime tglSelesai;
 
-    public OrderStatusResponse(String idPesanan, String noFaktur, PesananTipeCucian tipeCucian, PesananJenisCucian jenisCucian, PesananStatusBayar statusBayar, String statusOrder, LocalDateTime tglSelesai) {
+    public OrderStatusResponse(String idPesanan, String noFaktur, String tipeCucian, String jenisCucian, PesananStatusBayar statusBayar, String statusOrder, LocalDateTime tglSelesai) {
         this.idPesanan = idPesanan;
         this.noFaktur = noFaktur;
         this.tipeCucian = tipeCucian;
@@ -40,19 +40,19 @@ public class OrderStatusResponse {
         this.noFaktur = noFaktur;
     }
 
-    public PesananTipeCucian getTipeCucian() {
+    public String getTipeCucian() {
         return tipeCucian;
     }
 
-    public void setTipeCucian(PesananTipeCucian tipeCucian) {
+    public void setTipeCucian(String tipeCucian) {
         this.tipeCucian = tipeCucian;
     }
 
-    public PesananJenisCucian getJenisCucian() {
+    public String getJenisCucian() {
         return jenisCucian;
     }
 
-    public void setJenisCucian(PesananJenisCucian jenisCucian) {
+    public void setJenisCucian(String jenisCucian) {
         this.jenisCucian = jenisCucian;
     }
 

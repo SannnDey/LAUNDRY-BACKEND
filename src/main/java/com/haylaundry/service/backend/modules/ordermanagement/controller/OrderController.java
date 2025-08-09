@@ -1,8 +1,5 @@
 package com.haylaundry.service.backend.modules.ordermanagement.controller;
 
-import com.haylaundry.service.backend.core.utils.EnumMapper;
-import com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian;
-import com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.HargaRequestBody;
 import com.haylaundry.service.backend.modules.ordermanagement.models.request.order.OrderRequest;
 import com.haylaundry.service.backend.modules.ordermanagement.models.response.order.HargaResponseBody;
