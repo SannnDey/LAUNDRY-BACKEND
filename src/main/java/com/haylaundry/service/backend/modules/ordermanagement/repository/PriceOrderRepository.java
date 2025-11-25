@@ -104,5 +104,12 @@ public class PriceOrderRepository extends JooqRepository {
             throw new IllegalArgumentException("Data dengan ID " + idPrice + " tidak ditemukan.");
         }
     }
+    // Hard delete: hapus data dari tabel
+    public boolean hardDeleteById(String idPrice) {
+        int deleted = jooq.deleteFrom(Tables.PRICE_ORDER)
+                .where(Tables.PRICE_ORDER.ID_PRICE.eq(idPrice))
+                .execute();
 
+        return deleted > 0;
+    }
 }

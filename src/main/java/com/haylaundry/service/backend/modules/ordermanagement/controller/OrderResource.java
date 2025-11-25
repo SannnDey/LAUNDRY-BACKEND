@@ -13,7 +13,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Path("/api/struk")
@@ -32,24 +31,13 @@ public class OrderResource {
                 .findFirst()
                 .orElseThrow(() -> new WebApplicationException("Pesanan tidak ditemukan", 404));
 
-        // Formatter sesuai format data dari database / model
-        DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        String tanggalMasuk = order.getTglMasuk().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+        String tanggalSelesai = order.getTglSelesai() != null
+                ? order.getTglSelesai().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
+                : null;
 
-        // Parse string ke LocalDateTime
-        LocalDateTime tglMasuk = LocalDateTime.parse(order.getTglMasuk(), parser);
-        String tanggalMasuk = tglMasuk.format(displayFormatter);
-
-        // Parse dan format untuk tglSelesai (cek null)
-        String tanggalSelesai = null;
-        if (order.getTglSelesai() != null && !order.getTglSelesai().isEmpty()) {
-            LocalDateTime tglSelesaiParsed = LocalDateTime.parse(order.getTglSelesai(), parser);
-            tanggalSelesai = tglSelesaiParsed.format(displayFormatter);
-        }
-
-        // Format harga
         DecimalFormat formatter = new DecimalFormat("#,###");
-        String formattedHarga = formatter.format(order.getHarga());
+        String formattedHarga = String.valueOf(order.getHarga());
 
         byte[] pdf = StrukOrderGenerator.generateStruk(
                 order.getNoFaktur(),
@@ -59,18 +47,19 @@ public class OrderResource {
                 tanggalMasuk,
                 PesananStatusBayar.valueOf(order.getStatusBayar()).getLiteral(),
                 PesananStatusOrder.valueOf(order.getStatusOrder()).getLiteral(),
-                order.getTipeCucian() // langsung String, tanpa enum
+                order.getTipeCucian()
         );
 
-        // Convert PDF to PNG
+        // 2. Convert PDF to PNG
         byte[] imageBytes = PdfToImageConverter.convertPdfToImage(pdf);
+
 
         return Response.ok(imageBytes)
                 .type("image/png")
                 .header("Content-Disposition", "inline; filename=\"struk-" + order.getNoFaktur() + ".png\"")
                 .build();
-    }
 
+    }
 
 
 }

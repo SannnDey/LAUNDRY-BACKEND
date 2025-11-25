@@ -87,4 +87,16 @@ public class PriceOrderSatuanRepository extends JooqRepository {
         }
     }
 
+    public void deleteById(String idPriceSatuan) {
+        int deleted = jooq.deleteFrom(Tables.PRICE_ORDER_SATUAN)
+                .where(Tables.PRICE_ORDER_SATUAN.ID_PRICE_SATUAN.eq(idPriceSatuan))
+                .execute();
+
+        if (deleted == 0) {
+            throw new IllegalArgumentException("Data dengan ID " + idPriceSatuan + " tidak ditemukan.");
+        }
+    }
+
+
+
 }

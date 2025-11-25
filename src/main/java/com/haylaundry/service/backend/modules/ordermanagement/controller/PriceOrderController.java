@@ -78,4 +78,18 @@ public class PriceOrderController {
                     .build();
         }
     }
+
+    // Hard delete price by ID
+    @DELETE
+    @Path("/{id}")
+    public Response deletePriceById(@PathParam("id") String id) {
+        boolean deleted = priceOrderService.deleteHargaById(id);
+        if (deleted) {
+            return Response.noContent().build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Price with ID " + id + " not found.")
+                    .build();
+        }
+    }
 }

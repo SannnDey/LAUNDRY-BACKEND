@@ -36,14 +36,8 @@ public class OrderRepository extends JooqRepository {
     private DailyIncomeService dailyIncomeService;
 
     public List<OrderResponse> getAll() {
-        // Format harga pakai titik
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setGroupingSeparator('.');
-        symbols.setDecimalSeparator(',');
-        DecimalFormat formatter = new DecimalFormat("#,###", symbols);
-
-        // Format tanggal
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        // Format untuk pemisah ribuan
+        DecimalFormat formatter = new DecimalFormat("#,###");
 
         return jooq.select(
                         Tables.PESANAN.ID_PESANAN,
@@ -69,17 +63,9 @@ public class OrderRepository extends JooqRepository {
                 .fetch()
                 .stream()
                 .map(record -> {
-                    // Format harga
+                    // Format harga menggunakan DecimalFormat
                     double harga = record.get(Tables.PESANAN.HARGA);
                     String formattedHarga = formatter.format(harga);
-
-                    // Format tanggal masuk
-                    LocalDateTime tglMasuk = record.get(Tables.PESANAN.TGL_MASUK);
-                    String formattedTglMasuk = tglMasuk != null ? tglMasuk.format(dateFormatter) : null;
-
-                    // Format tanggal selesai
-                    LocalDateTime tglSelesai = record.get(Tables.PESANAN.TGL_SELESAI);
-                    String formattedTglSelesai = tglSelesai != null ? tglSelesai.format(dateFormatter) : null;
 
                     return new OrderResponse(
                             record.get(Tables.PESANAN.ID_PESANAN),
@@ -90,18 +76,19 @@ public class OrderRepository extends JooqRepository {
                             String.valueOf(record.get(Tables.PESANAN.TIPE_CUCIAN)),
                             String.valueOf(record.get(Tables.PESANAN.JENIS_CUCIAN)),
                             record.get(Tables.PESANAN.QTY),
-                            formattedHarga,  // Harga sudah diformat
+                            formattedHarga,  // Set harga yang sudah diformat
                             String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
                             String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
                             String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
-                            formattedTglMasuk,
-                            formattedTglSelesai,
+                            record.get(Tables.PESANAN.TGL_MASUK),
+                            record.get(Tables.PESANAN.TGL_SELESAI),
                             record.get(Tables.PESANAN.CATATAN),
                             record.get(Tables.PESANAN.DELETED_AT)
                     );
                 })
                 .collect(Collectors.toList());
     }
+
 
 
 
@@ -167,8 +154,8 @@ public class OrderRepository extends JooqRepository {
                 String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
-                formattedTglMasuk,
-                formattedTglSelesai,
+                record.get(Tables.PESANAN.TGL_MASUK),
+                record.get(Tables.PESANAN.TGL_SELESAI),
                 record.get(Tables.PESANAN.CATATAN),
                 record.get(Tables.PESANAN.DELETED_AT)
         );
@@ -240,8 +227,8 @@ public class OrderRepository extends JooqRepository {
                 String.valueOf(record.get(Tables.PESANAN.TIPE_PEMBAYARAN)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_BAYAR)),
                 String.valueOf(record.get(Tables.PESANAN.STATUS_ORDER)),
-                formattedTglMasuk,
-                formattedTglSelesai,
+                record.get(Tables.PESANAN.TGL_MASUK),
+                record.get(Tables.PESANAN.TGL_SELESAI),
                 record.get(Tables.PESANAN.CATATAN),
                 record.get(Tables.PESANAN.DELETED_AT)
         );
@@ -276,7 +263,7 @@ public class OrderRepository extends JooqRepository {
         String jenisCucianStr = request.getJenisCucian();
 
         // Hitung harga (pastikan method ini bisa menerima string)
-        double totalHarga = priceOrder.hitungHargaTotal(tipeCucianStr, jenisCucianStr, request.getQty());
+        double totalHarga = request.getHarga(); // ambil langsung harga dari frontend
 
         PesananRecord newOrder = jooq.newRecord(Tables.PESANAN);
         newOrder.setIdPesanan(orderId);
@@ -334,8 +321,8 @@ public class OrderRepository extends JooqRepository {
                 String.valueOf(newOrder.getTipePembayaran()), // enum
                 String.valueOf(newOrder.getStatusBayar()),    // enum
                 String.valueOf(newOrder.getStatusOrder()),    // enum
-                formattedTglMasuk,
-                formattedTglSelesai,
+                convertToWITA(newOrder.getTglMasuk()),
+                convertToWITA(newOrder.getTglSelesai()),
                 newOrder.getCatatan(),
                 convertToWITA(newOrder.getDeletedAt())
         );

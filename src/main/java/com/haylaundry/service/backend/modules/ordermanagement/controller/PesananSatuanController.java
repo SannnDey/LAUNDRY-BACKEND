@@ -71,17 +71,18 @@ public class PesananSatuanController {
 
     @POST
     public Response createPesananSatuan(PesananSatuanRequest request) {
-        pesananService.createPesananSatuan(request);
-        return Response.ok("Pesanan satuan berhasil dibuat").build();
+        PesananSatuanResponse response = pesananService.createPesananSatuan(request);
+        return Response.ok(response).build();
     }
+
 
     @PUT
     @Path("/update-status")
     public Response updateStatusBayar(
-            @QueryParam("idDetail") String idDetail,
+            @QueryParam("idPesananSatuan") String idPesananSatuan,
             @QueryParam("statusBayar") String statusBayar) {
         try {
-            OrderUnitStatusBayar response = pesananService.updateStatusBayar(idDetail, statusBayar);
+            OrderUnitStatusBayar response = pesananService.updateStatusBayar(idPesananSatuan, statusBayar);
             return Response.ok(response).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
@@ -93,10 +94,10 @@ public class PesananSatuanController {
 
     @PUT
     @Path("/update-status-order")
-    public Response updateStatusOrderUnit(@QueryParam("idDetail") String idDetail,
+    public Response updateStatusOrderUnit(@QueryParam("idPesananSatuan") String idPesananSatuan,
                                           @QueryParam("statusOrder") String statusOrder) {
         try {
-            OrderUnitStatusResponse response = pesananService.updateStatusOrderUnit(idDetail, statusOrder);
+            OrderUnitStatusResponse response = pesananService.updateStatusOrderUnit(idPesananSatuan, statusOrder);
             return Response.ok(response).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -112,15 +113,15 @@ public class PesananSatuanController {
 
     @PUT
     @Path("/soft-delete")
-    public Response softDeleteOrderUnit(@QueryParam("idDetail") String idDetail) {
-        if (idDetail == null || idDetail.isEmpty()) {
+    public Response softDeleteOrderUnit(@QueryParam("idPesananSatuan") String idPesananSatuan) {
+        if (idPesananSatuan == null || idPesananSatuan.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("idDetail tidak boleh kosong").build();
+                    .entity("idPesananSatuan tidak boleh kosong").build();
         }
 
-        boolean isDeleted = pesananService.softDeleteOrderUnitById(idDetail);
+        boolean isDeleted = pesananService.softDeleteOrderUnitById(idPesananSatuan);
         if (isDeleted) {
-            return Response.ok("Order unit dengan ID " + idDetail + " berhasil dihapus").build();
+            return Response.ok("Order unit dengan ID " + idPesananSatuan + " berhasil dihapus").build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("Order unit tidak ditemukan").build();
         }
@@ -150,5 +151,16 @@ public class PesananSatuanController {
         }
     }
 
-
+    @DELETE
+    @Path("/{idPriceSatuan}")
+    public Response delete(@PathParam("idPriceSatuan") String idPriceSatuan) {
+        try {
+            pesananService.deletePriceById(idPriceSatuan);
+            return Response.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(e.getMessage())
+                    .build();
+        }
+    }
 }

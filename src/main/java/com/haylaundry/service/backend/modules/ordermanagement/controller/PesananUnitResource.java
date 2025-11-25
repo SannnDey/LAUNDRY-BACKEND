@@ -26,15 +26,15 @@ public class PesananUnitResource {
     DSLContext jooq;
 
     @GET
-    @Path("/{idPesanan}")
+    @Path("/{idPesananSatuan}")
     @Produces("image/png")
-    public Response downloadStrukOrderUnit(@PathParam("idPesanan") String idPesanan) {
+    public Response downloadStrukOrderUnit(@PathParam("idPesananSatuan") String idPesananSatuan) {
         // Ambil data pesanan dari database
         Record pesanan = jooq.select()
                 .from(Tables.PESANAN_SATUAN)
                 .join(Tables.CUSTOMER)
                 .on(Tables.PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
-                .where(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesanan))
+                .where(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesananSatuan))
                 .fetchOne();
 
         if (pesanan == null) {
@@ -74,7 +74,7 @@ public class PesananUnitResource {
                 .from(Tables.ITEM_PESANAN_SATUAN)
                 .join(Tables.PRICE_ORDER_SATUAN)
                 .on(Tables.ITEM_PESANAN_SATUAN.ID_PRICE_SATUAN.eq(Tables.PRICE_ORDER_SATUAN.ID_PRICE_SATUAN))
-                .where(Tables.ITEM_PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesanan))
+                .where(Tables.ITEM_PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesananSatuan))
                 .fetch();
 
         // Kelompokkan berdasarkan kategori barang

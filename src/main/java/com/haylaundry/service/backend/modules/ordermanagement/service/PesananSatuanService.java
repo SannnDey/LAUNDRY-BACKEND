@@ -32,23 +32,24 @@ public class PesananSatuanService {
     }
 
     // 2. Buat pesanan satuan & assign item
-    public void createPesananSatuan(PesananSatuanRequest request) {
-        pesananRepository.createPesananSatuan(request);
+    public PesananSatuanResponse createPesananSatuan(PesananSatuanRequest request) {
+        return pesananRepository.createPesananSatuan(request);
     }
 
+
     // 3. Update status bayar
-    public OrderUnitStatusBayar updateStatusBayar(String idDetail, String statusBayar) {
-        return pesananRepository.updateStatusBayar(idDetail, statusBayar);
+    public OrderUnitStatusBayar updateStatusBayar(String idPesananSatuan, String statusBayar) {
+        return pesananRepository.updateStatusBayar(idPesananSatuan, statusBayar);
     }
 
     // 4. Update status order
-    public OrderUnitStatusResponse updateStatusOrderUnit(String idDetail, String statusOrder) {
-        return pesananRepository.updateStatusOrder(idDetail, statusOrder);
+    public OrderUnitStatusResponse updateStatusOrderUnit(String idPesananSatuan, String statusOrder) {
+        return pesananRepository.updateStatusOrder(idPesananSatuan, statusOrder);
     }
 
     // 5. Soft delete
-    public boolean softDeleteOrderUnitById(String idDetail) {
-        return pesananRepository.softDeleteOrderUnitById(idDetail);
+    public boolean softDeleteOrderUnitById(String idPesananSatuan) {
+        return pesananRepository.softDeleteOrderUnitById(idPesananSatuan);
     }
 
     // ✅ 6. Get All Pesanan Satuan + List Item
@@ -67,4 +68,8 @@ public class PesananSatuanService {
         itemsRepository.updatePrice(idPriceSatuan, request);
     }
 
+    // DELETE method hard delete
+    public void deletePriceById(String idPriceSatuan) {
+        itemsRepository.deleteById(idPriceSatuan);
+    }
 }

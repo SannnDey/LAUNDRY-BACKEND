@@ -3,62 +3,6 @@ package com.haylaundry.service.backend.core.enums;
 import com.haylaundry.service.backend.jooq.gen.enums.*;
 
 public class EnumConverter {
-    public static TipeCucian convertPesananTipeCucianToTipeCucian(com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian pesananTipeCucian) {
-        switch (pesananTipeCucian) {
-            case Super_Express_3_Jam_Komplit:
-                return TipeCucian.SUPER_EXPRESS_3_JAM_KOMPLIT;
-            case Express_1_Hari:
-                return TipeCucian.EXPRESS_1_HARI;
-            case Standar_2_Hari:
-                return TipeCucian.STANDAR_2_HARI;
-            case Reguler_3_Hari:
-                return TipeCucian.REGULER_3_HARI;
-            default:
-                throw new IllegalArgumentException("Unknown TipeCucian: " + pesananTipeCucian);
-        }
-    }
-
-    public static com.haylaundry.service.backend.jooq.gen.enums.PesananTipeCucian convertTipeCucianToPesananTipeCucian(TipeCucian tipeCucian) {
-        switch (tipeCucian) {
-            case SUPER_EXPRESS_3_JAM_KOMPLIT:
-                return PesananTipeCucian.Super_Express_3_Jam_Komplit;
-            case EXPRESS_1_HARI:
-                return PesananTipeCucian.Express_1_Hari;
-            case STANDAR_2_HARI:
-                return PesananTipeCucian.Standar_2_Hari;
-            case REGULER_3_HARI:
-                return PesananTipeCucian.Reguler_3_Hari;
-            default:
-                throw new IllegalArgumentException("Unknown TipeCucian: " + tipeCucian);
-        }
-    }
-
-    public static JenisCucian convertPesananJenisCucianToJenisCucian(com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian pesananJenisCucian) {
-        switch (pesananJenisCucian) {
-            case Komplit:
-                return JenisCucian.KOMPLIT;
-            case Cuci_Lipat:
-                return JenisCucian.CUCI_LIPAT;
-            case Setrika:
-                return JenisCucian.SETRIKA;
-            default:
-                throw new IllegalArgumentException("Unknown JenisCucian: " + pesananJenisCucian);
-        }
-    }
-
-    public static com.haylaundry.service.backend.jooq.gen.enums.PesananJenisCucian convertJenisCucianToPesananJenisCucian(JenisCucian jenisCucian) {
-        switch (jenisCucian) {
-            case KOMPLIT:
-                return PesananJenisCucian.Komplit;
-            case CUCI_LIPAT:
-                return PesananJenisCucian.Cuci_Lipat;
-            case SETRIKA:
-                return PesananJenisCucian.Setrika;
-            default:
-                throw new IllegalArgumentException("Unknown JenisCucian: " + jenisCucian);
-        }
-    }
-
     public static PaymentStatus convertPesananStatusBayarToStatusBayar(com.haylaundry.service.backend.jooq.gen.enums.PesananStatusBayar pesananStatusBayar) {
         switch (pesananStatusBayar) {
             case Belum_Lunas:

@@ -37,4 +37,9 @@ public class PriceOrderService {
     public void updateHargaById(String idPrice, Double hargaPerKg) {
         priceOrderRepository.updateHargaById(idPrice, hargaPerKg);
     }
+
+    public boolean deleteHargaById(String idPrice) {
+        return priceOrderRepository.hardDeleteById(idPrice);
+    }
+
 }

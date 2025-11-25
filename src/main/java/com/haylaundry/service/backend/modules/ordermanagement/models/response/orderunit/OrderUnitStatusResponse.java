@@ -3,13 +3,13 @@ package com.haylaundry.service.backend.modules.ordermanagement.models.response.o
 import java.time.LocalDateTime;
 
 public class OrderUnitStatusResponse {
-    private String idDetail;
+    private String idPesananSatuan;
     private String noFaktur;
     private String statusBayar;
     private String statusOrder;
 
-    public OrderUnitStatusResponse(String idDetail, String noFaktur, String statusBayar, String statusOrder, LocalDateTime tglSelesai) {
-        this.idDetail = idDetail;
+    public OrderUnitStatusResponse(String idPesananSatuan, String noFaktur, String statusBayar, String statusOrder, LocalDateTime tglSelesai) {
+        this.idPesananSatuan = idPesananSatuan;
         this.noFaktur = noFaktur;
         this.statusBayar = statusBayar;
         this.statusOrder = statusOrder;
@@ -20,12 +20,12 @@ public class OrderUnitStatusResponse {
 
 
 
-    public String getIdDetail() {
-        return idDetail;
+    public String getIdPesananSatuan() {
+        return idPesananSatuan;
     }
 
-    public void setIdDetail(String idDetail) {
-        this.idDetail = idDetail;
+    public void setIdPesananSatuan(String idPesananSatuan) {
+        this.idPesananSatuan = idPesananSatuan;
     }
 
     public String getNoFaktur() {

@@ -24,6 +24,7 @@ import java.text.DecimalFormatSymbols;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.text.DecimalFormat;
 import java.util.stream.Collectors;
@@ -128,8 +129,11 @@ public class PesananSatuanRepository extends JooqRepository {
         // Ambil semua pesanan dan join ke customer
         List<Record> records = jooq.select()
                 .from(Tables.PESANAN_SATUAN)
-                .join(Tables.CUSTOMER).on(Tables.PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
+                .join(Tables.CUSTOMER)
+                .on(Tables.PESANAN_SATUAN.ID_CUSTOMER.eq(Tables.CUSTOMER.ID_CUSTOMER))
+                .where(Tables.PESANAN_SATUAN.DELETED_AT.isNull())
                 .fetch();
+
 
         List<PesananSatuanResponse> responses = new ArrayList<>();
 
@@ -162,21 +166,31 @@ public class PesananSatuanRepository extends JooqRepository {
 
             response.setCatatan(pesananRecord.get(Tables.PESANAN_SATUAN.CATATAN));
 
-            // Ambil item untuk setiap pesanan satuan
             List<ItemPesananSatuanResponse> items = jooq.select(
-                            Tables.ITEM_PESANAN_SATUAN.ID_ITEM_SATUAN,
-                            Tables.ITEM_PESANAN_SATUAN.ID_PESANAN_SATUAN,
-                            Tables.ITEM_PESANAN_SATUAN.ID_PRICE_SATUAN,
                             Tables.PRICE_ORDER_SATUAN.KATEGORI_BARANG,
                             Tables.PRICE_ORDER_SATUAN.UKURAN,
                             Tables.PRICE_ORDER_SATUAN.JENIS_LAYANAN,
+                            Tables.PRICE_ORDER_SATUAN.HARGA_PER_ITEM,
                             Tables.ITEM_PESANAN_SATUAN.QTY
                     )
                     .from(Tables.ITEM_PESANAN_SATUAN)
                     .join(Tables.PRICE_ORDER_SATUAN)
                     .on(Tables.ITEM_PESANAN_SATUAN.ID_PRICE_SATUAN.eq(Tables.PRICE_ORDER_SATUAN.ID_PRICE_SATUAN))
                     .where(Tables.ITEM_PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesanan))
-                    .fetchInto(ItemPesananSatuanResponse.class);
+                    .and(Tables.ITEM_PESANAN_SATUAN.DELETED_AT.isNull())
+                    .fetch()
+                    .map(record -> {
+                        Double hargaDouble = record.get(Tables.PRICE_ORDER_SATUAN.HARGA_PER_ITEM);
+                        String hargaFormatted = hargaDouble != null ? formatter.format(hargaDouble) : "0";
+
+                        return new ItemPesananSatuanResponse(
+                                record.get(Tables.PRICE_ORDER_SATUAN.KATEGORI_BARANG),
+                                record.get(Tables.PRICE_ORDER_SATUAN.UKURAN),
+                                record.get(Tables.PRICE_ORDER_SATUAN.JENIS_LAYANAN),
+                                hargaFormatted,
+                                record.get(Tables.ITEM_PESANAN_SATUAN.QTY)
+                        );
+                    });
 
             response.setItems(items);
 
@@ -190,13 +204,14 @@ public class PesananSatuanRepository extends JooqRepository {
 
 
 
-    public void createPesananSatuan(PesananSatuanRequest request) {
+    public PesananSatuanResponse createPesananSatuan(PesananSatuanRequest request) {
         List<ItemPesananSatuanRequest> itemRequests = request.getIdItemList();
         List<ItemPesananSatuanRecord> items = new ArrayList<>();
 
         double totalHarga = 0.0;
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
+        // Hitung total harga dan siapkan record item
         for (ItemPesananSatuanRequest itemReq : itemRequests) {
             PriceOrderSatuanResponse price = priceOrderSatuanRepository
                     .getPriceById(itemReq.getIdPriceSatuan())
@@ -206,11 +221,6 @@ public class PesananSatuanRepository extends JooqRepository {
             int qty = itemReq.getQty();
             double subtotal = hargaSatuan * qty;
 
-            String formattedHarga = decimalFormat.format(hargaSatuan);
-            String formattedSubtotal = decimalFormat.format(subtotal);
-
-            System.out.println("Item: " + itemReq.getIdPriceSatuan() + ", Qty: " + qty + ", Harga: Rp" + formattedHarga + ", Subtotal: Rp" + formattedSubtotal);
-
             ItemPesananSatuanRecord itemRecord = jooq.newRecord(Tables.ITEM_PESANAN_SATUAN);
             itemRecord.setIdItemSatuan(UuidCreator.getTimeOrderedEpoch().toString());
             itemRecord.setIdPriceSatuan(itemReq.getIdPriceSatuan());
@@ -219,9 +229,6 @@ public class PesananSatuanRepository extends JooqRepository {
             items.add(itemRecord);
             totalHarga += subtotal;
         }
-
-        String formattedTotal = decimalFormat.format(totalHarga);
-        System.out.println("Total Harga Pesanan: Rp" + formattedTotal);
 
         String idPesanan = UuidCreator.getTimeOrderedEpoch().toString();
         String noFaktur = InvoiceGenerator.generateNoFaktur();
@@ -233,6 +240,7 @@ public class PesananSatuanRepository extends JooqRepository {
         PesananSatuanStatusBayar statusBayarEnum = PesananSatuanStatusBayar.valueOf(request.getStatusBayar());
         PesananSatuanStatusOrder statusOrderEnum = PesananSatuanStatusOrder.valueOf(request.getStatusOrder());
 
+        // Insert ke tabel pesanan satuan
         jooq.insertInto(Tables.PESANAN_SATUAN)
                 .set(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN, idPesanan)
                 .set(Tables.PESANAN_SATUAN.ID_CUSTOMER, request.getIdCustomer())
@@ -245,6 +253,7 @@ public class PesananSatuanRepository extends JooqRepository {
                 .set(Tables.PESANAN_SATUAN.TOTAL_HARGA, totalHarga)
                 .execute();
 
+        // Insert item pesanan
         for (ItemPesananSatuanRecord item : items) {
             jooq.insertInto(Tables.ITEM_PESANAN_SATUAN)
                     .set(Tables.ITEM_PESANAN_SATUAN.ID_ITEM_SATUAN, item.getIdItemSatuan())
@@ -254,28 +263,95 @@ public class PesananSatuanRepository extends JooqRepository {
                     .execute();
         }
 
-        // 🔥 Tambahkan ke laporan harian jika status bayar Lunas atau Belum_Lunas
+        // Update laporan harian jika perlu
         if (statusBayarEnum == PesananSatuanStatusBayar.Lunas ||
                 statusBayarEnum == PesananSatuanStatusBayar.Belum_Lunas) {
             dailyIncomeService.createLaporan(tglMasuk.toLocalDate());
         }
+
+        // Ambil data customer untuk response
+        Record customerRecord = jooq.select()
+                .from(Tables.CUSTOMER)
+                .where(Tables.CUSTOMER.ID_CUSTOMER.eq(request.getIdCustomer()))
+                .fetchOne();
+
+        String namaCustomer = "";
+        String customerPhone = "";
+
+        if (customerRecord != null) {
+            namaCustomer = customerRecord.get(Tables.CUSTOMER.NAMA, String.class);
+            customerPhone = customerRecord.get(Tables.CUSTOMER.NO_TELP, String.class);
+        }
+
+        // Ambil dan mapping items untuk response
+        List<ItemPesananSatuanResponse> itemResponses = jooq.select(
+                        Tables.PRICE_ORDER_SATUAN.KATEGORI_BARANG,
+                        Tables.PRICE_ORDER_SATUAN.UKURAN,
+                        Tables.PRICE_ORDER_SATUAN.JENIS_LAYANAN,
+                        Tables.PRICE_ORDER_SATUAN.HARGA_PER_ITEM,
+                        Tables.ITEM_PESANAN_SATUAN.QTY
+                )
+                .from(Tables.ITEM_PESANAN_SATUAN)
+                .join(Tables.PRICE_ORDER_SATUAN)
+                .on(Tables.ITEM_PESANAN_SATUAN.ID_PRICE_SATUAN.eq(Tables.PRICE_ORDER_SATUAN.ID_PRICE_SATUAN))
+                .where(Tables.ITEM_PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesanan))
+                .and(Tables.ITEM_PESANAN_SATUAN.DELETED_AT.isNull())
+                .fetch()
+                .map(record -> {
+                    String kategoriBarang = record.get(Tables.PRICE_ORDER_SATUAN.KATEGORI_BARANG);
+                    String ukuran = record.get(Tables.PRICE_ORDER_SATUAN.UKURAN);
+                    String jenisLayanan = record.get(Tables.PRICE_ORDER_SATUAN.JENIS_LAYANAN);
+                    Double hargaPerItem = record.get(Tables.PRICE_ORDER_SATUAN.HARGA_PER_ITEM);
+                    int qty = record.get(Tables.ITEM_PESANAN_SATUAN.QTY);
+
+                    // Format harga jadi string berformat
+                    String hargaFormatted = hargaPerItem != null ? decimalFormat.format(hargaPerItem) : "0";
+
+                    return new ItemPesananSatuanResponse(
+                            kategoriBarang,
+                            ukuran,
+                            jenisLayanan,
+                            hargaFormatted, // pake string format
+                            qty
+                    );
+                });
+
+
+        // Buat response lengkap
+        PesananSatuanResponse response = new PesananSatuanResponse();
+        response.setIdPesananSatuan(idPesanan);
+        response.setIdCustomer(request.getIdCustomer());
+        response.setNoFaktur(noFaktur);
+        response.setNamaCustomer(namaCustomer);
+        response.setCustomerPhone(customerPhone);
+        response.setTipePembayaran(request.getTipePembayaran());
+        response.setStatusBayar(request.getStatusBayar());
+        response.setStatusOrder(request.getStatusOrder());
+        response.setTotalHarga(decimalFormat.format(totalHarga));
+        response.setTglMasuk(tglMasuk.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        response.setTglSelesai(null);
+        response.setCatatan(request.getCatatan());
+        response.setItems(itemResponses);
+
+        return response;
     }
 
 
 
 
+
     // Soft delete untuk order unit
-    public boolean softDeleteOrderUnitById(String idDetail) {
+    public boolean softDeleteOrderUnitById(String idPesananSatuan) {
         // Soft delete pada item anak (pesanan_satuan)
         int updatedItems = jooq.update(Tables.ITEM_PESANAN_SATUAN)
                 .set(Tables.ITEM_PESANAN_SATUAN.DELETED_AT, LocalDateTime.now())  // Mengatur waktu soft delete
-                .where(Tables.ITEM_PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idDetail))
+                .where(Tables.ITEM_PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesananSatuan))
                 .execute();
 
         // Soft delete pada parent (detail_pesanan_satuan)
         int updatedParent = jooq.update(Tables.PESANAN_SATUAN)
                 .set(Tables.PESANAN_SATUAN.DELETED_AT, LocalDateTime.now())  // Mengatur waktu soft delete
-                .where(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idDetail))
+                .where(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesananSatuan))
                 .execute();
 
         return updatedItems > 0 && updatedParent > 0;
@@ -283,10 +359,10 @@ public class PesananSatuanRepository extends JooqRepository {
 
 
     // Fungsi untuk memperbarui status bayar pesanan satuan
-    public OrderUnitStatusBayar updateStatusBayar(String idDetail, String statusBayar) {
-        // Ambil detail pesanan satuan berdasarkan idDetail
+    public OrderUnitStatusBayar updateStatusBayar(String idPesananSatuan, String statusBayar) {
+        // Ambil detail pesanan satuan berdasarkan idPesananSatuan
         PesananSatuanRecord orderUnitToUpdate = jooq.selectFrom(Tables.PESANAN_SATUAN)
-                .where(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idDetail))
+                .where(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesananSatuan))
                 .fetchOne();
 
         if (orderUnitToUpdate == null) {
@@ -321,9 +397,9 @@ public class PesananSatuanRepository extends JooqRepository {
     }
 
     // Fungsi untuk memperbarui status order pesanan satuan
-    public OrderUnitStatusResponse updateStatusOrder(String idDetail, String statusOrder) {
+    public OrderUnitStatusResponse updateStatusOrder(String idPesananSatuan, String statusOrder) {
         PesananSatuanRecord orderUnitTopUpdate = jooq.selectFrom(Tables.PESANAN_SATUAN)
-                .where(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idDetail))
+                .where(Tables.PESANAN_SATUAN.ID_PESANAN_SATUAN.eq(idPesananSatuan))
                 .fetchOne();
 
         if (orderUnitTopUpdate == null ) {

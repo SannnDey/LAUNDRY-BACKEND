@@ -1,22 +1,22 @@
 package com.haylaundry.service.backend.modules.ordermanagement.models.response.orderunit;
 
 public class OrderUnitStatusBayar {
-    private String idDetail;
+    private String idPesananSatuan;
     private String noFaktur;
     private String statusBayar;
 
-    public OrderUnitStatusBayar(String idDetail, String noFaktur, String statusBayar) {
-        this.idDetail = idDetail;
+    public OrderUnitStatusBayar(String idPesananSatuan, String noFaktur, String statusBayar) {
+        this.idPesananSatuan = idPesananSatuan;
         this.noFaktur = noFaktur;
         this.statusBayar = statusBayar;
     }
 
-    public String getIdDetail() {
-        return idDetail;
+    public String getIdPesananSatuan() {
+        return idPesananSatuan;
     }
 
-    public void setIdDetail(String idDetail) {
-        this.idDetail = idDetail;
+    public void setIdPesananSatuan(String idPesananSatuan) {
+        this.idPesananSatuan = idPesananSatuan;
     }
 
     public String getNoFaktur() {

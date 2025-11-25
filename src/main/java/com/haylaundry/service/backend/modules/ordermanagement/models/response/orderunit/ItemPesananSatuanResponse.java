@@ -4,16 +4,17 @@ public class ItemPesananSatuanResponse {
     private String kategoriBarang;
     private String ukuran;
     private String jenisLayanan;
+    private String harga;
     private int qty;
 
     public ItemPesananSatuanResponse() {
     }
 
-    public ItemPesananSatuanResponse(String kategoriBarang, String ukuran, String jenisLayanan,
-                                     int qty) {
+    public ItemPesananSatuanResponse(String kategoriBarang, String ukuran, String jenisLayanan, String harga, int qty) {
         this.kategoriBarang = kategoriBarang;
         this.ukuran = ukuran;
         this.jenisLayanan = jenisLayanan;
+        this.harga = harga;
         this.qty = qty;
     }
 
@@ -39,6 +40,13 @@ public class ItemPesananSatuanResponse {
 
     public void setJenisLayanan(String jenisLayanan) {
         this.jenisLayanan = jenisLayanan;
+    }
+    public String getHarga() {
+        return harga;
+    }
+
+    public void setHarga(String harga) {
+        this.harga = harga;
     }
 
     public int getQty() {
